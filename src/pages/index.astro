@@ -163,6 +163,11 @@ const striscia = [
           <p>Finito il concerto, lo zio Chambers passa dal mixer alla consolle e si balla fino a tardi. Ci proponiamo spesso in coppia: lo aggiungi con un tocco nel modulo.</p>
         </article>
 
+        <section class="dicono" aria-labelledby="dicono-titolo" data-testimonianze hidden>
+          <h3 id="dicono-titolo"><span class="formato-codice">Note a margine</span> Dicono di noi</h3>
+          <ol class="dicono-lista" data-testimonianze-lista></ol>
+        </section>
+
         <a class="link-freccia kit-link" href="/kit">Organizzi tu la serata? Bio, scheda tecnica, rider, logo e foto <Freccia /></a>
       </div>
     </section>
@@ -207,6 +212,18 @@ const striscia = [
             ))}
           </dl>
         </div>
+      </div>
+    </section>
+
+    <!-- Famous lines: one at a time, another on request. Hidden until the database answers. -->
+    <section class="frasi" aria-labelledby="frasi-titolo" data-frasi hidden>
+      <div class="wrap frasi-dentro">
+        <h2 id="frasi-titolo" class="frasi-titolo">Frasi celebri</h2>
+        <figure class="frase">
+          <blockquote><p data-frase-testo></p></blockquote>
+          <figcaption data-frase-chi></figcaption>
+        </figure>
+        <button type="button" class="frase-altra" data-frase-altra>Un'altra <Freccia /></button>
       </div>
     </section>
 
@@ -291,8 +308,9 @@ const striscia = [
           <div class="campi-due">
             <div class="campo">
               <label for="f-data">Quando <span class="facoltativo">(se lo sai già)</span></label>
-              <input id="f-data" name="data" type="date" aria-describedby="errore-data" />
+              <input id="f-data" name="data" type="date" aria-describedby="errore-data libera-data" />
               <p class="errore" id="errore-data" data-errore="data"></p>
+              <p class="libera" id="libera-data" aria-live="polite" data-libera></p>
             </div>
             <div class="campo">
               <label for="f-persone">Quante persone, più o meno</label>
@@ -409,6 +427,73 @@ const brani = [...document.querySelectorAll<HTMLButtonElement>('.brano')];
     }
   }
   caricaDate();
+
+  // Small helper for the public, read-only tables.
+  const leggi = async <T,>(tabella: string, query: string): Promise<T[]> => {
+    if (!PUBLIC_SUPABASE_URL || !PUBLIC_SUPABASE_ANON_KEY) return [];
+    try {
+      const res = await fetch(`${PUBLIC_SUPABASE_URL}/rest/v1/${tabella}?${query}`, { headers: { apikey: PUBLIC_SUPABASE_ANON_KEY } });
+      return res.ok ? await res.json() : [];
+    } catch {
+      return [];
+    }
+  };
+
+  // Famous lines: start from a random one, "Un'altra" moves on.
+  (async () => {
+    const frasi = await leggi<{ testo: string; chi: string | null }>('frasi', 'select=testo,chi&pubblicata=eq.true');
+    if (!frasi.length) return;
+    const testo = document.querySelector<HTMLElement>('[data-frase-testo]')!;
+    const chi = document.querySelector<HTMLElement>('[data-frase-chi]')!;
+    let n = Math.floor(Math.random() * frasi.length);
+    const mostra = () => {
+      testo.textContent = frasi[n].testo;
+      chi.textContent = frasi[n].chi ? `— ${frasi[n].chi}` : '— Mari sugli alberi';
+    };
+    mostra();
+    const altra = document.querySelector<HTMLButtonElement>('[data-frase-altra]')!;
+    altra.hidden = frasi.length < 2;
+    altra.addEventListener('click', () => { n = (n + 1) % frasi.length; mostra(); });
+    document.querySelector<HTMLElement>('[data-frasi]')!.hidden = false;
+  })();
+
+  // Testimonials: shown only when there is at least one real, published one.
+  (async () => {
+    const t = await leggi<{ testo: string; chi: string; occasione: string | null }>('testimonianze', 'select=testo,chi,occasione&pubblicata=eq.true&order=created_at.desc&limit=6');
+    if (!t.length) return;
+    const lista = document.querySelector<HTMLElement>('[data-testimonianze-lista]')!;
+    for (const x of t) {
+      const li = document.createElement('li');
+      const q = document.createElement('blockquote');
+      q.append(Object.assign(document.createElement('p'), { textContent: `«${x.testo}»` }));
+      const firma = Object.assign(document.createElement('p'), { className: 'dicono-chi', textContent: x.occasione ? `${x.chi} · ${x.occasione}` : x.chi });
+      li.append(q, firma);
+      lista.append(li);
+    }
+    document.querySelector<HTMLElement>('[data-testimonianze]')!.hidden = false;
+  })();
+
+  // "Siamo liberi quella sera?": check the chosen day against the busy days (no details leave the database).
+  const campoData = document.querySelector<HTMLInputElement>('#f-data')!;
+  const libera = document.querySelector<HTMLElement>('[data-libera]')!;
+  campoData.addEventListener('change', async () => {
+    const giorno = campoData.value;
+    libera.textContent = '';
+    libera.className = 'libera';
+    if (!giorno || !PUBLIC_SUPABASE_URL || !PUBLIC_SUPABASE_ANON_KEY) return;
+    if (giorno < new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Rome' })) return;
+    try {
+      const res = await fetch(`${PUBLIC_SUPABASE_URL}/rest/v1/giorni_occupati?select=data&data=eq.${giorno}`, { headers: { apikey: PUBLIC_SUPABASE_ANON_KEY } });
+      if (!res.ok || campoData.value !== giorno) return;
+      const occupato = (await res.json()).length > 0;
+      libera.classList.add(occupato ? 'occupata' : 'si');
+      libera.textContent = occupato
+        ? 'Quella sera abbiamo già una data. Scrivici lo stesso: a volte ci si organizza.'
+        : 'Quella sera, per ora, siamo liberi.';
+    } catch {
+      // No answer, no hint: the form works the same.
+    }
+  });
 
   // Enlarge: small boxed pictures open full size in a native <dialog>.
   for (const b of document.querySelectorAll<HTMLButtonElement>('[data-zoom]')) {
@@ -706,6 +791,48 @@ const brani = [...document.querySelectorAll<HTMLButtonElement>('.brano')];
   .bonus-dj p { color: var(--ink-2); }
   .kit-link { margin-top: var(--s-6); }
 
+  .dicono { margin-top: var(--s-7); padding-top: var(--s-5); border-top: var(--filetto); }
+  .dicono h3 { font-size: var(--t-xl); display: flex; align-items: baseline; gap: var(--s-3); margin-bottom: var(--s-5); }
+  .dicono h3 .formato-codice { flex: none; }
+  .dicono-lista { list-style: none; padding: 0; display: grid; gap: var(--s-6); }
+  @media (min-width: 900px) { .dicono-lista { grid-template-columns: repeat(2, 1fr); gap: var(--s-6) var(--s-7); } }
+  .dicono-lista :global(blockquote) { margin: 0; font-size: var(--t-l); line-height: 1.35; font-weight: 700; }
+  .dicono-lista :global(.dicono-chi) { margin-top: var(--s-2); color: var(--ink-2); font-size: var(--t-s); }
+
+  /* Famous lines: paper ground, the quote set large in display type */
+  .frasi { padding-block: var(--s-8); border-top: var(--filetto); }
+  .frasi-dentro { display: grid; gap: var(--s-5); justify-items: start; }
+  .frasi-titolo { font-size: var(--t-s); font-family: var(--f-text); font-weight: 700; letter-spacing: 0.02em; text-transform: none; color: var(--rosso); }
+  .frase { margin: 0; display: grid; gap: var(--s-3); }
+  .frase blockquote { margin: 0; }
+  .frase blockquote p {
+    max-width: 22ch;
+    font-family: var(--f-display);
+    font-weight: 900;
+    font-size: var(--t-xxl);
+    line-height: 0.92;
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+  .frase figcaption { font-weight: 700; color: var(--ink-2); }
+  .frase-altra {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    min-height: 48px;
+    padding: 0 var(--s-4);
+    border: var(--filetto);
+    background: var(--carta);
+    font-family: var(--f-display);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    transition: background-color 160ms ease, color 160ms ease;
+  }
+  .frase-altra:hover { background: var(--ink); color: var(--carta); }
+  .frase-altra :global(.freccia) { width: 1.1em; height: 1.1em; }
+
   .link-freccia {
     display: inline-flex;
     align-items: center;
@@ -930,6 +1057,10 @@ const brani = [...document.querySelectorAll<HTMLButtonElement>('.brano')];
   }
   .spunta input:focus-visible { outline: 3px solid var(--rosso); outline-offset: 3px; }
 
+  .libera { font-weight: 700; font-size: var(--t-s); }
+  .libera:empty { display: none; }
+  .libera.si { color: var(--teal); }
+  .libera.occupata { color: var(--rosso-scuro); }
   .errore { color: var(--rosso-scuro); font-weight: 700; font-size: var(--t-s); }
   .errore:empty { display: none; }
   .miele { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }

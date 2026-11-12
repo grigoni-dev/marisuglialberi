@@ -36,6 +36,8 @@ Le migrazioni si eseguono a mano nel SQL Editor, in ordine, **prima su dev e poi
 | `0001_richieste.sql` | Richieste di ingaggio e limite di richieste | ✅ 12/11/2026 | ✅ 12/11/2026 |
 | `0002_date_e_pannello.sql` | Pannello admin (`staff`), date dei concerti, vista pubblica `concerti_pubblici`, lettura delle richieste dal pannello | ✅ 12/11/2026 | ✅ 12/11/2026 |
 | `0003_foto.sql` | Galleria foto (tabella `foto` e bucket `foto` nello Storage) | ✅ 12/11/2026 | ✅ 12/11/2026 |
+| `0004_giorni_occupati.sql` | "Siamo liberi quella sera?": vista con i soli giorni occupati | ✅ 13/11/2026 | ✅ 13/11/2026 |
+| `0005_frasi_e_testimonianze.sql` | Frasi celebri (con le prime 7) e testimonianze | ✅ 13/11/2026 | ✅ 13/11/2026 |
 
 ## 2. Resend (email delle richieste)
 

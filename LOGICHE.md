@@ -35,3 +35,14 @@ Ogni regola va confermata dalla band. Accanto c'è la data della conferma; "da c
 - **Foto con il pubblico:** si pubblicano. Sotto la galleria c'è la nota "Ti riconosci in una foto e vuoi che la togliamo? Scrivici su Instagram". Dal pannello una foto si nasconde o si elimina con un tocco.
 - **Scaricare:** nel visore c'è il tasto "Scarica".
 - **Descrizione per chi non vede:** facoltativa al caricamento. Se manca, vale "Foto dal vivo di Mari sugli alberi".
+
+## "Siamo liberi quella sera?" (13/11/2026)
+
+- Nel modulo, appena si sceglie una data, il sito controlla se quel giorno c'è già un concerto. Contano tutti: quelli pubblici, le feste private e anche le date non mostrate sul sito.
+- Se il giorno è libero il sito dice "Quella sera, per ora, siamo liberi". Se è occupato dice "Quella sera abbiamo già una data. Scrivici lo stesso: a volte ci si organizza". La richiesta si può mandare in entrambi i casi.
+- Dal database esce solo il giorno, mai la città, il locale, l'ora o le note (vista `giorni_occupati`).
+
+## Frasi celebri e testimonianze (13/11/2026)
+
+- **Frasi celebri:** si gestiscono dal pannello (scheda Frasi). In home ne compare una alla volta, scelta a caso, con il tasto "Un'altra". Se "chi l'ha detta" è vuoto, la firma è "Mari sugli alberi". Le frasi dei fan si pubblicano solo con il loro permesso, oppure senza nome. Le prime 7 le ha date la band.
+- **Testimonianze:** si gestiscono dal pannello (scheda Testimonianze): testo, chi, occasione. In home, nel Lato A, la sezione "Dicono di noi" **compare solo quando ce n'è almeno una pubblicata**: niente segnaposto e niente testimonianze inventate.

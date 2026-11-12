@@ -77,10 +77,10 @@ Peso: 🟢 statica · 🟡 con pannello · 🔵 servizio esterno
 | # | Feature | Peso | Stato | Cosa serve |
 |---|---|---|---|---|
 | 10 | Repertorio con ricerca, "fate anche…?" (8) | 🟡 | 🔵 | Nella home (Lato B): ricerca e scaletta completa da `src/data/repertorio.json`. Manca la gestione dal pannello |
-| 11 | Dicono di noi: testimonianze (10) | 🟡 | 🟠 | Testimonianze da matrimoni ed eventi aziendali, con il permesso di pubblicarle |
-| 12 | "Siamo liberi quella sera?" nel booking (16) | 🟡 | ⚪ | Dipende da 1 e 5 |
+| 11 | Dicono di noi: testimonianze (10) | 🟡 | ✅ codice · 🟠 contenuti | Scheda nel pannello e sezione "Dicono di noi" nel Lato A, nascosta finché è vuota. Mancano le testimonianze vere |
+| 12 | "Siamo liberi quella sera?" nel booking (16) | 🟡 | ✅ | Nel modulo, alla scelta della data. Vista `giorni_occupati` (0004): esce solo il giorno |
 | 13 | Merch con link PayPal (5) | 🟢🔵 | 🟠 | Elenco del merch, foto, prezzi, link PayPal |
-| 14 | Le frasi celebri: cose dette dalla band o dai fan (19, aggiunta dall'utente) | 🟡 | 🟠 | Raccogliere le frasi, con chi le ha dette e il permesso dei fan. Possono comparire anche sparse nelle altre pagine |
+| 14 | Le frasi celebri: cose dette dalla band o dai fan (19, aggiunta dall'utente) | 🟡 | ✅ | Scheda Frasi nel pannello e sezione in home (una alla volta, "Un'altra"). Le prime 7 sono nella migrazione 0005 |
 
 ### Fase 3: idee in più
 

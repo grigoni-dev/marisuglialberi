@@ -44,6 +44,8 @@ import Logo from '../../components/Logo.astro';
           Richieste <span class="badge" data-badge hidden></span>
         </button>
         <button type="button" role="tab" id="t-foto" aria-controls="p-foto" aria-selected="false" data-scheda="foto">Foto</button>
+        <button type="button" role="tab" id="t-frasi" aria-controls="p-frasi" aria-selected="false" data-scheda="frasi">Frasi</button>
+        <button type="button" role="tab" id="t-testimonianze" aria-controls="p-testimonianze" aria-selected="false" data-scheda="testimonianze">Testimonianze</button>
       </div>
 
       <!-- Dates -->
@@ -117,6 +119,65 @@ import Logo from '../../components/Logo.astro';
         <ol class="griglia-foto" data-lista-foto></ol>
       </div>
 
+      <!-- Famous lines -->
+      <div role="tabpanel" id="p-frasi" aria-labelledby="t-frasi" data-pannello="frasi" hidden>
+        <div class="adm-griglia">
+          <form class="adm-form" data-form-frase novalidate>
+            <h2 data-frase-titolo>Nuova frase</h2>
+            <input type="hidden" name="id" />
+            <div class="campo">
+              <label for="fr-testo">La frase</label>
+              <textarea id="fr-testo" name="testo" rows="3" maxlength="280" required></textarea>
+            </div>
+            <div class="campo">
+              <label for="fr-chi">Chi l'ha detta <span class="facoltativo">(vuoto = la band; i fan solo con il loro permesso)</span></label>
+              <input id="fr-chi" name="chi" type="text" maxlength="80" />
+            </div>
+            <label class="spunta"><input type="checkbox" name="pubblicata" checked /> <span>Mostra sul sito</span></label>
+            <div class="azioni">
+              <button class="bottone" type="submit" data-frase-salva>Salva la frase</button>
+              <button class="secondario" type="button" data-frase-annulla hidden>Annulla</button>
+            </div>
+          </form>
+          <div>
+            <h2>Sul sito ne compare una alla volta</h2>
+            <ol class="lista" data-lista-frasi></ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonials -->
+      <div role="tabpanel" id="p-testimonianze" aria-labelledby="t-testimonianze" data-pannello="testimonianze" hidden>
+        <div class="adm-griglia">
+          <form class="adm-form" data-form-testimonianza novalidate>
+            <h2 data-test-titolo>Nuova testimonianza</h2>
+            <p class="facoltativo">Solo parole vere, con il permesso di chi le ha scritte. Sul sito la sezione compare quando ce n'è almeno una.</p>
+            <input type="hidden" name="id" />
+            <div class="campo">
+              <label for="te-testo">Cosa hanno detto</label>
+              <textarea id="te-testo" name="testo" rows="4" maxlength="600" required></textarea>
+            </div>
+            <div class="campo">
+              <label for="te-chi">Chi</label>
+              <input id="te-chi" name="chi" type="text" maxlength="80" required placeholder="Giulia e Marco" />
+            </div>
+            <div class="campo">
+              <label for="te-occasione">Occasione <span class="facoltativo">(facoltativa)</span></label>
+              <input id="te-occasione" name="occasione" type="text" maxlength="80" placeholder="Matrimonio, giugno 2025" />
+            </div>
+            <label class="spunta"><input type="checkbox" name="pubblicata" checked /> <span>Mostra sul sito</span></label>
+            <div class="azioni">
+              <button class="bottone" type="submit" data-test-salva>Salva</button>
+              <button class="secondario" type="button" data-test-annulla hidden>Annulla</button>
+            </div>
+          </form>
+          <div>
+            <h2>Testimonianze</h2>
+            <ol class="lista" data-lista-testimonianze></ol>
+          </div>
+        </div>
+      </div>
+
       <!-- Booking requests -->
       <div role="tabpanel" id="p-richieste" aria-labelledby="t-richieste" data-pannello="richieste" hidden>
         <h2>Richieste di ingaggio</h2>
@@ -175,7 +236,7 @@ import Logo from '../../components/Logo.astro';
         return vista('login');
       }
       vista('pannello');
-      await Promise.all([caricaDate(), caricaRichieste(), caricaFoto()]);
+      await Promise.all([caricaDate(), caricaRichieste(), caricaFoto(), caricaFrasi(), caricaTestimonianze()]);
     };
 
     $('[data-login]').addEventListener('submit', async (e) => {
@@ -433,6 +494,89 @@ import Logo from '../../components/Logo.astro';
       caricaFoto();
     });
 
+    // ---------- Famous lines and testimonials: the same small editor for both ----------
+    type Voce = { id: string; testo: string; chi: string | null; occasione?: string | null; pubblicata: boolean };
+    function editor(cfg: {
+      tabella: 'frasi' | 'testimonianze';
+      form: string; lista: string; titolo: string; salva: string; annulla: string;
+      nuovo: string; modifica: string; campi: string[]; vuoto: string;
+      riassunto: (v: Voce) => string;
+    }) {
+      const f = $<HTMLFormElement>(cfg.form);
+      let voci: Voce[] = [];
+      const el = (n: string) => f.elements.namedItem(n) as HTMLInputElement;
+      const reset = () => {
+        f.reset();
+        el('id').value = '';
+        $(cfg.titolo).textContent = cfg.nuovo;
+        $(cfg.annulla).hidden = true;
+      };
+      $(cfg.annulla).addEventListener('click', reset);
+      const carica = async () => {
+        const { data, error } = await sb.from(cfg.tabella).select('*').order('created_at', { ascending: false });
+        if (error) return msg(`Non riesco a leggere: ${error.message}`, true);
+        voci = data as Voce[];
+        $(cfg.lista).innerHTML = voci.map((v) => `
+          <li class="voce${v.pubblicata ? '' : ' nascosta'}">
+            <div>${cfg.riassunto(v)}<span class="etichette">${v.pubblicata ? '' : '<em>Non sul sito</em>'}</span></div>
+            <div class="voce-azioni">
+              <button type="button" class="secondario" data-ed-modifica="${cfg.tabella}:${v.id}">Modifica</button>
+              <button type="button" class="secondario pericolo" data-ed-elimina="${cfg.tabella}:${v.id}">Elimina</button>
+            </div>
+          </li>`).join('') || `<li class="vuota">${cfg.vuoto}</li>`;
+      };
+      document.addEventListener('click', async (e) => {
+        const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-ed-modifica],[data-ed-elimina]');
+        if (!b) return;
+        const [tab, id] = (b.dataset.edModifica ?? b.dataset.edElimina)!.split(':');
+        if (tab !== cfg.tabella) return;
+        const v = voci.find((x) => x.id === id);
+        if (!v) return;
+        if (b.dataset.edModifica) {
+          el('id').value = v.id;
+          for (const c of cfg.campi) (f.elements.namedItem(c) as HTMLInputElement).value = (v as any)[c] ?? '';
+          el('pubblicata').checked = v.pubblicata;
+          $(cfg.titolo).textContent = cfg.modifica;
+          $(cfg.annulla).hidden = false;
+          f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          if (!confirm('Eliminarla? Non si può annullare.')) return;
+          const { error } = await sb.from(cfg.tabella).delete().eq('id', v.id);
+          if (error) return msg(`Non riesco a eliminarla: ${error.message}`, true);
+          msg('Eliminata.');
+          carica();
+        }
+      });
+      f.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const d = new FormData(f);
+        const riga: Record<string, unknown> = { pubblicata: d.get('pubblicata') === 'on' };
+        for (const c of cfg.campi) riga[c] = String(d.get(c) ?? '').trim() || null;
+        if (!riga.testo) return msg('Manca il testo.', true);
+        if (cfg.tabella === 'testimonianze' && !riga.chi) return msg('Manca chi l\'ha detto.', true);
+        const id = el('id').value;
+        const { error } = id ? await sb.from(cfg.tabella).update(riga).eq('id', id) : await sb.from(cfg.tabella).insert(riga);
+        if (error) return msg(`Non riesco a salvare: ${error.message}`, true);
+        msg('Salvato. Sul sito si vede alla prossima apertura della pagina.');
+        reset();
+        carica();
+      });
+      return carica;
+    }
+
+    const caricaFrasi = editor({
+      tabella: 'frasi', form: '[data-form-frase]', lista: '[data-lista-frasi]', titolo: '[data-frase-titolo]',
+      salva: '[data-frase-salva]', annulla: '[data-frase-annulla]', nuovo: 'Nuova frase', modifica: 'Modifica la frase',
+      campi: ['testo', 'chi'], vuoto: 'Ancora nessuna frase.',
+      riassunto: (v) => `<strong>${esc(v.testo)}</strong><span>${esc(v.chi || 'la band')}</span>`,
+    });
+    const caricaTestimonianze = editor({
+      tabella: 'testimonianze', form: '[data-form-testimonianza]', lista: '[data-lista-testimonianze]', titolo: '[data-test-titolo]',
+      salva: '[data-test-salva]', annulla: '[data-test-annulla]', nuovo: 'Nuova testimonianza', modifica: 'Modifica la testimonianza',
+      campi: ['testo', 'chi', 'occasione'], vuoto: 'Ancora nessuna: sul sito la sezione resta nascosta.',
+      riassunto: (v) => `<strong>«${esc(v.testo)}»</strong><span>${esc(v.chi)}${v.occasione ? ` · ${esc(v.occasione)}` : ''}</span>`,
+    });
+
     entra();
   }
 </script>
@@ -461,7 +605,8 @@ import Logo from '../../components/Logo.astro';
   .adm-msg { min-height: 1.5em; margin-bottom: var(--s-3); font-weight: 700; color: var(--teal); }
   .adm-msg.errore { color: var(--rosso-scuro); }
 
-  .schede { display: flex; gap: var(--s-2); border-bottom: var(--filetto); margin-bottom: var(--s-5); }
+  .schede { display: flex; gap: var(--s-2); border-bottom: var(--filetto); margin-bottom: var(--s-5); overflow-x: auto; }
+  .schede button { flex: none; }
   .schede button {
     min-height: 48px;
     padding: 0 var(--s-4);
