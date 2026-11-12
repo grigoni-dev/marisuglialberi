@@ -1,0 +1,200 @@
+---
+// Kit for organisers: bios to copy, the technical sheet, and files to download.
+import Base from '../layouts/Base.astro';
+import Barra from '../components/Barra.astro';
+import Piede from '../components/Piede.astro';
+import Freccia from '../components/Freccia.astro';
+import Icona from '../components/Icona.astro';
+import { bioCorta, bioLunga, scheda, fotoKit } from '../lib/kit';
+
+const loghi = [
+  { file: 'mari-sugli-alberi-logo-nero.svg', nome: 'Logo nero', formato: 'SVG' },
+  { file: 'mari-sugli-alberi-logo-nero.png', nome: 'Logo nero', formato: 'PNG trasparente' },
+  { file: 'mari-sugli-alberi-logo-bianco.svg', nome: 'Logo bianco', formato: 'SVG' },
+  { file: 'mari-sugli-alberi-logo-bianco.png', nome: 'Logo bianco', formato: 'PNG trasparente' },
+];
+---
+
+<Base
+  title="Kit per chi organizza · Mari sugli alberi"
+  description="Bio, scheda tecnica, rider, logo e foto in alta risoluzione di Mari sugli alberi, per locandine, post e organizzazione."
+>
+  <Barra />
+  <main id="contenuto" class="wrap kit">
+    <header class="kit-testa">
+      <h1>Kit per chi organizza</h1>
+      <p class="kit-attacco">Tutto quello che serve per la locandina, il post e l'organizzazione della serata. Prendete pure: è fatto apposta.</p>
+    </header>
+
+    <section aria-labelledby="bio-titolo">
+      <h2 id="bio-titolo" class="sezione"><span class="codice">K1</span> Chi siamo, da copiare</h2>
+      <div class="bio-griglia">
+        <article class="bio">
+          <div class="bio-testa">
+            <h3>Bio corta</h3>
+            <button type="button" class="copia" data-copia="bio-corta">Copia</button>
+          </div>
+          <div id="bio-corta" class="bio-testo"><p>{bioCorta}</p></div>
+        </article>
+        <article class="bio">
+          <div class="bio-testa">
+            <h3>Bio lunga</h3>
+            <button type="button" class="copia" data-copia="bio-lunga">Copia</button>
+          </div>
+          <div id="bio-lunga" class="bio-testo">{bioLunga.map((p) => <p>{p}</p>)}</div>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="scheda-titolo">
+      <h2 id="scheda-titolo" class="sezione"><span class="codice">K2</span> Scheda tecnica</h2>
+      <dl class="scheda">
+        <div><dt>Formazione</dt><dd>{scheda.formazione}</dd></div>
+        <div><dt>Dove</dt><dd>{scheda.dove}</dd></div>
+        <div><dt>Impianto</dt><dd><ul>{scheda.impianto.map((i) => <li>{i}</li>)}</ul></dd></div>
+        <div><dt>Spazio</dt><dd>{scheda.spazio}</dd></div>
+        <div><dt>Montaggio</dt><dd>{scheda.montaggio}</dd></div>
+        <div><dt>Durata</dt><dd>{scheda.durata}</dd></div>
+        <div><dt>Extra</dt><dd>{scheda.extra}</dd></div>
+        <div><dt>Da concordare</dt><dd>{scheda.daConcordare}</dd></div>
+        <div><dt>Prezzo</dt><dd>{scheda.prezzo}</dd></div>
+      </dl>
+    </section>
+
+    <section aria-labelledby="scarica-titolo">
+      <h2 id="scarica-titolo" class="sezione"><span class="codice">K3</span> Da scaricare</h2>
+
+      <ul class="file">
+        <li>
+          <a class="file-riga" href="/kit/rider-tecnico.pdf" download>
+            <span class="file-nome">Rider tecnico</span>
+            <span class="file-formato">PDF, una pagina</span>
+            <Icona nome="scarica" class="file-icona" />
+          </a>
+        </li>
+        <li>
+          <a class="file-riga" href="/kit/mari-sugli-alberi-kit.zip" download>
+            <span class="file-nome">Tutto il kit</span>
+            <span class="file-formato">ZIP: loghi, foto e rider</span>
+            <Icona nome="scarica" class="file-icona" />
+          </a>
+        </li>
+        {loghi.map((l) => (
+          <li>
+            <a class="file-riga" href={`/kit/${l.file}`} download>
+              <span class="file-nome">{l.nome}</span>
+              <span class="file-formato">{l.formato}</span>
+              <Icona nome="scarica" class="file-icona" />
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <h3 class="foto-titolo">Foto</h3>
+      <ul class="foto-kit">
+        {fotoKit.map((f) => (
+          <li>
+            <a href={`/kit/foto/${f.file}`} download>
+              <img src={`/kit/anteprime/${f.file}`} alt={f.alt} width="720" height="540" loading="lazy" decoding="async" />
+              <span><Icona nome="scarica" /> Scarica</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="chiusura" aria-labelledby="chiusura-titolo">
+      <h2 id="chiusura-titolo">Hai già una data in mente?</h2>
+      <a class="bottone" href="/#portaci">
+        <span>Portaci alla tua festa</span>
+        <Freccia />
+      </a>
+    </section>
+  </main>
+  <Piede />
+</Base>
+
+<script>
+  for (const b of document.querySelectorAll<HTMLButtonElement>('[data-copia]')) {
+    b.addEventListener('click', async () => {
+      const testo = [...document.querySelectorAll(`#${b.dataset.copia} p`)].map((p) => p.textContent).join('\n\n');
+      try {
+        await navigator.clipboard.writeText(testo);
+        b.textContent = 'Copiata';
+      } catch {
+        b.textContent = 'Selezionala a mano';
+      }
+      setTimeout(() => (b.textContent = 'Copia'), 2500);
+    });
+  }
+</script>
+
+<style>
+  .kit { padding-block: var(--s-6) var(--s-8); display: grid; gap: var(--s-8); }
+  .kit-testa { display: grid; gap: var(--s-4); padding-bottom: var(--s-5); border-bottom: var(--filetto); }
+  h1 { font-size: var(--t-xxl); }
+  .kit-attacco { font-size: var(--t-l); line-height: 1.35; font-weight: 700; }
+
+  .sezione { font-size: var(--t-xl); display: flex; align-items: baseline; gap: var(--s-3); margin-bottom: var(--s-5); }
+  .codice {
+    flex: none;
+    font-family: var(--f-text);
+    font-weight: 700;
+    font-size: var(--t-s);
+    letter-spacing: 0.02em;
+    text-transform: none;
+    color: var(--teal);
+  }
+
+  .bio-griglia { display: grid; gap: var(--s-6); }
+  @media (min-width: 960px) { .bio-griglia { grid-template-columns: 1fr 1.6fr; align-items: start; } }
+  .bio { border-top: var(--filetto); padding-top: var(--s-4); display: grid; gap: var(--s-3); }
+  .bio-testa { display: flex; justify-content: space-between; align-items: center; gap: var(--s-3); }
+  .bio-testa h3 { font-size: var(--t-l); }
+  .bio-testo { display: grid; gap: var(--s-3); color: var(--ink-2); }
+  .copia {
+    min-height: 44px;
+    padding: 0 var(--s-4);
+    border: var(--filetto);
+    background: var(--carta);
+    font-weight: 700;
+    transition: background-color 160ms ease, color 160ms ease;
+  }
+  .copia:hover { background: var(--ink); color: var(--carta); }
+
+  .scheda { border-bottom: var(--filetto); }
+  .scheda div { display: grid; gap: var(--s-1) var(--s-5); padding-block: var(--s-4); border-top: var(--filetto); }
+  @media (min-width: 768px) { .scheda div { grid-template-columns: 11rem 1fr; } }
+  .scheda dt { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; font-size: var(--t-m); }
+  .scheda dd { max-width: 65ch; }
+  .scheda ul { margin: 0; padding-left: 1.1em; display: grid; gap: var(--s-1); }
+
+  .file { list-style: none; padding: 0; border-bottom: var(--filetto); }
+  .file-riga {
+    display: grid;
+    grid-template-columns: 1fr auto 24px;
+    align-items: center;
+    gap: var(--s-4);
+    min-height: 60px;
+    padding: 0 var(--s-2);
+    border-top: var(--filetto);
+    text-decoration: none;
+    transition: background-color 160ms ease;
+  }
+  .file-riga:hover { background: var(--carta-2); }
+  .file-nome { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; font-size: var(--t-l); }
+  .file-formato { color: var(--ink-2); font-size: var(--t-s); text-align: right; }
+  .file-riga :global(.file-icona) { width: 22px; height: 22px; }
+
+  .foto-titolo { font-size: var(--t-l); margin: var(--s-6) 0 var(--s-3); }
+  .foto-kit { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); }
+  @media (min-width: 768px) { .foto-kit { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .foto-kit a { display: grid; gap: var(--s-2); text-decoration: none; font-weight: 700; }
+  .foto-kit img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; transition: transform 500ms var(--esce); }
+  .foto-kit a:hover img { transform: scale(1.02); }
+  .foto-kit span { display: inline-flex; align-items: center; gap: var(--s-2); min-height: 32px; }
+  .foto-kit span :global(.icona) { width: 18px; height: 18px; }
+
+  .chiusura { display: grid; gap: var(--s-5); justify-items: start; padding-top: var(--s-6); border-top: var(--filetto); }
+  .chiusura h2 { font-size: var(--t-xl); }
+</style>

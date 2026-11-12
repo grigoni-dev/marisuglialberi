@@ -1,0 +1,57 @@
+---
+// Technical rider, laid out as one A4 page. Also printed to public/kit/rider-tecnico.pdf.
+import Base from '../../layouts/Base.astro';
+import Logo from '../../components/Logo.astro';
+import { scheda } from '../../lib/kit';
+---
+
+<Base title="Rider tecnico · Mari sugli alberi" description="La scheda tecnica di Mari sugli alberi per chi organizza.">
+  <main id="contenuto" class="rider">
+    <header class="rider-testa">
+      <Logo class="rider-logo" />
+      <div>
+        <h1>Rider tecnico</h1>
+        <p>Trio acustico di cover · marisuglialberi.vercel.app</p>
+      </div>
+    </header>
+
+    <dl class="rider-voci">
+      <div><dt>Formazione</dt><dd>{scheda.formazione}</dd></div>
+      <div><dt>Dove</dt><dd>{scheda.dove}</dd></div>
+      <div><dt>Impianto</dt><dd><ul>{scheda.impianto.map((i) => <li>{i}</li>)}</ul></dd></div>
+      <div><dt>Spazio</dt><dd>{scheda.spazio}</dd></div>
+      <div><dt>Montaggio</dt><dd>{scheda.montaggio}</dd></div>
+      <div><dt>Durata</dt><dd>{scheda.durata}</dd></div>
+      <div><dt>Extra</dt><dd>{scheda.extra}</dd></div>
+      <div><dt>Da concordare</dt><dd>{scheda.daConcordare}</dd></div>
+      <div><dt>Prezzo</dt><dd>{scheda.prezzo}</dd></div>
+    </dl>
+
+    <footer class="rider-piede">
+      <p><strong>Contatti:</strong> il modulo «Portaci alla tua festa» su marisuglialberi.vercel.app · Instagram @marisuglialberi</p>
+    </footer>
+  </main>
+</Base>
+
+<style>
+  @page { size: A4; margin: 16mm; }
+  .rider { max-width: 760px; margin: 0 auto; padding: var(--s-6) var(--margine); display: grid; gap: var(--s-6); }
+  .rider-testa { display: grid; grid-template-columns: 140px 1fr; gap: var(--s-5); align-items: end; padding-bottom: var(--s-4); border-bottom: var(--filetto); }
+  .rider-testa :global(.rider-logo) { color: var(--ink); }
+  .rider-testa h1 { font-size: var(--t-xl); }
+  .rider-testa p { margin-top: var(--s-2); color: var(--ink-2); }
+  .rider-voci { display: grid; border-bottom: var(--filetto); }
+  .rider-voci div { display: grid; grid-template-columns: 9rem 1fr; gap: var(--s-4); padding-block: var(--s-3); border-top: 1px solid var(--ink); }
+  .rider-voci dt { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; }
+  .rider-voci ul { margin: 0; padding-left: 1.1em; }
+  .rider-piede { font-size: var(--t-s); color: var(--ink-2); }
+  @media (max-width: 520px) {
+    .rider-testa, .rider-voci div { grid-template-columns: 1fr; }
+    .rider-testa :global(.rider-logo) { width: 120px; }
+  }
+  @media print {
+    :global(body) { background: var(--carta); }
+    :global(.salta) { display: none; }
+    .rider { padding: 0; max-width: none; }
+  }
+</style>

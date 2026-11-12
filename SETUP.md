@@ -58,6 +58,13 @@ Le migrazioni si eseguono a mano nel SQL Editor, in ordine, **prima su dev e poi
 
 Le funzioni del sito girano a Dublino (`regions: ["dub1"]` in `vercel.json`), vicino al database in Irlanda.
 
+## Kit per chi organizza
+
+I testi del kit (bio e scheda tecnica) stanno in `src/lib/kit.ts`; i file da scaricare in `public/kit/`. Se cambia la scheda tecnica:
+1. si aggiorna `src/lib/kit.ts`;
+2. si rigenera il PDF aprendo `/kit/rider` e stampandolo in PDF (A4, con lo sfondo) come `public/kit/rider-tecnico.pdf`;
+3. si rifà lo ZIP: dentro `public/kit`, `zip -r -X mari-sugli-alberi-kit.zip rider-tecnico.pdf mari-sugli-alberi-logo-* foto`.
+
 ## Statistiche
 
 Le visite si contano con **Vercel Web Analytics**: niente cookie e nessun dato personale, quindi non serve il banner. Si attiva una volta sola: Vercel → progetto `marisuglialberi` → **Analytics** → **Enable**. I numeri si leggono nella stessa pagina. Il piano Hobby include un numero limitato di eventi al mese, che per un sito di band basta.
