@@ -1,6 +1,10 @@
 # Diario di lavoro – sito Mari sugli alberi
 
-## Dove siamo rimasti (12 novembre 2026, sera)
+## Dove siamo rimasti (12 novembre 2026, notte)
+
+Il sito è online su https://marisuglialberi.vercel.app con home, `/link`, `/date` e il pannello `/admin`. Il modulo, le date e il pannello funzionano su prod. Supabase (dev e prod), Resend e Vercel sono collegati.
+
+### Prima, la sera
 
 La prima versione della home è costruita: "Il retro del vinile", scelta fra tre bozze sulla pagina di decisione di Impeccable. Ci sono la copertina con la foto davanti al muro rosso e il logo, la tracklist Lato A che compila il modulo, i formati con la bonus track dello spettacolo a tema, le note di copertina, il Lato B (date, "fate anche…?" con ricerca nella scaletta, foto, segnaposto per il video) e il modulo "Portaci alla tua festa".
 Il modulo ha la sua API (`/api/richiesta`) e la migrazione `0001_richieste.sql`. In locale risponde "non ancora attivo" perché Supabase e Resend non sono configurati.
@@ -8,10 +12,10 @@ Build e `astro check` passano. Il detector di Impeccable non trova problemi. La 
 
 ## Da qui si riparte
 
-1. Ultima rilettura dei testi con la band: la frase sotto la copertina, Aziendale, la bonus track e la storia del panificio. Gli altri testi li ha già rivisti l'utente.
-2. Confermare le regole del modulo in `LOGICHE.md`.
-3. Supabase (dev e prod) e la migrazione `0001`; poi Resend. Vedi "Da fare".
-4. Le altre feature di Fase 1 nell'ordine, ognuna con il ciclo di Impeccable e `DESIGN.md` come unica fonte di stile: link in bio (`/link`), date con il pannello admin, album foto, kit per gli organizzatori, statistiche.
+1. La band inserisce le date vere da https://marisuglialberi.vercel.app/admin (prossime e passate, per l'archivio).
+2. Prossima feature di Fase 1: **foto (album con visore) e video** (feature 6). Usa il pannello già pronto e lo Storage di Supabase; i video per ora sono segnaposto (manca YouTube).
+3. Poi: kit per gli organizzatori (7), statistiche senza cookie (9, proposta: Vercel Web Analytics).
+4. Rilettura dei testi con la band: la frase sotto la copertina, Aziendale, la bonus track, la storia del panificio.
 
 ## Scelte sui testi (12/11/2026)
 
