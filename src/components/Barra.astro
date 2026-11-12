@@ -1,0 +1,62 @@
+---
+// Sticky top bar shared by the paper-ground pages.
+import Logo from './Logo.astro';
+---
+<header class="barra">
+  <div class="wrap barra-dentro">
+    <a class="barra-logo" href="/" aria-label="Mari sugli alberi, home"><Logo /></a>
+    <nav aria-label="Sezioni">
+      <ul class="nav-lista">
+        <li><a href="/#lato-a">Lato A</a></li>
+        <li class="solo-largo"><a href="/#note">Chi siamo</a></li>
+        <li><a href="/#lato-b">Lato B</a></li>
+        <li><a href="/date">Date</a></li>
+        <li class="solo-desktop"><a class="nav-portaci" href="/#portaci">Portaci alla tua festa</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  /* ---------- Top bar ---------- */
+  .barra {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--carta);
+    border-bottom: var(--filetto);
+  }
+  .barra-dentro {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-4);
+    min-height: 56px;
+  }
+  .barra-logo { width: 64px; flex: none; color: var(--ink); }
+  .nav-lista {
+    display: flex;
+    gap: var(--s-1);
+    list-style: none;
+    padding: 0;
+    font-weight: 700;
+    font-size: var(--t-s);
+  }
+  .nav-lista a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 var(--s-2);
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0 2px;
+    background-repeat: no-repeat;
+    background-position: var(--s-2) calc(100% - 10px);
+    transition: background-size 220ms var(--esce);
+  }
+  .nav-lista a:hover { background-size: calc(100% - 2 * var(--s-2)) 2px; }
+  .solo-largo, .solo-desktop { display: none; }
+  .nav-portaci { color: var(--rosso); }
+  @media (min-width: 480px) { .solo-largo { display: block; } }
+  @media (min-width: 900px) { .solo-desktop { display: block; } }
+</style>

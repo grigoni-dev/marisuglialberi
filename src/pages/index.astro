@@ -1,12 +1,11 @@
 ---
 import { Picture } from 'astro:assets';
-import { siInstagram, siSpotify } from 'simple-icons';
-import { SPOTIFY } from '../lib/sito';
 import Base from '../layouts/Base.astro';
 import Logo from '../components/Logo.astro';
+import Barra from '../components/Barra.astro';
+import Piede from '../components/Piede.astro';
 import Freccia from '../components/Freccia.astro';
 import CercaScaletta from '../components/CercaScaletta.astro';
-import { prossimeDate } from '../lib/date';
 
 import copertina from '../assets/foto/copertina.jpg';
 import risate from '../assets/foto/risate.jpg';
@@ -21,7 +20,6 @@ import luceRossa from '../assets/foto/luce-rossa.jpg';
 import luceVerde from '../assets/foto/luce-verde.jpg';
 import osteriaUrlo from '../assets/foto/osteria-urlo.jpg';
 import palcoTrio from '../assets/foto/palco-trio.jpg';
-import domenicaLetto from '../assets/foto/domenica-letto.jpg';
 import osteriaZio from '../assets/foto/osteria-zio.jpg';
 import santino from '../assets/foto/santino.jpg';
 
@@ -55,27 +53,13 @@ const striscia = [
   { src: piazzaBrindisi, alt: 'Due della band ridono con un bicchiere in mano tra un pezzo e l\'altro', bn: true },
 ];
 
-const formatoData = (iso: string) =>
-  new Date(`${iso}T12:00:00`).toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
 ---
 
 <Base
   title="Mari sugli alberi · Trio acustico di cover per osterie, matrimoni e feste"
   description="Due chitarre acustiche, una batteria e tutta la sala che canta. Cover italiane da Mina a Calcutta. Suoniamo dove vuoi tu, anche nel tuo salotto: portaci alla tua festa."
 >
-  <header class="barra">
-    <div class="wrap barra-dentro">
-      <a class="barra-logo" href="/" aria-label="Mari sugli alberi, home"><Logo /></a>
-      <nav aria-label="Sezioni">
-        <ul class="nav-lista">
-          <li><a href="#lato-a">Lato A</a></li>
-          <li><a href="#note">Chi siamo</a></li>
-          <li><a href="#lato-b">Lato B</a></li>
-          <li><a class="nav-portaci" href="#portaci">Portaci alla tua festa</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
+  <Barra />
 
   <main id="contenuto">
     <!-- Cover: the sleeve, with the record sliding out of it on wide screens -->
@@ -232,18 +216,9 @@ const formatoData = (iso: string) =>
         <div class="lato-b-griglia">
           <div class="b-blocco">
             <h3><span class="formato-codice">B1</span> Prossime date</h3>
-            {prossimeDate.length > 0 ? (
-              <ol class="date">
-                {prossimeDate.map((c) => (
-                  <li>
-                    <span class="date-quando">{formatoData(c.data)}{c.ora && ` · ${c.ora}`}</span>
-                    <span class="date-dove">{c.luogo}, {c.citta}</span>
-                  </li>
-                ))}
-              </ol>
-            ) : (
-              <p class="vuoto">Le prossime date arrivano presto. Intanto le annunciamo su <a href={INSTAGRAM}>Instagram</a>.</p>
-            )}
+            <ol class="date" data-prossime hidden></ol>
+            <p class="vuoto" data-date-vuoto>Le prossime date arrivano presto. Intanto le annunciamo su <a href={INSTAGRAM}>Instagram</a>.</p>
+            <a class="link-freccia" href="/date">Tutte le date e i concerti passati <Freccia /></a>
           </div>
 
           <div class="b-blocco">
@@ -372,38 +347,11 @@ const formatoData = (iso: string) =>
     </dialog>
   </main>
 
-  <footer class="piede">
-    <div class="wrap"><div class="domenica-griglia">
-      <div class="domenica-foto">
-        <Picture
-          src={domenicaLetto}
-          formats={['avif', 'webp']}
-          widths={[400, 720]}
-          sizes="(min-width: 900px) 420px, calc(100vw - 32px)"
-          alt="Giova e Celi dormono abbracciati nello stesso letto, sotto una coperta a quadretti"
-          class="bn"
-        />
-      </div>
-      <p class="domenica">Meno male che domani è domenica. <span>(Di solito è lunedì.)</span></p>
-    </div></div>
-    <div class="wrap piede-dentro">
-      <Logo class="piede-logo" />
-      <a class="piede-ig" href={INSTAGRAM}>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d={siInstagram.path} fill="currentColor" /></svg>
-        @marisuglialberi
-      </a>
-      {SPOTIFY && (
-        <a class="piede-ig" href={SPOTIFY}>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d={siSpotify.path} fill="currentColor" /></svg>
-          Spotify
-        </a>
-      )}
-      <p class="piede-nota">© {new Date().getFullYear()} Mari sugli alberi</p>
-    </div>
-  </footer>
+  <Piede />
 </Base>
 
 <script>
+  import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from 'astro:env/client';
   import { validaRichiesta } from '../lib/richiesta';
 
 
@@ -426,6 +374,36 @@ const brani = [...document.querySelectorAll<HTMLButtonElement>('.brano')];
     const t = e.target as HTMLInputElement;
     if (t.name === 'tipo') scegli(t.value);
   });
+
+  // Upcoming dates, read in the browser from the public view so the home stays static.
+  async function caricaDate() {
+    if (!PUBLIC_SUPABASE_URL || !PUBLIC_SUPABASE_ANON_KEY) return;
+    const oggi = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Rome' });
+    const url = `${PUBLIC_SUPABASE_URL}/rest/v1/concerti_pubblici?select=id,data,ora,citta,locale,privato&data=gte.${oggi}&order=data.asc,ora.asc&limit=4`;
+    try {
+      const res = await fetch(url, { headers: { apikey: PUBLIC_SUPABASE_ANON_KEY } });
+      if (!res.ok) return;
+      const date: { id: string; data: string; ora: string | null; citta: string; locale: string | null; privato: boolean }[] = await res.json();
+      if (!date.length) return;
+      const lista = document.querySelector<HTMLOListElement>('[data-prossime]')!;
+      for (const c of date) {
+        const li = document.createElement('li');
+        const quando = new Date(`${c.data}T12:00:00`).toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
+        const ora = c.ora ? ` · ${c.ora.slice(0, 5).replace(':', '.')}` : '';
+        const dove = c.privato ? `Festa privata, ${c.citta}` : c.locale ? `${c.locale}, ${c.citta}` : c.citta;
+        const q = Object.assign(document.createElement('span'), { className: 'date-quando', textContent: quando + ora });
+        const d = Object.assign(document.createElement('span'), { className: 'date-dove', textContent: dove });
+        const cal = Object.assign(document.createElement('a'), { className: 'date-cal', href: `/date/${c.id}.ics`, textContent: 'Aggiungi al calendario' });
+        li.append(q, d, cal);
+        lista.append(li);
+      }
+      lista.hidden = false;
+      document.querySelector('[data-date-vuoto]')?.remove();
+    } catch {
+      // Network hiccup: the "dates coming soon" line stays.
+    }
+  }
+  caricaDate();
 
   // Enlarge: small boxed pictures open full size in a native <dialog>.
   for (const b of document.querySelectorAll<HTMLButtonElement>('[data-zoom]')) {
@@ -503,51 +481,6 @@ const brani = [...document.querySelectorAll<HTMLButtonElement>('.brano')];
 </script>
 
 <style>
-  /* ---------- Top bar ---------- */
-  .barra {
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    background: var(--carta);
-    border-bottom: var(--filetto);
-  }
-  .barra-dentro {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--s-4);
-    min-height: 56px;
-  }
-  .barra-logo { width: 64px; flex: none; color: var(--ink); }
-  .nav-lista {
-    display: flex;
-    gap: var(--s-1);
-    list-style: none;
-    padding: 0;
-    font-weight: 700;
-    font-size: var(--t-s);
-  }
-  .nav-lista a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    padding: 0 var(--s-2);
-    text-decoration: none;
-    background-image: linear-gradient(currentColor, currentColor);
-    background-size: 0 2px;
-    background-repeat: no-repeat;
-    background-position: var(--s-2) calc(100% - 10px);
-    transition: background-size 220ms var(--esce);
-  }
-  .nav-lista a:hover { background-size: calc(100% - 2 * var(--s-2)) 2px; }
-  .nav-lista li:last-child { display: none; }
-  .nav-portaci { color: var(--rosso); }
-  @media (max-width: 380px) {
-    .nav-lista li:nth-child(2) { display: none; }
-  }
-  @media (min-width: 768px) {
-    .nav-lista li:last-child { display: block; }
-  }
 
   /* ---------- Cover ---------- */
   .copertina {
@@ -861,8 +794,11 @@ const brani = [...document.querySelectorAll<HTMLButtonElement>('.brano')];
   }
   .vuoto { font-size: var(--t-l); line-height: 1.35; }
   .date { list-style: none; padding: 0; border-top: var(--filetto); }
-  .date li { display: grid; gap: var(--s-1); padding-block: var(--s-3); border-bottom: 1px solid var(--carta); }
-  .date-quando { font-weight: 700; }
+  /* Rows are built in the browser, so they need :global to get these styles. */
+  .date :global(li) { display: grid; gap: var(--s-1); padding-block: var(--s-3); border-bottom: 1px solid var(--carta); }
+  .date :global(.date-quando) { font-family: var(--f-display); font-weight: 900; font-size: var(--t-l); text-transform: uppercase; letter-spacing: -0.02em; }
+  .date :global(.date-cal) { justify-self: start; display: inline-flex; align-items: center; min-height: 40px; font-size: var(--t-s); font-weight: 700; }
+  .lato-b .link-freccia { margin-top: var(--s-4); }
 
   .lato-b :focus-visible { outline-color: var(--carta); }
   @media (min-width: 900px) {
@@ -1049,54 +985,4 @@ const brani = [...document.querySelectorAll<HTMLButtonElement>('.brano')];
   }
   .chiudi:hover { background: var(--ink); color: var(--carta); }
 
-  /* ---------- Footer ---------- */
-  .domenica-griglia {
-    display: grid;
-    gap: var(--s-5);
-    padding-bottom: var(--s-6);
-    margin-bottom: var(--s-6);
-    border-bottom: 2px solid var(--carta);
-  }
-  .domenica-foto { aspect-ratio: 4 / 3; overflow: hidden; }
-  .domenica-foto :global(picture) { width: 100%; height: 100%; }
-  .domenica-foto :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: 50% 45%; }
-  @media (min-width: 900px) {
-    .domenica-griglia { grid-template-columns: 420px 1fr; align-items: end; gap: var(--s-7); }
-  }
-  .domenica {
-    max-width: none;
-    font-family: var(--f-display);
-    font-weight: 900;
-    font-size: var(--t-xl);
-    line-height: 0.95;
-    letter-spacing: -0.03em;
-    text-transform: uppercase;
-  }
-  .domenica span {
-    display: block;
-    margin-top: var(--s-2);
-    font-family: var(--f-text);
-    font-weight: 400;
-    font-size: var(--t-m);
-    letter-spacing: 0;
-    text-transform: none;
-    color: var(--carta-tenue);
-  }
-  .piede { background: var(--ink); color: var(--carta); padding-block: var(--s-7); }
-  .piede-dentro { display: grid; gap: var(--s-5); justify-items: start; }
-  .piede :global(.piede-logo) { width: 160px; }
-  .piede-ig {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--s-2);
-    min-height: 44px;
-    font-weight: 700;
-  }
-  .piede-ig svg { width: 22px; height: 22px; }
-  .piede-nota { font-size: var(--t-xs); color: var(--carta-tenue); }
-  .piede :focus-visible { outline-color: var(--carta); }
-  @media (min-width: 768px) {
-    .piede-dentro { grid-template-columns: auto 1fr auto auto; align-items: end; justify-items: stretch; column-gap: var(--s-6); }
-    .piede-ig { justify-self: end; }
-  }
 </style>

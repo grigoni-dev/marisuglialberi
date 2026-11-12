@@ -34,6 +34,7 @@ Le migrazioni si eseguono a mano nel SQL Editor, in ordine, **prima su dev e poi
 | File | Cosa fa | dev | prod |
 |---|---|---|---|
 | `0001_richieste.sql` | Richieste di ingaggio e limite di richieste | ✅ 12/11/2026 | ✅ 12/11/2026 |
+| `0002_date_e_pannello.sql` | Pannello admin (`staff`), date dei concerti, vista pubblica `concerti_pubblici`, lettura delle richieste dal pannello | ✅ 12/11/2026 | ✅ 12/11/2026 |
 
 ## 2. Resend (email delle richieste)
 
@@ -70,3 +71,23 @@ npx astro dev --background
 ```
 
 Senza chiavi il sito funziona lo stesso: il modulo risponde "non ancora attivo".
+
+## Gestire chi accede al pannello
+
+Il pannello è su `/admin`. Per scelta della band c'è **un solo accesso condiviso**, con la Gmail del progetto. Va creato su **entrambi** i progetti Supabase (dev e prod).
+
+**Creare l'accesso**
+1. Supabase → **Authentication → Users → Add user → Create new user**: email = la Gmail del progetto, una password robusta, **Auto Confirm User** attivo.
+2. **SQL Editor** → incolla ed esegui (al posto dell'indirizzo, la Gmail del progetto):
+   ```sql
+   insert into staff (user_id, ruolo)
+   select id, 'admin' from auth.users where email = 'GMAIL-DEL-PROGETTO'
+   on conflict (user_id) do nothing;
+   ```
+3. Su `/admin` si entra con quell'email e quella password.
+
+**Vedere chi ha accesso**: `select u.email, s.ruolo from staff s join auth.users u on u.id = s.user_id;`
+
+**Togliere l'accesso**: `delete from staff where user_id = (select id from auth.users where email = '…');`, poi si può eliminare l'utente da Authentication → Users.
+
+**Password dimenticata**: Authentication → Users → l'utente → *Send password recovery*, oppure si imposta una password nuova dallo stesso menu.

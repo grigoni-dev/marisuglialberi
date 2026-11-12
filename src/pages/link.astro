@@ -6,12 +6,14 @@ import Base from '../layouts/Base.astro';
 import Logo from '../components/Logo.astro';
 import Freccia from '../components/Freccia.astro';
 import CercaScaletta from '../components/CercaScaletta.astro';
-import { prossimoConcerto, formatoDataLunga } from '../lib/date';
+import { dateConcerti, formatoDataLunga, formatoOra, dove } from '../lib/date';
 import { INSTAGRAM, SPOTIFY } from '../lib/sito';
 
-// Static for now: dates live in src/lib/date.ts. When they move to Supabase this page
-// switches to `prerender = false` so "next gig" is computed per request.
-const prossimo = prossimoConcerto();
+// Rendered per request so "next gig" is always current; the CDN keeps it for a minute.
+export const prerender = false;
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=600');
+const { prossime } = await dateConcerti();
+const prossimo = prossime[0] ?? null;
 
 const collegamenti = [
   { href: INSTAGRAM, nome: 'Instagram', nota: '@marisuglialberi', icona: siInstagram.path },
@@ -32,8 +34,12 @@ const collegamenti = [
     {prossimo ? (
       <section class="prossima" aria-labelledby="prossima-titolo">
         <h2 id="prossima-titolo"><span class="codice">Prossima data</span> {formatoDataLunga(prossimo.data)}</h2>
-        <p class="prossima-dove">{prossimo.luogo}, {prossimo.citta}{prossimo.ora && ` · ore ${prossimo.ora}`}</p>
-        {prossimo.link && <a class="link-freccia" href={prossimo.link}>Tutti i dettagli <Freccia /></a>}
+        <p class="prossima-dove">{dove(prossimo)}{prossimo.ora && ` · ore ${formatoOra(prossimo.ora)}`}</p>
+        <p class="prossima-azioni">
+          <a href={`/date/${prossimo.id}.ics`}>Aggiungi al calendario</a>
+          {prossimo.link && <a href={prossimo.link}>Dettagli dell'evento</a>}
+          <a href="/date">Tutte le date</a>
+        </p>
       </section>
     ) : (
       <section class="prossima" aria-label="Il nostro motto">
@@ -116,6 +122,8 @@ const collegamenti = [
   }
   .motto span { display: block; color: var(--rosso); }
   .prossima-dove { margin-top: var(--s-4); font-size: var(--t-m); color: var(--carta-tenue); }
+  .prossima-azioni { display: flex; flex-wrap: wrap; gap: 0 var(--s-5); margin-top: var(--s-2); font-weight: 700; }
+  .prossima-azioni a { display: inline-flex; align-items: center; min-height: 44px; }
 
   /* Link rows: the tracklist grammar, on the night ground */
   .lista { list-style: none; padding: 0; border-bottom: var(--filetto); }

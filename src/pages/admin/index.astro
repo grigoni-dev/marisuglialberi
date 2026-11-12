@@ -1,0 +1,430 @@
+---
+// Band panel: sign in, manage gig dates, read and triage booking requests.
+// Everything runs in the browser with the user's Supabase session, protected by RLS.
+import Base from '../../layouts/Base.astro';
+import Logo from '../../components/Logo.astro';
+---
+
+<Base title="Pannello · Mari sugli alberi" description="Pannello della band." noindex>
+  <header class="adm-barra">
+    <div class="wrap adm-barra-dentro">
+      <a class="adm-logo" href="/" aria-label="Vai al sito"><Logo /></a>
+      <span class="adm-titolo">Pannello</span>
+      <button type="button" class="adm-esci" data-esci hidden>Esci</button>
+    </div>
+  </header>
+
+  <main id="contenuto" class="wrap adm">
+    <p class="adm-msg" role="status" aria-live="polite"></p>
+
+    <section data-vista="non-configurato" hidden>
+      <h1>Pannello non ancora attivo</h1>
+      <p>Supabase non è collegato: mancano le variabili <code>PUBLIC_SUPABASE_URL</code> e <code>PUBLIC_SUPABASE_ANON_KEY</code>. Vedi <code>SETUP.md</code>.</p>
+    </section>
+
+    <section data-vista="login" hidden>
+      <h1>Entra</h1>
+      <form class="adm-form adm-login" data-login>
+        <div class="campo">
+          <label for="l-email">Email</label>
+          <input id="l-email" name="email" type="email" autocomplete="username" required />
+        </div>
+        <div class="campo">
+          <label for="l-password">Password</label>
+          <input id="l-password" name="password" type="password" autocomplete="current-password" required />
+        </div>
+        <button class="bottone" type="submit">Entra</button>
+      </form>
+    </section>
+
+    <section data-vista="pannello" hidden>
+      <div class="schede" role="tablist" aria-label="Sezioni del pannello">
+        <button type="button" role="tab" id="t-date" aria-controls="p-date" aria-selected="true" data-scheda="date">Date</button>
+        <button type="button" role="tab" id="t-richieste" aria-controls="p-richieste" aria-selected="false" data-scheda="richieste">
+          Richieste <span class="badge" data-badge hidden></span>
+        </button>
+      </div>
+
+      <!-- Dates -->
+      <div role="tabpanel" id="p-date" aria-labelledby="t-date" data-pannello="date">
+        <div class="adm-griglia">
+          <form class="adm-form" data-form-data novalidate>
+            <h2 data-form-titolo>Nuova data</h2>
+            <input type="hidden" name="id" />
+            <div class="due">
+              <div class="campo">
+                <label for="d-data">Giorno</label>
+                <input id="d-data" name="data" type="date" required />
+              </div>
+              <div class="campo">
+                <label for="d-ora">Ora <span class="facoltativo">(facoltativa)</span></label>
+                <input id="d-ora" name="ora" type="time" />
+              </div>
+            </div>
+            <div class="campo">
+              <label for="d-citta">Città</label>
+              <input id="d-citta" name="citta" type="text" required maxlength="80" />
+            </div>
+            <div class="campo">
+              <label for="d-locale">Locale <span class="facoltativo">(non si vede se è una festa privata)</span></label>
+              <input id="d-locale" name="locale" type="text" maxlength="120" />
+            </div>
+            <div class="campo">
+              <label for="d-link">Link all'evento <span class="facoltativo">(facoltativo, inizia con https://)</span></label>
+              <input id="d-link" name="link" type="url" placeholder="https://www.instagram.com/p/…" />
+            </div>
+            <label class="spunta"><input type="checkbox" name="privato" /> <span>Festa privata (sul sito: solo città e "Festa privata")</span></label>
+            <label class="spunta"><input type="checkbox" name="pubblicato" checked /> <span>Mostra sul sito</span></label>
+            <div class="campo">
+              <label for="d-note">Note interne <span class="facoltativo">(non si vedono mai sul sito)</span></label>
+              <textarea id="d-note" name="note" rows="3" maxlength="2000"></textarea>
+            </div>
+            <div class="azioni">
+              <button class="bottone" type="submit" data-salva>Salva la data</button>
+              <button class="secondario" type="button" data-annulla hidden>Annulla</button>
+            </div>
+          </form>
+
+          <div>
+            <h2>Prossime</h2>
+            <ol class="lista" data-lista-prossime></ol>
+            <h2 class="spazio">Passate</h2>
+            <ol class="lista" data-lista-passate></ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- Booking requests -->
+      <div role="tabpanel" id="p-richieste" aria-labelledby="t-richieste" data-pannello="richieste" hidden>
+        <h2>Richieste di ingaggio</h2>
+        <ol class="richieste" data-lista-richieste></ol>
+      </div>
+    </section>
+  </main>
+</Base>
+
+<script>
+  import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+  import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from 'astro:env/client';
+  import { TIPI } from '../../lib/richiesta';
+
+  type Concerto = {
+    id: string; data: string; ora: string | null; citta: string; locale: string | null;
+    link: string | null; privato: boolean; pubblicato: boolean; note: string | null;
+  };
+  type Richiesta = {
+    id: string; tipo: keyof typeof TIPI; data_evento: string | null; luogo: string; persone: number | null;
+    nome: string; contatto: string; messaggio: string | null; dj: boolean; stato: string; created_at: string;
+  };
+
+  const $ = <T extends Element = HTMLElement>(s: string) => document.querySelector<T>(s)!;
+  const esc = (s: unknown) =>
+    String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+  const msg = (t: string, errore = false) => {
+    const m = $('.adm-msg');
+    m.textContent = t;
+    m.classList.toggle('errore', errore);
+    if (t && !errore) setTimeout(() => { if (m.textContent === t) m.textContent = ''; }, 5000);
+  };
+  const vista = (nome: string) => {
+    for (const v of document.querySelectorAll<HTMLElement>('[data-vista]')) v.hidden = v.dataset.vista !== nome;
+    $('[data-esci]').hidden = nome !== 'pannello';
+  };
+  const giorno = (iso: string) =>
+    new Date(`${iso}T12:00:00`).toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  const oggi = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Rome' });
+
+  if (!PUBLIC_SUPABASE_URL || !PUBLIC_SUPABASE_ANON_KEY) {
+    vista('non-configurato');
+  } else {
+    const sb: SupabaseClient = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
+    avvia(sb);
+  }
+
+  async function avvia(sb: SupabaseClient) {
+    const entra = async () => {
+      const { data } = await sb.auth.getSession();
+      if (!data.session) return vista('login');
+      const { data: s } = await sb.from('staff').select('ruolo').eq('user_id', data.session.user.id).maybeSingle();
+      if (!s) {
+        await sb.auth.signOut();
+        msg('Questo account non è abilitato al pannello.', true);
+        return vista('login');
+      }
+      vista('pannello');
+      await Promise.all([caricaDate(), caricaRichieste()]);
+    };
+
+    $('[data-login]').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = new FormData(e.target as HTMLFormElement);
+      const { error } = await sb.auth.signInWithPassword({ email: String(f.get('email')), password: String(f.get('password')) });
+      if (error) return msg('Email o password sbagliate.', true);
+      msg('');
+      entra();
+    });
+    $('[data-esci]').addEventListener('click', async () => {
+      await sb.auth.signOut();
+      vista('login');
+    });
+
+    // Tabs
+    for (const t of document.querySelectorAll<HTMLButtonElement>('[data-scheda]')) {
+      t.addEventListener('click', () => {
+        for (const x of document.querySelectorAll<HTMLButtonElement>('[data-scheda]')) x.setAttribute('aria-selected', String(x === t));
+        for (const p of document.querySelectorAll<HTMLElement>('[data-pannello]')) p.hidden = p.dataset.pannello !== t.dataset.scheda;
+      });
+    }
+
+    // ---------- Dates ----------
+    const form = $<HTMLFormElement>('[data-form-data]');
+    let concerti: Concerto[] = [];
+
+    const svuota = () => {
+      form.reset();
+      (form.elements.namedItem('id') as HTMLInputElement).value = '';
+      $('[data-form-titolo]').textContent = 'Nuova data';
+      $('[data-salva]').textContent = 'Salva la data';
+      $('[data-annulla]').hidden = true;
+    };
+    $('[data-annulla]').addEventListener('click', svuota);
+
+    const riga = (c: Concerto) => `
+      <li class="voce${c.pubblicato ? '' : ' nascosta'}">
+        <div>
+          <strong>${esc(giorno(c.data))}${c.ora ? ` · ${esc(c.ora.slice(0, 5))}` : ''}</strong>
+          <span>${esc(c.locale ? `${c.locale}, ${c.citta}` : c.citta)}</span>
+          <span class="etichette">${c.privato ? '<em>Festa privata</em>' : ''}${c.pubblicato ? '' : '<em>Non sul sito</em>'}${c.note ? '<em>Note</em>' : ''}</span>
+        </div>
+        <div class="voce-azioni">
+          <button type="button" class="secondario" data-modifica="${c.id}">Modifica</button>
+          <button type="button" class="secondario pericolo" data-elimina="${c.id}">Elimina</button>
+        </div>
+      </li>`;
+
+    async function caricaDate() {
+      const { data, error } = await sb.from('concerti').select('*').order('data').order('ora');
+      if (error) return msg(`Non riesco a leggere le date: ${error.message}`, true);
+      concerti = data as Concerto[];
+      const o = oggi();
+      const prossime = concerti.filter((c) => c.data >= o);
+      const passate = concerti.filter((c) => c.data < o).reverse();
+      $('[data-lista-prossime]').innerHTML = prossime.map(riga).join('') || '<li class="vuota">Nessuna data in programma.</li>';
+      $('[data-lista-passate]').innerHTML = passate.map(riga).join('') || '<li class="vuota">Ancora nessuna.</li>';
+    }
+
+    document.addEventListener('click', async (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-modifica],[data-elimina]');
+      if (!b) return;
+      const id = b.dataset.modifica ?? b.dataset.elimina!;
+      const c = concerti.find((x) => x.id === id);
+      if (!c) return;
+      if (b.dataset.modifica) {
+        const el = (n: string) => form.elements.namedItem(n) as HTMLInputElement;
+        el('id').value = c.id;
+        el('data').value = c.data;
+        el('ora').value = c.ora?.slice(0, 5) ?? '';
+        el('citta').value = c.citta;
+        el('locale').value = c.locale ?? '';
+        el('link').value = c.link ?? '';
+        el('privato').checked = c.privato;
+        el('pubblicato').checked = c.pubblicato;
+        (form.elements.namedItem('note') as HTMLTextAreaElement).value = c.note ?? '';
+        $('[data-form-titolo]').textContent = 'Modifica la data';
+        $('[data-salva]').textContent = 'Salva le modifiche';
+        $('[data-annulla]').hidden = false;
+        form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        el('data').focus();
+      } else {
+        if (!confirm(`Eliminare la data del ${giorno(c.data)} a ${c.citta}? Non si può annullare.`)) return;
+        const { error } = await sb.from('concerti').delete().eq('id', c.id);
+        if (error) return msg(`Non riesco a eliminarla: ${error.message}`, true);
+        msg('Data eliminata.');
+        caricaDate();
+      }
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = new FormData(form);
+      const t = (k: string) => String(f.get(k) ?? '').trim();
+      const link = t('link');
+      if (!t('data')) return msg('Manca il giorno.', true);
+      if (t('citta').length < 2) return msg('Manca la città.', true);
+      if (link && !link.startsWith('https://')) return msg('Il link deve iniziare con https://', true);
+      const riga = {
+        data: t('data'),
+        ora: t('ora') || null,
+        citta: t('citta'),
+        locale: t('locale') || null,
+        link: link || null,
+        privato: f.get('privato') === 'on',
+        pubblicato: f.get('pubblicato') === 'on',
+        note: t('note') || null,
+      };
+      const id = t('id');
+      const { error } = id ? await sb.from('concerti').update(riga).eq('id', id) : await sb.from('concerti').insert(riga);
+      if (error) return msg(`Non riesco a salvare: ${error.message}`, true);
+      msg(id ? 'Modifiche salvate. Sul sito compaiono entro un minuto.' : 'Data aggiunta. Sul sito compare entro un minuto.');
+      svuota();
+      caricaDate();
+    });
+
+    // ---------- Booking requests ----------
+    const STATI = ['nuova', 'risposta', 'confermata', 'scartata'];
+    async function caricaRichieste() {
+      const { data, error } = await sb.from('richieste').select('*').order('created_at', { ascending: false });
+      if (error) return msg(`Non riesco a leggere le richieste: ${error.message}`, true);
+      const r = data as Richiesta[];
+      const nuove = r.filter((x) => x.stato === 'nuova').length;
+      const badge = $('[data-badge]');
+      badge.textContent = String(nuove);
+      badge.hidden = nuove === 0;
+      $('[data-lista-richieste]').innerHTML = r.map((x) => {
+        const contatto = x.contatto.includes('@')
+          ? `<a href="mailto:${esc(x.contatto)}">${esc(x.contatto)}</a>`
+          : `<a href="tel:${esc(x.contatto.replace(/[^\d+]/g, ''))}">${esc(x.contatto)}</a>`;
+        return `
+        <li class="richiesta stato-${esc(x.stato)}">
+          <div class="richiesta-testa">
+            <strong>${x.stato === 'nuova' ? '<span class="nuova-tag">Nuova</span>' : ''}${esc(TIPI[x.tipo] ?? x.tipo)} · ${esc(x.luogo)}</strong>
+            <label>Stato
+              <select data-stato="${x.id}">
+                ${STATI.map((s) => `<option value="${s}"${s === x.stato ? ' selected' : ''}>${s}</option>`).join('')}
+              </select>
+            </label>
+          </div>
+          <dl>
+            <div><dt>Quando</dt><dd>${x.data_evento ? esc(giorno(x.data_evento)) : 'da decidere'}</dd></div>
+            <div><dt>Persone</dt><dd>${x.persone ?? '—'}</dd></div>
+            <div><dt>DJ set</dt><dd>${x.dj ? 'sì' : 'no'}</dd></div>
+            <div><dt>Chi</dt><dd>${esc(x.nome)} · ${contatto}</dd></div>
+            <div><dt>Arrivata</dt><dd>${esc(new Date(x.created_at).toLocaleString('it-IT', { dateStyle: 'medium', timeStyle: 'short' }))}</dd></div>
+          </dl>
+          ${x.messaggio ? `<p class="richiesta-msg">${esc(x.messaggio)}</p>` : ''}
+        </li>`;
+      }).join('') || '<li class="vuota">Nessuna richiesta, per ora.</li>';
+    }
+
+    document.addEventListener('change', async (e) => {
+      const s = (e.target as HTMLElement).closest<HTMLSelectElement>('[data-stato]');
+      if (!s) return;
+      const { error } = await sb.from('richieste').update({ stato: s.value }).eq('id', s.dataset.stato!);
+      if (error) return msg(`Non riesco a cambiare lo stato: ${error.message}`, true);
+      msg('Stato aggiornato.');
+      caricaRichieste();
+    });
+
+    entra();
+  }
+</script>
+
+<style>
+  .adm-barra { border-bottom: var(--filetto); background: var(--carta); }
+  .adm-barra-dentro { display: flex; align-items: center; gap: var(--s-4); min-height: 56px; }
+  .adm-logo { width: 56px; color: var(--ink); }
+  .adm-titolo { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; }
+  .adm-esci, .secondario {
+    min-height: 44px;
+    padding: 0 var(--s-4);
+    border: var(--filetto);
+    background: var(--carta);
+    font-weight: 700;
+  }
+  .adm-esci { margin-left: auto; }
+  .adm-esci:hover, .secondario:hover { background: var(--ink); color: var(--carta); }
+  .pericolo { color: var(--rosso-scuro); border-color: var(--rosso-scuro); }
+  .pericolo:hover { background: var(--rosso-scuro); color: var(--carta); }
+
+  .adm { padding-block: var(--s-5) var(--s-8); }
+  .adm h1 { font-size: var(--t-xl); margin-bottom: var(--s-4); }
+  .adm h2 { font-size: var(--t-l); margin-bottom: var(--s-3); }
+  .adm h2.spazio { margin-top: var(--s-6); }
+  .adm-msg { min-height: 1.5em; margin-bottom: var(--s-3); font-weight: 700; color: var(--teal); }
+  .adm-msg.errore { color: var(--rosso-scuro); }
+
+  .schede { display: flex; gap: var(--s-2); border-bottom: var(--filetto); margin-bottom: var(--s-5); }
+  .schede button {
+    min-height: 48px;
+    padding: 0 var(--s-4);
+    border: 0;
+    background: transparent;
+    font-family: var(--f-display);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    font-size: var(--t-m);
+  }
+  .schede button[aria-selected='true'] { background: var(--ink); color: var(--carta); }
+  .badge {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.5em;
+    height: 1.5em;
+    margin-left: var(--s-1);
+    padding: 0 0.3em;
+    background: var(--rosso);
+    color: var(--carta);
+    font-family: var(--f-text);
+    font-size: var(--t-xs);
+  }
+
+  .adm-griglia { display: grid; gap: var(--s-7); }
+  @media (min-width: 960px) { .adm-griglia { grid-template-columns: minmax(0, 420px) 1fr; align-items: start; } }
+
+  .adm-form { display: grid; gap: var(--s-4); }
+  .adm-login { max-width: 420px; }
+  .due { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3); }
+  .campo { display: grid; gap: var(--s-1); }
+  .campo label { font-weight: 700; }
+  .facoltativo { font-weight: 400; color: var(--ink-2); }
+  .adm-form input:not([type='checkbox']), .adm-form textarea, select {
+    width: 100%;
+    min-height: 48px;
+    padding: var(--s-2) var(--s-3);
+    border: 0;
+    border-bottom: var(--filetto);
+    border-radius: 0;
+    background: var(--carta-2);
+    font-size: var(--t-m);
+  }
+  select { width: auto; min-height: 40px; }
+  .spunta { display: flex; align-items: center; gap: var(--s-3); min-height: 44px; font-weight: 700; }
+  .spunta input { width: 22px; height: 22px; accent-color: var(--ink); flex: none; }
+  .azioni { display: flex; flex-wrap: wrap; gap: var(--s-3); align-items: center; }
+
+  .lista, .richieste { list-style: none; padding: 0; border-bottom: var(--filetto); }
+  .lista :global(.voce) {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--s-3);
+    padding: var(--s-3) 0;
+    border-top: var(--filetto);
+  }
+  .lista :global(.voce > div:first-child) { display: grid; gap: 2px; }
+  .lista :global(.nascosta) { opacity: 0.6; }
+  .lista :global(.etichette em), .richieste :global(.etichette em) {
+    display: inline-block;
+    margin-right: var(--s-2);
+    padding: 0 var(--s-2);
+    font-style: normal;
+    font-size: var(--t-xs);
+    font-weight: 700;
+    background: var(--teal-chiaro);
+    color: var(--teal-scuro);
+  }
+  .lista :global(.voce-azioni) { display: flex; gap: var(--s-2); }
+  .lista :global(.vuota), .richieste :global(.vuota) { padding: var(--s-3) 0; border-top: var(--filetto); color: var(--ink-2); }
+
+  .richieste :global(.richiesta) { padding: var(--s-4) 0; border-top: var(--filetto); display: grid; gap: var(--s-3); }
+  .richieste :global(.nuova-tag) { display: inline-block; margin-right: var(--s-2); padding: 0 var(--s-2); background: var(--rosso); color: var(--carta); font-family: var(--f-text); font-size: var(--t-xs); font-weight: 700; text-transform: none; letter-spacing: 0; vertical-align: middle; }
+  .richieste :global(.richiesta-testa) { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--s-3); }
+  .richieste :global(.richiesta-testa strong) { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-size: var(--t-l); letter-spacing: -0.02em; }
+  .richieste :global(.richiesta-testa label) { display: flex; align-items: center; gap: var(--s-2); font-weight: 700; }
+  .richieste :global(dl) { display: grid; gap: var(--s-1); }
+  .richieste :global(dl div) { display: grid; grid-template-columns: 6rem 1fr; gap: var(--s-3); }
+  .richieste :global(dt) { font-weight: 700; }
+  .richieste :global(.richiesta-msg) { padding: var(--s-3); background: var(--carta-2); white-space: pre-line; }
+</style>

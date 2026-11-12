@@ -61,7 +61,7 @@ Peso: 🟢 statica · 🟡 con pannello · 🔵 servizio esterno
 | 2 | Formati per gli eventi: bar/osteria, matrimonio, aziendale, salotto (9) | 🟢 | 🔵 | Nella home (Lato A), con la bonus track dello spettacolo a tema. Il salotto è stato aggiunto dall'utente il 12/11. Testi provvisori da rivedere con la band |
 | 3 | Chi siamo: il trio e la storia del panificio (1) | 🟢 | 🔵 | Nella home (Note di copertina). Testo provvisorio da rivedere |
 | 4 | Link in bio per Instagram e per i QR (6) | 🟢 | 🔵 | Pagina `/link` fatta, a fondo scuro: prossima data (o il motto), Instagram, il sito, "Fate anche…?", "Portaci alla tua festa". Spotify collegato (profilo artista), anche nel piè di pagina della home. Prima: Instagram: https://www.instagram.com/marisuglialberi/ (YouTube non c'è ancora) |
-| 5 | Prossime date con .ics e archivio (2) | 🟡 | ⚪ | Pannello admin. Elenco delle date, passate e future |
+| 5 | Prossime date con .ics e archivio (2) | 🟡 | ✅ | Pannello `/admin` (un accesso condiviso), date in home, `/link` e `/date` con l'archivio, file .ics. Feste private senza locale. Migrazione 0002 su dev e prod. Mancano le date vere, da inserire dal pannello |
 | 6 | Foto (album con visore) e video (4) | 🟡 | 🟠 | Foto e link dei video. Permesso per le foto del pubblico |
 | 7 | Kit per gli organizzatori (11) | 🟢 | 🟠 | Foto in alta risoluzione, logo, bio, scheda tecnica |
 | 8 | Anteprime per la condivisione, Open Graph (7) | 🟢 | 🔵 | Fatti i meta tag e `public/condivisione.jpg`. Da provare con un link vero dopo la messa online |

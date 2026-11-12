@@ -1,0 +1,130 @@
+---
+// Gig dates: upcoming first, then the archive by year. Rendered per request (CDN-cached).
+import Base from '../layouts/Base.astro';
+import Barra from '../components/Barra.astro';
+import Piede from '../components/Piede.astro';
+import Freccia from '../components/Freccia.astro';
+import { dateConcerti, formatoDataLunga, formatoOra, dove, type Concerto } from '../lib/date';
+import { INSTAGRAM } from '../lib/sito';
+
+export const prerender = false;
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=600');
+
+const { prossime, passate } = await dateConcerti();
+
+const perAnno = new Map<string, Concerto[]>();
+for (const c of passate) {
+  const anno = c.data.slice(0, 4);
+  perAnno.set(anno, [...(perAnno.get(anno) ?? []), c]);
+}
+---
+
+<Base
+  title="Date · Mari sugli alberi"
+  description="Le prossime date di Mari sugli alberi e tutti i concerti passati: osterie, piazze, matrimoni, feste."
+>
+  <Barra />
+  <main id="contenuto" class="wrap pagina-date">
+    <h1>Date</h1>
+
+    <section aria-labelledby="prossime-titolo">
+      <h2 id="prossime-titolo" class="sezione"><span class="codice">Lato A</span> Prossime</h2>
+      {prossime.length > 0 ? (
+        <ol class="elenco">
+          {prossime.map((c) => (
+            <li class="riga">
+              <span class="riga-quando">{formatoDataLunga(c.data)}</span>
+              <span class="riga-dove">
+                {dove(c)}
+                {c.ora && <span class="riga-ora"> · ore {formatoOra(c.ora)}</span>}
+              </span>
+              <span class="riga-azioni">
+                <a href={`/date/${c.id}.ics`}>Aggiungi al calendario</a>
+                {c.link && <a href={c.link}>Dettagli</a>}
+              </span>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <p class="vuoto">Le prossime date arrivano presto. Le annunciamo su <a href={INSTAGRAM}>Instagram</a>.</p>
+      )}
+    </section>
+
+    {perAnno.size > 0 && (
+      <section aria-labelledby="archivio-titolo" class="archivio">
+        <h2 id="archivio-titolo" class="sezione"><span class="codice">Lato B</span> Dove abbiamo già suonato</h2>
+        {[...perAnno].map(([anno, date]) => (
+          <div class="anno">
+            <h3>{anno}</h3>
+            <ol class="elenco elenco-stretto">
+              {date.map((c) => (
+                <li class="riga riga-stretta">
+                  <span class="riga-quando">{formatoDataLunga(c.data)}</span>
+                  <span class="riga-dove">{dove(c)}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        ))}
+      </section>
+    )}
+
+    <section class="chiusura" aria-labelledby="chiusura-titolo">
+      <h2 id="chiusura-titolo">La prossima può essere la tua festa</h2>
+      <a class="bottone" href="/#portaci">
+        <span>Portaci alla tua festa</span>
+        <Freccia />
+      </a>
+    </section>
+  </main>
+  <Piede />
+</Base>
+
+<style>
+  .pagina-date { padding-block: var(--s-6) var(--s-8); display: grid; gap: var(--s-8); }
+  h1 { font-size: var(--t-xxl); padding-bottom: var(--s-4); border-bottom: var(--filetto); }
+  .sezione { font-size: var(--t-xl); display: flex; align-items: baseline; gap: var(--s-3); margin-bottom: var(--s-4); }
+  .codice {
+    flex: none;
+    font-family: var(--f-text);
+    font-weight: 700;
+    font-size: var(--t-s);
+    letter-spacing: 0.02em;
+    text-transform: none;
+    color: var(--teal);
+  }
+  .vuoto { font-size: var(--t-l); line-height: 1.35; }
+
+  .elenco { list-style: none; padding: 0; border-bottom: var(--filetto); }
+  .riga {
+    display: grid;
+    gap: var(--s-1) var(--s-5);
+    padding: var(--s-4) var(--s-2);
+    border-top: var(--filetto);
+  }
+  .riga-quando {
+    font-family: var(--f-display);
+    font-weight: 900;
+    font-size: var(--t-l);
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+  .riga-ora { color: var(--ink-2); }
+  .riga-azioni { display: flex; flex-wrap: wrap; gap: 0 var(--s-5); font-weight: 700; font-size: var(--t-s); }
+  .riga-azioni a { display: inline-flex; align-items: center; min-height: 44px; }
+  @media (min-width: 768px) {
+    .riga { grid-template-columns: 11rem 1fr auto; align-items: center; }
+  }
+
+  .archivio { display: grid; gap: var(--s-6); }
+  .anno h3 { font-size: var(--t-l); color: var(--teal); margin-bottom: var(--s-2); }
+  .riga-stretta { padding-block: var(--s-3); border-top-width: 1px; }
+  .elenco-stretto { border-bottom-width: 1px; }
+  .riga-stretta .riga-quando { font-size: var(--t-m); }
+  @media (min-width: 768px) {
+    .riga-stretta { grid-template-columns: 11rem 1fr; }
+  }
+
+  .chiusura { display: grid; gap: var(--s-5); justify-items: start; padding-top: var(--s-6); border-top: var(--filetto); }
+  .chiusura h2 { font-size: var(--t-xl); }
+</style>

@@ -1,0 +1,90 @@
+---
+// Footer shared by the paper-ground pages: the Sunday line, logo and channels.
+import { Picture } from 'astro:assets';
+import { siInstagram, siSpotify } from 'simple-icons';
+import Logo from './Logo.astro';
+import { INSTAGRAM, SPOTIFY } from '../lib/sito';
+import domenicaLetto from '../assets/foto/domenica-letto.jpg';
+---
+<footer class="piede">
+  <div class="wrap"><div class="domenica-griglia">
+    <div class="domenica-foto">
+      <Picture
+        src={domenicaLetto}
+        formats={['avif', 'webp']}
+        widths={[400, 720]}
+        sizes="(min-width: 900px) 420px, calc(100vw - 32px)"
+        alt="Giova e Celi dormono abbracciati nello stesso letto, sotto una coperta a quadretti"
+        class="bn"
+      />
+    </div>
+    <p class="domenica">Meno male che domani è domenica. <span>(Di solito è lunedì.)</span></p>
+  </div></div>
+  <div class="wrap piede-dentro">
+    <Logo class="piede-logo" />
+    <a class="piede-ig" href={INSTAGRAM}>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d={siInstagram.path} fill="currentColor" /></svg>
+      @marisuglialberi
+    </a>
+    {SPOTIFY && (
+      <a class="piede-ig" href={SPOTIFY}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d={siSpotify.path} fill="currentColor" /></svg>
+        Spotify
+      </a>
+    )}
+    <p class="piede-nota">© {new Date().getFullYear()} Mari sugli alberi</p>
+  </div>
+</footer>
+
+<style>
+  /* ---------- Footer ---------- */
+  .domenica-griglia {
+    display: grid;
+    gap: var(--s-5);
+    padding-bottom: var(--s-6);
+    margin-bottom: var(--s-6);
+    border-bottom: 2px solid var(--carta);
+  }
+  .domenica-foto { aspect-ratio: 4 / 3; overflow: hidden; }
+  .domenica-foto :global(picture) { width: 100%; height: 100%; }
+  .domenica-foto :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: 50% 45%; }
+  @media (min-width: 900px) {
+    .domenica-griglia { grid-template-columns: 420px 1fr; align-items: end; gap: var(--s-7); }
+  }
+  .domenica {
+    max-width: none;
+    font-family: var(--f-display);
+    font-weight: 900;
+    font-size: var(--t-xl);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+  .domenica span {
+    display: block;
+    margin-top: var(--s-2);
+    font-family: var(--f-text);
+    font-weight: 400;
+    font-size: var(--t-m);
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--carta-tenue);
+  }
+  .piede { background: var(--ink); color: var(--carta); padding-block: var(--s-7); }
+  .piede-dentro { display: grid; gap: var(--s-5); justify-items: start; }
+  .piede :global(.piede-logo) { width: 160px; }
+  .piede-ig {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    min-height: 44px;
+    font-weight: 700;
+  }
+  .piede-ig svg { width: 22px; height: 22px; }
+  .piede-nota { font-size: var(--t-xs); color: var(--carta-tenue); }
+  .piede :focus-visible { outline-color: var(--carta); }
+  @media (min-width: 768px) {
+    .piede-dentro { grid-template-columns: auto 1fr auto auto; align-items: end; justify-items: stretch; column-gap: var(--s-6); }
+    .piede-ig { justify-self: end; }
+  }
+</style>
