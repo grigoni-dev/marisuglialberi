@@ -1,0 +1,14 @@
+---
+// Small drawn icons for controls, same heavy square stroke as the arrow.
+interface Props { nome: 'sinistra' | 'destra' | 'scarica' | 'chiudi'; class?: string }
+const { nome, class: cls } = Astro.props;
+const d = {
+  sinistra: 'M21 12H5M11 5l-7 7 7 7',
+  destra: 'M3 12h16M13 5l7 7-7 7',
+  scarica: 'M12 3v13M6 10l6 6 6-6M4 21h16',
+  chiudi: 'M5 5l14 14M19 5L5 19',
+}[nome];
+---
+<svg class:list={['icona', cls]} viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square">
+  <path d={d} />
+</svg>

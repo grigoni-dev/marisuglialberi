@@ -27,3 +27,11 @@ Ogni regola va confermata dalla band. Accanto c'è la data della conferma; "da c
 ## Richieste di ingaggio nel pannello (12/11/2026)
 
 - Nel pannello si vedono tutte le richieste, le più recenti in alto, e se ne cambia lo stato: nuova → risposta → confermata, oppure scartata.
+
+## Foto (12/11/2026, scelte dell'utente)
+
+- **Un'unica galleria** su `/foto`, le più recenti in alto. Si carica dal pannello (scheda Foto), anche più foto alla volta.
+- Le foto si **ridimensionano sul dispositivo** prima del caricamento: una versione grande (lato lungo 2048 px) e una miniatura (640 px), in WebP. Con il piano gratuito di Supabase (1 GB) ci stanno circa 3.000 foto.
+- **Foto con il pubblico:** si pubblicano. Sotto la galleria c'è la nota "Ti riconosci in una foto e vuoi che la togliamo? Scrivici su Instagram". Dal pannello una foto si nasconde o si elimina con un tocco.
+- **Scaricare:** nel visore c'è il tasto "Scarica".
+- **Descrizione per chi non vede:** facoltativa al caricamento. Se manca, vale "Foto dal vivo di Mari sugli alberi".

@@ -1,0 +1,181 @@
+---
+// The photo gallery: a contact sheet of every published photo, newest first,
+// with a full-screen viewer (arrows, swipe, Esc, download). Rendered per request, CDN-cached.
+import Base from '../layouts/Base.astro';
+import Barra from '../components/Barra.astro';
+import Piede from '../components/Piede.astro';
+import Icona from '../components/Icona.astro';
+import { fotoPubbliche } from '../lib/foto';
+import { INSTAGRAM } from '../lib/sito';
+
+export const prerender = false;
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=600');
+
+const foto = await fotoPubbliche();
+---
+
+<Base
+  title="Foto · Mari sugli alberi"
+  description="Le foto dai concerti di Mari sugli alberi: osterie, piazze, feste. Ti riconosci? Scaricala."
+>
+  <Barra />
+  <main id="contenuto" class="wrap galleria">
+    <h1>Foto</h1>
+
+    {foto.length === 0 ? (
+      <p class="vuoto">Le foto arrivano presto. Intanto ce ne sono tante su <a href={INSTAGRAM}>Instagram</a>.</p>
+    ) : (
+      <ol class="provino">
+        {foto.map((f, n) => (
+          <li>
+            <a class="scatto" href={f.grande} data-n={n} data-w={f.width} data-h={f.height}>
+              <img src={f.thumb} alt={f.alt} width={f.thumbWidth} height={f.thumbHeight} loading={n < 8 ? 'eager' : 'lazy'} decoding="async" />
+            </a>
+          </li>
+        ))}
+      </ol>
+    )}
+
+    {foto.length > 0 && <p class="nota">Ti riconosci in una foto e vuoi che la togliamo? Scrivici su <a href={INSTAGRAM}>Instagram</a>.</p>}
+  </main>
+  <Piede />
+
+  {foto.length > 0 && (
+    <dialog class="visore" aria-label="Foto a schermo intero">
+      <figure class="visore-fig">
+        <img class="visore-img" src={foto[0].grande} alt={foto[0].alt} width={foto[0].width} height={foto[0].height} decoding="async" />
+      </figure>
+      <div class="visore-barra">
+        <p class="visore-conta" aria-live="polite"></p>
+        <div class="visore-tasti">
+          <button class="visore-tasto" type="button" data-passo="-1" aria-label="Foto precedente"><Icona nome="sinistra" /></button>
+          <button class="visore-tasto" type="button" data-passo="1" aria-label="Foto successiva"><Icona nome="destra" /></button>
+          <a class="visore-tasto visore-scarica" href="" download aria-label="Scarica la foto"><Icona nome="scarica" /></a>
+          <button class="visore-tasto" type="button" data-chiudi aria-label="Chiudi"><Icona nome="chiudi" /></button>
+        </div>
+      </div>
+    </dialog>
+  )}
+</Base>
+
+<script>
+  // Viewer: a native <dialog> over the contact sheet. Arrows, swipe and Esc work;
+  // without JS each thumbnail simply opens the full-size photo.
+  const visore = document.querySelector<HTMLDialogElement>('.visore');
+  const scatti = [...document.querySelectorAll<HTMLAnchorElement>('.scatto')];
+  if (visore && scatti.length && typeof visore.showModal === 'function') {
+    const img = visore.querySelector<HTMLImageElement>('.visore-img')!;
+    const conta = visore.querySelector<HTMLElement>('.visore-conta')!;
+    const scarica = visore.querySelector<HTMLAnchorElement>('.visore-scarica')!;
+    let ora = 0;
+
+    const mostra = (n: number) => {
+      ora = (n + scatti.length) % scatti.length;
+      const s = scatti[ora];
+      img.src = s.href;
+      img.width = Number(s.dataset.w);
+      img.height = Number(s.dataset.h);
+      img.alt = s.querySelector('img')?.alt ?? '';
+      scarica.href = `${s.href}?download=mari-sugli-alberi-${ora + 1}`;
+      conta.textContent = `${ora + 1} / ${scatti.length}`;
+      // Warm up the neighbours so swiping feels instant.
+      for (const k of [ora - 1, ora + 1]) new Image().src = scatti[(k + scatti.length) % scatti.length].href;
+    };
+
+    scatti.forEach((s, n) => s.addEventListener('click', (e) => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+      e.preventDefault();
+      mostra(n);
+      visore.showModal();
+      document.documentElement.classList.add('visore-aperto');
+    }));
+    visore.addEventListener('close', () => {
+      document.documentElement.classList.remove('visore-aperto');
+      scatti[ora].focus();
+    });
+    visore.addEventListener('click', (e) => {
+      const t = e.target as HTMLElement;
+      const passo = t.closest<HTMLElement>('[data-passo]');
+      if (passo) mostra(ora + Number(passo.dataset.passo));
+      else if (t.closest('[data-chiudi]') || t === visore || t.classList.contains('visore-fig')) visore.close();
+    });
+    visore.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') mostra(ora + 1);
+      if (e.key === 'ArrowLeft') mostra(ora - 1);
+    });
+    let x0: number | null = null;
+    visore.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') x0 = e.clientX; });
+    visore.addEventListener('pointerup', (e) => {
+      if (x0 === null) return;
+      const dx = e.clientX - x0;
+      x0 = null;
+      if (Math.abs(dx) > 50) mostra(ora + (dx < 0 ? 1 : -1));
+    });
+  }
+</script>
+
+<style>
+  .galleria { padding-block: var(--s-6) var(--s-8); display: grid; gap: var(--s-6); }
+  h1 { font-size: var(--t-xxl); padding-bottom: var(--s-4); border-bottom: var(--filetto); }
+  .vuoto { font-size: var(--t-l); line-height: 1.35; }
+
+  /* Contact sheet: the same square cell for every frame, in true colour */
+  .provino {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+  @media (min-width: 640px) { .provino { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } }
+  @media (min-width: 1024px) { .provino { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; } }
+  .scatto { display: block; aspect-ratio: 1; overflow: hidden; background: var(--carta-2); cursor: zoom-in; }
+  .scatto img { width: 100%; height: 100%; object-fit: cover; transition: transform 500ms var(--esce); }
+  .scatto:hover img, .scatto:focus-visible img { transform: scale(1.03); }
+
+  .nota { padding-top: var(--s-4); border-top: var(--filetto); color: var(--ink-2); }
+
+  /* Viewer on the night ground */
+  .visore {
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: var(--ink);
+    color: var(--carta);
+    overflow: hidden;
+  }
+  .visore[open] { display: grid; grid-template-rows: minmax(0, 1fr) auto; }
+  .visore::backdrop { background: var(--ink); }
+  .visore :focus-visible { outline-color: var(--carta); }
+  .visore-fig { display: grid; place-items: center; min-height: 0; overflow: hidden; padding: var(--s-4); margin: 0; }
+  .visore-img { max-width: 100%; max-height: calc(100dvh - 120px); width: auto; height: auto; object-fit: contain; touch-action: pan-y; user-select: none; }
+  .visore-barra {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-4);
+    padding: var(--s-3) var(--margine) calc(var(--s-3) + env(safe-area-inset-bottom));
+    border-top: 2px solid var(--carta);
+  }
+  .visore-conta { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .visore-tasti { display: flex; gap: var(--s-2); }
+  .visore-tasto {
+    display: inline-grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border: 2px solid var(--carta);
+    background: transparent;
+    color: var(--carta);
+    cursor: pointer;
+    transition: background-color 160ms ease, color 160ms ease;
+  }
+  .visore-tasto:hover, .visore-tasto:focus-visible { background: var(--carta); color: var(--ink); }
+  .visore-tasto :global(.icona) { width: 22px; height: 22px; }
+  :global(html.visore-aperto) { overflow: hidden; }
+  @media (max-width: 420px) { .visore-tasto { width: 48px; height: 48px; } }
+</style>

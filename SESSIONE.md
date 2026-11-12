@@ -13,8 +13,8 @@ Build e `astro check` passano. Il detector di Impeccable non trova problemi. La 
 ## Da qui si riparte
 
 1. La band inserisce le date vere da https://marisuglialberi.vercel.app/admin (prossime e passate, per l'archivio).
-2. Prossima feature di Fase 1: **foto (album con visore) e video** (feature 6). Usa il pannello già pronto e lo Storage di Supabase; i video per ora sono segnaposto (manca YouTube).
-3. Poi: kit per gli organizzatori (7), statistiche senza cookie (9, proposta: Vercel Web Analytics).
+2. Caricare le foto vere dal pannello (scheda Foto).
+3. Prossime feature di Fase 1: kit per gli organizzatori (7), statistiche senza cookie (9, proposta: Vercel Web Analytics).
 4. Rilettura dei testi con la band: la frase sotto la copertina, Aziendale, la bonus track, la storia del panificio.
 
 ## Scelte sui testi (12/11/2026)
@@ -66,7 +66,7 @@ Peso: 🟢 statica · 🟡 con pannello · 🔵 servizio esterno
 | 3 | Chi siamo: il trio e la storia del panificio (1) | 🟢 | 🔵 | Nella home (Note di copertina). Testo provvisorio da rivedere |
 | 4 | Link in bio per Instagram e per i QR (6) | 🟢 | 🔵 | Pagina `/link` fatta, a fondo scuro: prossima data (o il motto), Instagram, il sito, "Fate anche…?", "Portaci alla tua festa". Spotify collegato (profilo artista), anche nel piè di pagina della home. Prima: Instagram: https://www.instagram.com/marisuglialberi/ (YouTube non c'è ancora) |
 | 5 | Prossime date con .ics e archivio (2) | 🟡 | ✅ | Pannello `/admin` (un accesso condiviso), date in home, `/link` e `/date` con l'archivio, file .ics. Feste private senza locale. Migrazione 0002 su dev e prod. Mancano le date vere, da inserire dal pannello |
-| 6 | Foto (album con visore) e video (4) | 🟡 | 🟠 | Foto e link dei video. Permesso per le foto del pubblico |
+| 6 | Foto (galleria con visore) e video (4) | 🟡 | ✅ foto · 🟠 video | Galleria unica `/foto` caricata dal pannello, con visore e tasto Scarica. Foto del pubblico pubblicate con la nota per toglierle. Migrazione 0003 su dev e prod. Video: manca il canale YouTube |
 | 7 | Kit per gli organizzatori (11) | 🟢 | 🟠 | Foto in alta risoluzione, logo, bio, scheda tecnica |
 | 8 | Anteprime per la condivisione, Open Graph (7) | 🟢 | 🔵 | Fatti i meta tag e `public/condivisione.jpg`. Da provare con un link vero dopo la messa online |
 | 9 | Statistiche senza cookie (12) | 🟢 | ⚪ | Proposta: Vercel Web Analytics, gratis su Hobby |

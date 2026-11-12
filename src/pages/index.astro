@@ -227,7 +227,10 @@ const striscia = [
           </div>
         </div>
 
-        <h3 class="b-titolo-foto"><span class="formato-codice">B3</span> Dal vivo</h3>
+        <div class="b-testa-foto">
+          <h3 class="b-titolo-foto"><span class="formato-codice">B3</span> Dal vivo</h3>
+          <a class="link-freccia" href="/foto">Tutte le foto <Freccia /></a>
+        </div>
       </div>
       <ul class="striscia" aria-label="Foto dai concerti">
         {striscia.map((f) => (
@@ -805,7 +808,8 @@ const brani = [...document.querySelectorAll<HTMLButtonElement>('.brano')];
     .lato-b-griglia { grid-template-columns: 1fr 1fr; gap: var(--s-8); }
   }
 
-  .b-titolo-foto { margin-top: var(--s-8); }
+  .b-testa-foto { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0 var(--s-5); margin-top: var(--s-8); }
+  .b-testa-foto .link-freccia { margin-top: 0; margin-bottom: var(--s-4); }
   .striscia {
     list-style: none;
     display: flex;
