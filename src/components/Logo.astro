@@ -1,0 +1,12 @@
+---
+// The band's wordmark, vectorised from LOGO_MSA.pdf. It inherits `color`.
+import svg from '../assets/logo.svg?raw';
+interface Props { class?: string; titolo?: boolean }
+const { class: cls, titolo = false } = Astro.props;
+const markup = titolo ? svg : svg.replace('role="img" aria-label="Mari sugli alberi"', 'aria-hidden="true"');
+---
+<span class:list={['logo', cls]} set:html={markup} />
+<style>
+  .logo { display: block; }
+  .logo :global(svg) { width: 100%; height: auto; }
+</style>

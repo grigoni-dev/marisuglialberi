@@ -1,0 +1,360 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-12T21:30:00Z",
+  "title": "Design System: Mari sugli alberi",
+  "extensions": {
+    "colorMeta": {
+      "carta": {
+        "role": "neutral",
+        "displayName": "Carta da Manifesto",
+        "canonical": "#f3eee4",
+        "tonalRamp": [
+          "#3a3835",
+          "#686561",
+          "#97938c",
+          "#c5c0b8",
+          "#f3eee4",
+          "#f5f2e9",
+          "#f8f4ee",
+          "#f9f7f1"
+        ]
+      },
+      "carta-2": {
+        "role": "neutral",
+        "displayName": "Carta Ingiallita",
+        "canonical": "#e8e0d1",
+        "tonalRamp": [
+          "#383531",
+          "#646059",
+          "#908a81",
+          "#bcb5a9",
+          "#e8e0d1",
+          "#eee8dd",
+          "#f4f0e7",
+          "#f8f5ef"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Inchiostro",
+        "canonical": "#111111",
+        "tonalRamp": [
+          "#0d0b0b",
+          "#0e0d0c",
+          "#0f0e0e",
+          "#10100f",
+          "#111111",
+          "#636260",
+          "#a8a7a4",
+          "#dedcd8"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Inchiostro Sbiadito",
+        "canonical": "#3b3632",
+        "tonalRamp": [
+          "#151311",
+          "#1f1c19",
+          "#282422",
+          "#322d2a",
+          "#3b3632",
+          "#7e7a76",
+          "#b7b4af",
+          "#e3e1dc"
+        ]
+      },
+      "rosso": {
+        "role": "primary",
+        "displayName": "Rosso Luce di Scena",
+        "canonical": "#c8202a",
+        "tonalRamp": [
+          "#320e10",
+          "#571316",
+          "#7d171d",
+          "#a21c23",
+          "#c8202a",
+          "#da6c70",
+          "#e8acad",
+          "#f4dedb"
+        ]
+      },
+      "rosso-scuro": {
+        "role": "primary",
+        "displayName": "Rosso Scuro",
+        "canonical": "#9e151d",
+        "tonalRamp": [
+          "#290c0d",
+          "#460e11",
+          "#641115",
+          "#811319",
+          "#9e151d",
+          "#be6468",
+          "#daa9a8",
+          "#efddd9"
+        ]
+      },
+      "teal": {
+        "role": "secondary",
+        "displayName": "Teal Lato B",
+        "canonical": "#1f6f6a",
+        "tonalRamp": [
+          "#101e1c",
+          "#143230",
+          "#174743",
+          "#1b5b57",
+          "#1f6f6a",
+          "#6c9f9a",
+          "#adc8c3",
+          "#e0e8e3"
+        ]
+      },
+      "teal-scuro": {
+        "role": "secondary",
+        "displayName": "Teal Scuro",
+        "canonical": "#16524e",
+        "tonalRamp": [
+          "#0e1817",
+          "#102725",
+          "#123532",
+          "#144440",
+          "#16524e",
+          "#668c88",
+          "#aabeb9",
+          "#dfe4df"
+        ]
+      },
+      "teal-chiaro": {
+        "role": "secondary",
+        "displayName": "Teal Chiaro",
+        "canonical": "#cfe3df",
+        "tonalRamp": [
+          "#333534",
+          "#5a615f",
+          "#818c89",
+          "#a8b8b4",
+          "#cfe3df",
+          "#deeae6",
+          "#ebf1ec",
+          "#f5f5f1"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Grandi titoli di sezione (Lato A, Note di copertina, Portaci alla tua festa). Maiuscolo."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Titoli dei formati e dei blocchi del Lato B. Maiuscolo."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Nomi dei brani nella tracklist; stesso carattere per bottone, scelte e crediti. Maiuscolo."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "Frase di apertura sotto la copertina e all'inizio delle sezioni."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Testo normale, massimo 65 caratteri per riga."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Codici A1/B1, etichette dei campi, menu."
+      },
+      "small": {
+        "displayName": "Small",
+        "purpose": "Note sulla privacy e del piè di pagina."
+      }
+    },
+    "shadows": [
+      {
+        "name": "disco",
+        "value": "0 10px 30px rgb(0 0 0 / 0.25)",
+        "purpose": "Solo sotto il disco che esce dalla busta, su computer."
+      },
+      {
+        "name": "nome-copertina",
+        "value": "drop-shadow(0 2px 14px rgb(0 0 0 / 0.35))",
+        "purpose": "Filtro dietro il nome della band sulla foto di copertina, per la leggibilità."
+      }
+    ],
+    "motion": [
+      {
+        "name": "esce",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Curva di uscita per tutti i movimenti (--esce)."
+      },
+      {
+        "name": "esce-dalla-busta",
+        "value": "900ms, translateY(14px) -> 0, una volta",
+        "purpose": "La copertina esce dalla busta all'apertura."
+      },
+      {
+        "name": "esce-il-disco",
+        "value": "1400ms con 200ms di ritardo, translateX(-30%) rotate(-40deg) -> 0, una volta",
+        "purpose": "Il disco esce da dietro la copertina, solo da 1024px."
+      },
+      {
+        "name": "stato",
+        "value": "160-220ms",
+        "purpose": "Cambi di stato: hover di bottone, righe, scelte, menu."
+      },
+      {
+        "name": "movimento-ridotto",
+        "value": "prefers-reduced-motion: reduce -> durate 0.01ms",
+        "purpose": "Con il movimento ridotto la pagina è già ferma."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "telefono-stretto",
+        "value": "380px"
+      },
+      {
+        "name": "modulo-due-colonne",
+        "value": "640px"
+      },
+      {
+        "name": "margine-largo",
+        "value": "768px"
+      },
+      {
+        "name": "tre-colonne",
+        "value": "900px"
+      },
+      {
+        "name": "retro-del-disco",
+        "value": "1024px"
+      },
+      {
+        "name": "colonna-piena",
+        "value": "1304px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Bottone rosso",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "L'unico bottone: un blocco rosso per chiedere una data.",
+      "html": "<a class=\"ds-bottone\" href=\"#\">Portaci alla tua festa <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3.2\" stroke-linecap=\"square\" class=\"ds-freccia\"><path d=\"M3 12h16M13 5l7 7-7 7\"/></svg></a>",
+      "css": ".ds-bottone{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:58px;padding:0 1.5rem;border:0;border-radius:0;background:var(--rosso,#c8202a);color:var(--carta,#f3eee4);font-family:var(--f-display, 'Schibsted Grotesk Variable', 'Helvetica Neue', Arial, sans-serif);font-weight:900;font-size:clamp(1.125rem,1rem + 0.6vw,1.375rem);letter-spacing:-0.02em;text-transform:uppercase;text-decoration:none;transition:background-color 160ms ease,transform 160ms cubic-bezier(0.16,1,0.3,1)} .ds-bottone .ds-freccia{width:1.1em;height:1.1em;flex:none;transition:transform 200ms cubic-bezier(0.16,1,0.3,1)} .ds-bottone:hover{background:var(--rosso-scuro,#9e151d)} .ds-bottone:hover .ds-freccia{transform:translateX(4px)} .ds-bottone:active{transform:translateY(2px)} .ds-bottone:focus-visible{outline:3px solid var(--rosso,#c8202a);outline-offset:3px}"
+    },
+    {
+      "name": "Link con freccia",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Azione secondaria: link sottolineato in grassetto con la freccia, mai un secondo bottone.",
+      "html": "<a class=\"ds-link-freccia\" href=\"#\">Guarda il repertorio <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3.2\" stroke-linecap=\"square\" class=\"ds-freccia\"><path d=\"M3 12h16M13 5l7 7-7 7\"/></svg></a>",
+      "css": ".ds-link-freccia{display:inline-flex;align-items:center;gap:0.5rem;min-height:44px;font-family:var(--f-text, 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif);font-weight:700;color:var(--ink,#111);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:0.2em} .ds-link-freccia .ds-freccia{width:1.1em;height:1.1em;transition:transform 200ms cubic-bezier(0.16,1,0.3,1)} .ds-link-freccia:hover .ds-freccia{transform:translateX(4px)} .ds-link-freccia:focus-visible{outline:3px solid var(--rosso,#c8202a);outline-offset:3px}"
+    },
+    {
+      "name": "Tracklist",
+      "kind": "custom",
+      "refersTo": "track-row",
+      "description": "Righe tra filetti da 2px; la riga scelta diventa rossa con il triangolo play.",
+      "html": "<ul class=\"ds-tracklist\"><li><button class=\"ds-brano\" aria-pressed=\"false\"><span class=\"ds-codice\">A1</span><span class=\"ds-nome\">Osteria</span><span class=\"ds-nota\">la nostra casa</span></button></li><li><button class=\"ds-brano\" aria-pressed=\"true\"><span class=\"ds-codice\">A2</span><span class=\"ds-nome\">Matrimonio</span><span class=\"ds-nota\">dopo la torta</span></button></li></ul>",
+      "css": ".ds-tracklist{list-style:none;padding:0;margin:0;border-bottom:2px solid var(--ink,#111)} .ds-brano{width:100%;display:grid;grid-template-columns:2.25rem 1fr auto;align-items:center;gap:0.75rem;min-height:52px;padding:0 0.5rem;border:0;border-top:2px solid var(--ink,#111);background:transparent;color:var(--ink,#111);text-align:left;cursor:pointer;font-family:var(--f-text, 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif);transition:background-color 180ms ease,color 180ms ease} .ds-codice{position:relative;font-weight:700;font-size:0.9375rem} .ds-nome{font-family:var(--f-display, 'Schibsted Grotesk Variable', 'Helvetica Neue', Arial, sans-serif);font-weight:900;font-size:clamp(1.375rem,1.2rem + 0.8vw,1.75rem);letter-spacing:-0.03em;text-transform:uppercase;line-height:1} .ds-nota{font-size:0.9375rem;color:var(--ink-2,#3b3632)} .ds-nota::after{content:'';display:inline-block;margin-left:0.5rem;border-style:solid;border-width:5px 0 5px 9px;border-color:transparent transparent transparent var(--rosso,#c8202a)} .ds-brano:hover{background:var(--carta-2,#e8e0d1)} .ds-brano:focus-visible{outline:3px solid var(--rosso,#c8202a);outline-offset:3px} .ds-brano[aria-pressed='true']{background:var(--rosso,#c8202a);color:var(--carta,#f3eee4)} .ds-brano[aria-pressed='true'] .ds-nota{color:var(--carta,#f3eee4)} .ds-brano[aria-pressed='true'] .ds-nota::after{border-left-color:var(--carta,#f3eee4)} .ds-brano[aria-pressed='true'] .ds-codice{color:transparent} .ds-brano[aria-pressed='true'] .ds-codice::after{content:'';position:absolute;left:0;top:50%;border-style:solid;border-width:7px 0 7px 12px;border-color:transparent transparent transparent var(--carta,#f3eee4);transform:translateY(-50%)}"
+    },
+    {
+      "name": "Scelta del modulo",
+      "kind": "chip",
+      "refersTo": "choice-chip",
+      "description": "Riquadro con filetto; la scelta attiva diventa nera.",
+      "html": "<div class=\"ds-scelte\"><label><input type=\"radio\" name=\"ds-t\" checked><span>Osteria</span></label><label><input type=\"radio\" name=\"ds-t\"><span>Matrimonio</span></label></div>",
+      "css": ".ds-scelte{display:flex;flex-wrap:wrap;gap:0.5rem} .ds-scelte label{position:relative} .ds-scelte input{position:absolute;opacity:0;inset:0;margin:0} .ds-scelte span{display:inline-flex;align-items:center;min-height:48px;padding:0 1rem;border:2px solid var(--ink,#111);font-family:var(--f-display, 'Schibsted Grotesk Variable', 'Helvetica Neue', Arial, sans-serif);font-weight:900;text-transform:uppercase;letter-spacing:-0.02em;color:var(--ink,#111);cursor:pointer;transition:background-color 160ms ease,color 160ms ease} .ds-scelte label:hover span{background:var(--carta-2,#e8e0d1)} .ds-scelte input:checked + span{background:var(--ink,#111);color:var(--carta,#f3eee4)} .ds-scelte input:focus-visible + span{outline:3px solid var(--rosso,#c8202a);outline-offset:3px}"
+    },
+    {
+      "name": "Campo del modulo",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Fondo carta ingiallita, solo un filetto sotto, cursore rosso.",
+      "html": "<label class=\"ds-campo\"><span>Dove?</span><input type=\"text\" placeholder=\"Città o nome del locale\"></label>",
+      "css": ".ds-campo{display:grid;gap:0.5rem;font-family:var(--f-text, 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif);color:var(--ink,#111)} .ds-campo span{font-weight:700} .ds-campo input{width:100%;min-height:52px;padding:0.75rem;border:0;border-bottom:2px solid var(--ink,#111);border-radius:0;background:var(--carta-2,#e8e0d1);font:inherit;font-size:1.0625rem;caret-color:var(--rosso,#c8202a)} .ds-campo input::placeholder{color:var(--ink-2,#3b3632);opacity:0.8} .ds-campo input:focus-visible{outline:3px solid var(--rosso,#c8202a);outline-offset:3px}"
+    },
+    {
+      "name": "Barra in alto",
+      "kind": "nav",
+      "refersTo": null,
+      "description": "Barra ferma, fondo carta, filetto sotto; una sola voce rossa.",
+      "html": "<nav class=\"ds-barra\"><span class=\"ds-logo\">MSA</span><ul><li><a href=\"#\">Lato A</a></li><li><a href=\"#\">Chi siamo</a></li><li><a href=\"#\">Lato B</a></li><li><a href=\"#\" class=\"ds-portaci\">Portaci alla tua festa</a></li></ul></nav>",
+      "css": ".ds-barra{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:56px;padding:0 16px;background:var(--carta,#f3eee4);border-bottom:2px solid var(--ink,#111);font-family:var(--f-text, 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif)} .ds-logo{font-family:var(--f-display, 'Schibsted Grotesk Variable', 'Helvetica Neue', Arial, sans-serif);font-weight:900;letter-spacing:-0.04em} .ds-barra ul{display:flex;gap:0.25rem;list-style:none;padding:0;margin:0;font-weight:700;font-size:0.9375rem} .ds-barra a{display:inline-flex;align-items:center;min-height:44px;padding:0 0.5rem;color:var(--ink,#111);text-decoration:none;background-image:linear-gradient(currentColor,currentColor);background-size:0 2px;background-repeat:no-repeat;background-position:0.5rem calc(100% - 10px);transition:background-size 220ms cubic-bezier(0.16,1,0.3,1)} .ds-barra a:hover{background-size:calc(100% - 1rem) 2px} .ds-barra a:focus-visible{outline:3px solid var(--rosso,#c8202a);outline-offset:3px} .ds-barra .ds-portaci{color:var(--rosso,#c8202a)}"
+    },
+    {
+      "name": "Titolo di lato",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Titolo di sezione impilato con sottotitolo sulla stessa riga e filetto sotto.",
+      "html": "<h2 class=\"ds-lato\">Lato A <span>Per la tua festa</span></h2>",
+      "css": ".ds-lato{margin:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:0 1rem;padding-bottom:1rem;border-bottom:2px solid var(--ink,#111);font-family:var(--f-display, 'Schibsted Grotesk Variable', 'Helvetica Neue', Arial, sans-serif);font-weight:900;font-size:clamp(2.75rem,2rem + 4vw,6rem);line-height:0.9;letter-spacing:-0.04em;text-transform:uppercase;color:var(--ink,#111)} .ds-lato span{font-size:clamp(1.25rem,1.1rem + 0.6vw,1.5rem);letter-spacing:-0.02em}"
+    },
+    {
+      "name": "Ricerca del Lato B",
+      "kind": "input",
+      "refersTo": "search-field-side-b",
+      "description": "Campo su fondo teal: fondo teal scuro, bordo e focus color carta.",
+      "html": "<div class=\"ds-lato-b\"><input type=\"search\" placeholder=\"Scrivi un artista o una canzone\"></div>",
+      "css": ".ds-lato-b{background:var(--teal,#1f6f6a);padding:1.5rem} .ds-lato-b input{width:100%;min-height:56px;padding:0 1rem;border:2px solid var(--carta,#f3eee4);border-radius:0;background:var(--teal-scuro,#16524e);color:var(--carta,#f3eee4);font-family:var(--f-text, 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif);font-size:1.0625rem} .ds-lato-b input::placeholder{color:var(--teal-chiaro,#cfe3df);opacity:0.85} .ds-lato-b input:focus-visible{outline:3px solid var(--carta,#f3eee4);outline-offset:3px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Manifesto, ma cool",
+    "overview": "Il sito è il retro di copertina di un disco a 33 giri. C'è una copertina quadrata con la foto della band. Accanto c'è la tracklist, che è già il modo per chiedere una data. Il resto della pagina segue il disco: Lato A per chi organizza una festa, le note di copertina per raccontare chi siamo, Lato B per chi viene ai concerti, e il retro con il modulo per prenotare.\n\nIl materiale è quello di un manifesto stampato: fondo color carta, inchiostro nero, due colori pieni e niente altro. Tutto è piatto, con angoli vivi e filetti neri spessi. I titoli sono grandi, in maiuscolo e stretti, come il logo. Il testo è semplice e molto leggibile, perché si legge spesso dal telefono, in un locale buio e rumoroso.\n\nIl movimento è poco. All'apertura la copertina esce dalla busta una volta sola; su computer esce anche il disco. Poi tutto sta fermo. Chi chiede meno movimento al sistema vede la pagina già ferma.",
+    "keyCharacteristics": [
+      "Fondo carta (`carta`), inchiostro nero (`ink`), rosso per agire, teal per le pause e il Lato B.",
+      "Titoli in Schibsted Grotesk 900, maiuscolo, interlinea 0.9, lettere strette.",
+      "Testo in Atkinson Hyperlegible Next, righe al massimo di 65 caratteri.",
+      "Righe separate da filetti neri da 2px (`--filetto`), angoli sempre vivi.",
+      "Codici A1, A2, B1… per numerare le parti, come i brani di un disco.",
+      "Foto di giorno in bianco e nero, foto con le luci del palco a colori."
+    ],
+    "rules": [
+      {
+        "name": "La Regola dei Due Colori",
+        "body": "Rosso e teal non sono mai tutti e due pieni nella stessa schermata. Se c'è un fondo teal, il rosso non c'è. Se c'è un blocco rosso, il teal resta piccolo (una parola, mai un fondo).",
+        "section": "colors"
+      },
+      {
+        "name": "La Regola del Rosso che Agisce",
+        "body": "Il rosso serve per fare qualcosa: chiedere una data, scegliere una festa. Non si usa come decorazione.",
+        "section": "colors"
+      },
+      {
+        "name": "La Regola dell'Impilato",
+        "body": "I titoli sono sempre in maiuscolo, stretti (-0.04em) e con righe vicine (0.9), come il logo. Mai titoli in minuscolo o leggeri.",
+        "section": "typography"
+      },
+      {
+        "name": "La Regola del Codice in Riga",
+        "body": "I codici A1, B1, \"Bonus track\" stanno dentro il titolo, sulla stessa riga, prima del nome. Non stanno mai sopra il titolo come una scritta piccola a parte.",
+        "section": "typography"
+      },
+      {
+        "name": "La Regola della Carta Piatta",
+        "body": "Bottoni, righe, campi e riquadri non hanno ombre. Si stacca una cosa dall'altra con un filetto o con un fondo pieno.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** numerare le parti con codici da disco (A1, A2, B1…) dentro il titolo, sulla stessa riga.",
+      "**Do** separare le righe con filetti da 2px (`--filetto`) e lasciare gli angoli vivi.",
+      "**Do** usare il blocco rosso solo per l'azione principale: chiedere una data.",
+      "**Do** mettere le foto di giorno in bianco e nero (`.bn`) e lasciare a colori quelle con le luci del palco.",
+      "**Do** usare il teal come fondo del Lato B e il colore carta per testo e filetti sopra di esso.",
+      "**Do** far muovere le cose una volta sola all'apertura, e lasciarle ferme con il movimento ridotto."
+    ],
+    "donts": [
+      "**Don't** mettere rosso e teal tutti e due pieni nella stessa schermata.",
+      "**Don't** mettere scritte piccole sopra i titoli (occhielli): il codice va nella stessa riga del titolo.",
+      "**Don't** inventare frasi, citazioni o testimonianze. Si pubblicano solo cose vere, dette davvero.",
+      "**Don't** arrotondare gli angoli o aggiungere ombre a bottoni, campi e riquadri.",
+      "**Don't** usare icone fatte con caratteri o emoji: frecce e triangoli sono disegnati.",
+      "**Don't** aggiungere un secondo stile di bottone: le azioni secondarie sono link sottolineati con la freccia."
+    ]
+  }
+}

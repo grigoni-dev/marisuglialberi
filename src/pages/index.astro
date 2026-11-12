@@ -1,0 +1,1164 @@
+---
+import { Picture } from 'astro:assets';
+import { siInstagram } from 'simple-icons';
+import Base from '../layouts/Base.astro';
+import Logo from '../components/Logo.astro';
+import Freccia from '../components/Freccia.astro';
+import repertorio from '../data/repertorio.json';
+import { prossimeDate } from '../lib/date';
+
+import copertina from '../assets/foto/copertina.jpg';
+import risate from '../assets/foto/risate.jpg';
+import nocche from '../assets/foto/nocche.jpg';
+import completo from '../assets/foto/completo-bn.jpg';
+import piazzaVoce from '../assets/foto/piazza-voce.jpg';
+import piazzaChitarra from '../assets/foto/piazza-chitarra.jpg';
+import piazzaPercussioni from '../assets/foto/piazza-percussioni.jpg';
+import piazzaBrindisi from '../assets/foto/piazza-brindisi.jpg';
+import osteria from '../assets/foto/osteria.jpg';
+import luceRossa from '../assets/foto/luce-rossa.jpg';
+import luceVerde from '../assets/foto/luce-verde.jpg';
+import osteriaUrlo from '../assets/foto/osteria-urlo.jpg';
+import palcoTrio from '../assets/foto/palco-trio.jpg';
+import domenicaLetto from '../assets/foto/domenica-letto.jpg';
+import osteriaZio from '../assets/foto/osteria-zio.jpg';
+import santino from '../assets/foto/santino.jpg';
+
+const INSTAGRAM = 'https://www.instagram.com/marisuglialberi/';
+
+const membri: { nome: string; ruolo: string; strumento: string; instagram?: string; santino?: boolean }[] = [
+  { nome: 'Giova', ruolo: 'Buongiornista', strumento: 'chitarra acustica, prima voce', instagram: 'giorigoni' },
+  { nome: 'Celi', ruolo: 'Primo scalettista', strumento: 'prima chitarra acustica, seconda voce', instagram: 'f.c.elia' },
+  { nome: 'Coraz', ruolo: 'Manager delle pentole', strumento: 'percussioni e batteria', instagram: 'matteo_coraz_corazza' },
+  { nome: 'Chambers', ruolo: '«Lo zio»', strumento: 'fonico, service e dj. Se tutto fila liscio è grazie a lui. Un santo, un apostolo.', instagram: 'chambers.marco', santino: true },
+];
+
+const brani = [
+  { codice: 'A1', tipo: 'osteria', nome: 'Bar/Osteria', nota: 'la nostra casa' },
+  { codice: 'A2', tipo: 'matrimonio', nome: 'Matrimonio', nota: 'dopo la torta' },
+  { codice: 'A3', tipo: 'aziendale', nome: 'Aziendale', nota: 'senza cravatta' },
+  { codice: 'A4', tipo: 'salotto', nome: 'Salotto', nota: 'a casa tua' },
+];
+
+// Daylight photos go black and white; stage-lit ones keep their colour.
+const striscia = [
+  { src: palcoTrio, alt: 'I tre sul palco all\'aperto: Celi canta, Giova suona in giacca gialla, Coraz dietro', bn: true },
+  { src: osteriaUrlo, alt: 'Giova urla nel microfono con la chitarra, in osteria, sotto le luci calde', bn: false },
+  { src: osteriaZio, alt: 'Giova canta e lo zio Chambers urla con lui, birra in mano, in osteria', bn: false },
+  { src: piazzaVoce, alt: 'Giova canta in piazza, sotto le foglie di un albero', bn: true },
+  { src: luceRossa, alt: 'Chitarra acustica sotto una luce rossa, in osteria', bn: false },
+  { src: piazzaPercussioni, alt: 'Coraz alle percussioni durante un concerto all\'aperto', bn: true },
+  { src: osteria, alt: 'Concerto in osteria sotto un soffitto di legno', bn: false },
+  { src: piazzaChitarra, alt: 'Un chitarrista seduto su uno sgabello, sorride mentre suona', bn: true },
+  { src: luceVerde, alt: 'Coraz suona in camicia e cravatta sotto una luce verde', bn: false },
+  { src: piazzaBrindisi, alt: 'Due della band ridono con un bicchiere in mano tra un pezzo e l\'altro', bn: true },
+];
+
+const formatoData = (iso: string) =>
+  new Date(`${iso}T12:00:00`).toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
+---
+
+<Base
+  title="Mari sugli alberi · Trio acustico di cover per osterie, matrimoni e feste"
+  description="Due chitarre acustiche, una batteria e tutta la sala che canta. Cover italiane da Mina a Calcutta. Suoniamo dove vuoi tu, anche nel tuo salotto: portaci alla tua festa."
+>
+  <header class="barra">
+    <div class="wrap barra-dentro">
+      <a class="barra-logo" href="/" aria-label="Mari sugli alberi, home"><Logo /></a>
+      <nav aria-label="Sezioni">
+        <ul class="nav-lista">
+          <li><a href="#lato-a">Lato A</a></li>
+          <li><a href="#note">Chi siamo</a></li>
+          <li><a href="#lato-b">Lato B</a></li>
+          <li><a class="nav-portaci" href="#portaci">Portaci alla tua festa</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenuto">
+    <!-- Cover: the sleeve, with the record sliding out of it on wide screens -->
+    <section class="copertina wrap" aria-labelledby="titolo">
+      <div class="busta">
+        <div class="disco" aria-hidden="true"><span><Logo /></span></div>
+        <figure class="cover">
+          <Picture
+            src={copertina}
+            formats={['avif', 'webp']}
+            widths={[420, 720, 1080]}
+            sizes="(min-width: 1024px) 560px, calc(100vw - 32px)"
+            alt="Giova, Celi e Coraz in maglietta nera davanti a un muro rosso"
+            loading="eager"
+            fetchpriority="high"
+          />
+          <h1 id="titolo" class="cover-titolo">
+            <Logo />
+            <span class="solo-lettori">Mari sugli alberi</span>
+          </h1>
+        </figure>
+      </div>
+
+      <div class="retro-cover">
+        <p class="claim">Due chitarre, una batteria e tutta la sala che canta. Cover italiane da Mina a Calcutta, dove vuoi tu.</p>
+
+        <div class="tracklist-testa">
+          <h2 class="tracklist-titolo" id="che-festa">Lato A: che festa è?</h2>
+          <span class="tracklist-scegli" aria-hidden="true">Tocca e scegli</span>
+        </div>
+        <ol class="tracklist" aria-labelledby="che-festa">
+          {brani.map((b) => (
+            <li>
+              <button type="button" class="brano" data-tipo={b.tipo} aria-pressed="false">
+                <span class="brano-codice">{b.codice}</span>
+                <span class="brano-nome">{b.nome}</span>
+                <span class="brano-nota">{b.nota}</span>
+              </button>
+            </li>
+          ))}
+        </ol>
+
+        <a class="bottone cta" href="#portaci" data-cta>
+          <span>Portaci alla tua festa</span>
+          <Freccia />
+        </a>
+      </div>
+    </section>
+
+    <!-- The band's motto, set large -->
+    <section class="motto" aria-label="Il nostro motto">
+      <div class="wrap"><p class="motto-testo">Uno spettacolo non richiesto, <span>ma che tutti vogliono.</span></p></div>
+    </section>
+
+    <!-- Side A: the formats, plus the themed show as a bonus track -->
+    <section id="lato-a" class="lato-a" aria-labelledby="lato-a-titolo">
+      <div class="wrap">
+        <h2 id="lato-a-titolo" class="lato-titolo">Lato A <span>Per la tua festa</span></h2>
+        <div class="formati">
+          <article class="formato">
+            <p class="formato-codice">A1</p>
+            <h3>Bar/Osteria</h3>
+            <p>È casa nostra. Tavoli vicini, bicchieri pieni e la gente che canta con noi. Si comincia seduti e si finisce in piedi, meno sobri di prima.</p>
+          </article>
+          <article class="formato">
+            <p class="formato-codice">A2</p>
+            <h3>Matrimonio</h3>
+            <p>Ne abbiamo già fatti, e sono feste vere. Dai nonni ai cugini ventenni, le canzoni le conoscono tutti e la scaletta la facciamo assieme.</p>
+          </article>
+          <article class="formato">
+            <p class="formato-codice">A3</p>
+            <h3>Aziendale</h3>
+            <p>Anche le aziende fanno festa. Ci siamo già stati e chi c'era si è divertito. Le cravatte le togliamo noi per primi.</p>
+          </article>
+          <article class="formato">
+            <p class="formato-codice">A4</p>
+            <h3>Salotto</h3>
+            <p>Sposti il divano, chiami gli amici e per una sera casa tua diventa un locale. Noi portiamo le chitarre, e a volte la tequila.</p>
+          </article>
+        </div>
+
+        <article class="bonus">
+          <div class="bonus-foto">
+            <Picture
+              src={nocche}
+              formats={['avif', 'webp']}
+              widths={[420, 720, 1080]}
+              sizes="(min-width: 1024px) 600px, calc(100vw - 32px)"
+              alt="Tre pugni con le lettere di MARI SUGLI ALBERI scritte sulle nocche, in completo nero e cappello"
+            />
+          </div>
+          <div class="bonus-testo">
+            <h3><span class="formato-codice">Bonus track</span> Lo spettacolo a tema</h3>
+            <p>Completo nero, cappello e occhiali scuri. Lo stesso concerto, con un altro vestito e qualche sorpresa. Lo portiamo su richiesta.</p>
+            <a class="link-freccia" href="#portaci">Chiedilo nel modulo <Freccia /></a>
+          </div>
+        </article>
+
+        <article class="bonus-dj">
+          <h3><span class="formato-codice">Bonus track 2</span> Concerto + DJ set</h3>
+          <p>Finito il concerto, lo zio Chambers passa dal mixer alla consolle e si balla fino a tardi. Ci proponiamo spesso in coppia: lo aggiungi con un tocco nel modulo.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Liner notes: who we are -->
+    <section id="note" class="note" aria-labelledby="note-titolo">
+      <div class="wrap note-griglia">
+        <div class="note-foto">
+          <Picture
+            src={risate}
+            formats={['avif', 'webp']}
+            widths={[420, 720, 1080]}
+            sizes="(min-width: 1024px) 560px, calc(100vw - 32px)"
+            alt="I tre della band ridono davanti al muro rosso, uno si copre gli occhiali con la mano"
+          />
+        </div>
+        <div class="note-testo">
+          <h2 id="note-titolo">Note di copertina</h2>
+          <p class="note-attacco">Il primo concerto l'abbiamo fatto in un panificio. Quattro ore di musica, e un sacco di amici saliti sul palco a suonare con noi.</p>
+          <p>Era ottobre 2023 ed eravamo in due. Poi siamo diventati tre sul palco, più lo zio al mixer, e lo spirito è rimasto quello: giochiamo con il pubblico, brindiamo con il pubblico, e alla fine cantano tutti.</p>
+          <dl class="crediti">
+            {membri.map((m) => (
+              <div class:list={[{ 'con-santino': m.santino }]}>
+                <dt>{m.nome}</dt>
+                <dd>
+                  <span class="credito-ruolo">{m.ruolo}</span>
+                  <span class="credito-strumento">{m.strumento}</span>
+                  {m.instagram && <a class="credito-ig" href={`https://www.instagram.com/${m.instagram}/`}>@{m.instagram}</a>}
+                </dd>
+                {m.santino && (
+                  <button type="button" class="santino zoom" data-zoom="zoom-santino" aria-haspopup="dialog">
+                    <Picture
+                      src={santino}
+                      formats={['avif', 'webp']}
+                      widths={[160, 320]}
+                      sizes="140px"
+                      alt="Il santino di Chambers: lui vestito da papa, con l'aureola e il cielo azzurro. Apri l'immagine grande"
+                    />
+                  </button>
+                )}
+              </div>
+            ))}
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <!-- Side B: for people who come to listen -->
+    <section id="lato-b" class="lato-b" aria-labelledby="lato-b-titolo">
+      <div class="wrap">
+        <h2 id="lato-b-titolo" class="lato-titolo">Lato B <span>Per chi viene a sentirci</span></h2>
+
+        <div class="lato-b-griglia">
+          <div class="b-blocco">
+            <h3><span class="formato-codice">B1</span> Prossime date</h3>
+            {prossimeDate.length > 0 ? (
+              <ol class="date">
+                {prossimeDate.map((c) => (
+                  <li>
+                    <span class="date-quando">{formatoData(c.data)}{c.ora && ` · ${c.ora}`}</span>
+                    <span class="date-dove">{c.luogo}, {c.citta}</span>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p class="vuoto">Le prossime date arrivano presto. Intanto le annunciamo su <a href={INSTAGRAM}>Instagram</a>.</p>
+            )}
+          </div>
+
+          <div class="b-blocco">
+            <h3><span class="formato-codice">B2</span> Fate anche…?</h3>
+            <form class="cerca" role="search" data-cerca>
+              <label for="cerca-brano" class="solo-lettori">Cerca una canzone nella scaletta</label>
+              <input id="cerca-brano" type="search" placeholder="Scrivi una canzone o un cantante" autocomplete="off" enterkeyhint="search" />
+            </form>
+            <p class="cerca-esito" aria-live="polite" data-esito></p>
+            <details class="scaletta">
+              <summary>Impara quelle che facciamo già, per cantarle con noi</summary>
+              <ol>
+                {repertorio.map((r) => (
+                  <li><strong>{r.titolo}</strong> <span>{r.artista}</span></li>
+                ))}
+              </ol>
+            </details>
+          </div>
+        </div>
+
+        <h3 class="b-titolo-foto"><span class="formato-codice">B3</span> Dal vivo</h3>
+      </div>
+      <ul class="striscia" aria-label="Foto dai concerti">
+        {striscia.map((f) => (
+          <li>
+            <Picture
+              src={f.src}
+              formats={['avif', 'webp']}
+              widths={[320, 640]}
+              sizes="(min-width: 1024px) 360px, 72vw"
+              alt={f.alt}
+              class={f.bn ? 'bn' : undefined}
+            />
+          </li>
+        ))}
+      </ul>
+
+      <div class="wrap">
+        <div class="video">
+          <Picture
+            src={completo}
+            formats={['avif', 'webp']}
+            widths={[420, 800, 1200]}
+            sizes="(min-width: 1024px) 1240px, calc(100vw - 32px)"
+            alt="La band in completo nero, cappello e occhiali da sole, in bianco e nero"
+          />
+          <div class="video-testo">
+            <h3><span class="formato-codice">B4</span> Il video arriva presto</h3>
+            <p>Lo stiamo montando. Intanto i pezzi dal vivo sono su Instagram.</p>
+            <a class="link-freccia" href={INSTAGRAM}>Guardali su Instagram <Freccia /></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- The back: the booking form -->
+    <section id="portaci" class="retro" aria-labelledby="portaci-titolo">
+      <div class="wrap retro-griglia">
+        <div class="retro-intro">
+          <h2 id="portaci-titolo">Portaci alla tua festa</h2>
+          <p>Dicci che festa è, quando e dove. Ti rispondiamo noi, a mano, con le idee e un preventivo. Veniamo dove vuoi tu, anche nel tuo salotto.</p>
+        </div>
+
+        <form class="modulo" method="post" action="/api/richiesta" novalidate data-modulo>
+          <fieldset class="campo campo-tipo">
+            <legend>Che festa è?</legend>
+            <div class="scelte">
+              <label><input type="radio" name="tipo" value="osteria" required /> <span>Bar/Osteria</span></label>
+              <label><input type="radio" name="tipo" value="matrimonio" /> <span>Matrimonio</span></label>
+              <label><input type="radio" name="tipo" value="aziendale" /> <span>Aziendale</span></label>
+              <label><input type="radio" name="tipo" value="salotto" /> <span>Salotto</span></label>
+              <label><input type="radio" name="tipo" value="altro" /> <span>Altra festa</span></label>
+            </div>
+            <p class="errore" id="errore-tipo" data-errore="tipo"></p>
+          </fieldset>
+
+          <div class="campi-due">
+            <div class="campo">
+              <label for="f-data">Quando <span class="facoltativo">(se lo sai già)</span></label>
+              <input id="f-data" name="data" type="date" aria-describedby="errore-data" />
+              <p class="errore" id="errore-data" data-errore="data"></p>
+            </div>
+            <div class="campo">
+              <label for="f-persone">Quante persone, più o meno</label>
+              <input id="f-persone" name="persone" type="number" inputmode="numeric" min="1" max="5000" aria-describedby="errore-persone" />
+              <p class="errore" id="errore-persone" data-errore="persone"></p>
+            </div>
+          </div>
+
+          <div class="campo">
+            <label for="f-luogo">Dove</label>
+            <input id="f-luogo" name="luogo" type="text" autocomplete="address-level2" placeholder="Città, e il locale se c'è già" required aria-describedby="errore-luogo" />
+            <p class="errore" id="errore-luogo" data-errore="luogo"></p>
+          </div>
+
+          <div class="campi-due">
+            <div class="campo">
+              <label for="f-nome">Il tuo nome</label>
+              <input id="f-nome" name="nome" type="text" autocomplete="name" required aria-describedby="errore-nome" />
+              <p class="errore" id="errore-nome" data-errore="nome"></p>
+            </div>
+            <div class="campo">
+              <label for="f-contatto">Email o telefono</label>
+              <input id="f-contatto" name="contatto" type="text" autocomplete="email" required aria-describedby="errore-contatto" />
+              <p class="errore" id="errore-contatto" data-errore="contatto"></p>
+            </div>
+          </div>
+
+          <div class="campo">
+            <label for="f-messaggio">Raccontaci la festa <span class="facoltativo">(facoltativo)</span></label>
+            <textarea id="f-messaggio" name="messaggio" rows="4" maxlength="2000" aria-describedby="errore-messaggio"></textarea>
+            <p class="errore" id="errore-messaggio" data-errore="messaggio"></p>
+          </div>
+
+          <label class="spunta">
+            <input type="checkbox" name="dj" value="si" />
+            <span>Aggiungi il DJ set dello zio dopo il concerto</span>
+          </label>
+
+          <div class="miele" aria-hidden="true">
+            <label for="f-sito">Non compilare questo campo</label>
+            <input id="f-sito" name="sito_web" type="text" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <button class="bottone invia" type="submit">
+            <span data-etichetta>Manda la richiesta</span>
+            <Freccia />
+          </button>
+          <p class="stato" role="status" aria-live="polite" data-stato></p>
+          <p class="privacy">Usiamo i tuoi dati solo per risponderti su questa festa.</p>
+        </form>
+      </div>
+    </section>
+
+    <dialog class="ingrandita" id="zoom-santino" aria-label="Il santino di Chambers">
+      <form method="dialog"><button class="chiudi" aria-label="Chiudi">Chiudi</button></form>
+      <Picture src={santino} formats={['avif', 'webp']} widths={[600, 1200]} sizes="min(90vw, 600px)" alt="Il santino di Chambers vestito da papa: San Marco da Negrisia" loading="lazy" />
+    </dialog>
+  </main>
+
+  <footer class="piede">
+    <div class="wrap"><div class="domenica-griglia">
+      <div class="domenica-foto">
+        <Picture
+          src={domenicaLetto}
+          formats={['avif', 'webp']}
+          widths={[400, 720]}
+          sizes="(min-width: 900px) 420px, calc(100vw - 32px)"
+          alt="Giova e Celi dormono abbracciati nello stesso letto, sotto una coperta a quadretti"
+          class="bn"
+        />
+      </div>
+      <p class="domenica">Meno male che domani è domenica. <span>(Di solito è lunedì.)</span></p>
+    </div></div>
+    <div class="wrap piede-dentro">
+      <Logo class="piede-logo" />
+      <a class="piede-ig" href={INSTAGRAM}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d={siInstagram.path} fill="currentColor" /></svg>
+        @marisuglialberi
+      </a>
+      <p class="piede-nota">© {new Date().getFullYear()} Mari sugli alberi</p>
+    </div>
+  </footer>
+</Base>
+
+<script>
+  import repertorio from '../data/repertorio.json';
+  import { validaRichiesta } from '../lib/richiesta';
+
+
+const brani = [...document.querySelectorAll<HTMLButtonElement>('.brano')];
+  const modulo = document.querySelector<HTMLFormElement>('[data-modulo]')!;
+  const radio = (tipo: string) => modulo.querySelector<HTMLInputElement>(`input[name="tipo"][value="${tipo}"]`);
+
+  // Signature interaction: picking a "track" lights it up and fills in the form below.
+  function scegli(tipo: string | null) {
+    for (const b of brani) b.setAttribute('aria-pressed', String(b.dataset.tipo === tipo));
+    if (tipo) {
+      const r = radio(tipo);
+      if (r) r.checked = true;
+    }
+  }
+  for (const b of brani) {
+    b.addEventListener('click', () => scegli(b.getAttribute('aria-pressed') === 'true' ? null : b.dataset.tipo!));
+  }
+  modulo.addEventListener('change', (e) => {
+    const t = e.target as HTMLInputElement;
+    if (t.name === 'tipo') scegli(t.value);
+  });
+
+  // Enlarge: small boxed pictures open full size in a native <dialog>.
+  for (const b of document.querySelectorAll<HTMLButtonElement>('[data-zoom]')) {
+    const d = document.getElementById(b.dataset.zoom!) as HTMLDialogElement | null;
+    if (!d) continue;
+    b.addEventListener('click', () => d.showModal());
+    d.addEventListener('click', (e) => { if (e.target === d) d.close(); });
+  }
+
+  // "Fate anche…?": search the setlist as you type.
+  const normalizza = (s: string) =>
+    s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+  const indice = repertorio.map((r) => ({ ...r, chiave: normalizza(`${r.titolo} ${r.artista}`) }));
+  const campoCerca = document.querySelector<HTMLInputElement>('#cerca-brano')!;
+  const esito = document.querySelector<HTMLElement>('[data-esito]')!;
+  document.querySelector('[data-cerca]')!.addEventListener('submit', (e) => e.preventDefault());
+  campoCerca.addEventListener('input', () => {
+    const q = normalizza(campoCerca.value);
+    esito.replaceChildren();
+    if (q.length < 3) return;
+    const trovati = indice.filter((r) => r.chiave.includes(q)).slice(0, 3);
+    if (!trovati.length) {
+      esito.append('Questa non la facciamo, per ora. ');
+      const a = Object.assign(document.createElement('a'), { href: '#portaci', textContent: 'Chiedicela nel modulo' });
+      esito.append(a, '.');
+      return;
+    }
+    const si = document.createElement('strong');
+    si.textContent = 'Sì! ';
+    esito.append(si, trovati.map((r) => `${r.titolo} (${r.artista})`).join(', '));
+  });
+
+  // Booking form: validate in place, send with fetch, show errors under each field.
+  const stato = modulo.querySelector<HTMLElement>('[data-stato]')!;
+  const etichetta = modulo.querySelector<HTMLElement>('[data-etichetta]')!;
+  const invia = modulo.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+
+  function mostraErrori(errori: Record<string, string>) {
+    for (const p of modulo.querySelectorAll<HTMLElement>('[data-errore]')) {
+      const nome = p.dataset.errore!;
+      p.textContent = errori[nome] ?? '';
+      modulo.querySelectorAll<HTMLInputElement>(`[name="${nome}"]`).forEach((el) => {
+        if (errori[nome]) el.setAttribute('aria-invalid', 'true');
+        else el.removeAttribute('aria-invalid');
+      });
+    }
+    const primo = Object.keys(errori)[0];
+    if (primo) modulo.querySelector<HTMLInputElement>(`[name="${primo}"]`)?.focus();
+  }
+
+  function messaggio(testo: string, link?: { href: string; testo: string }) {
+    stato.replaceChildren(testo);
+    if (link) stato.append(' ', Object.assign(document.createElement('a'), { href: link.href, textContent: link.testo }), '.');
+  }
+
+  modulo.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const dati = new FormData(modulo);
+    const campi = Object.fromEntries([...dati.entries()].map(([k, v]) => [k, String(v)]));
+    const v = validaRichiesta(campi);
+    if (!v.ok) {
+      mostraErrori(v.errori);
+      messaggio('Manca qualcosa: lo trovi segnato in rosso.');
+      return;
+    }
+    mostraErrori({});
+    invia.disabled = true;
+    etichetta.textContent = 'Sto mandando…';
+    messaggio('');
+    try {
+      const res = await fetch(modulo.action, { method: 'POST', body: dati, headers: { Accept: 'application/json' } });
+      const body = await res.json().catch(() => ({}));
+      if (res.ok) {
+        modulo.classList.add('inviato');
+        modulo.replaceChildren(Object.assign(document.createElement('p'), {
+          className: 'grazie',
+          textContent: 'Ricevuto! Ti rispondiamo appena possibile. Intanto, scaldate le voci.',
+        }));
+        return;
+      }
+      if (body.errore === 'campi') {
+        mostraErrori(body.campi ?? {});
+        messaggio('Manca qualcosa: lo trovi segnato in rosso.');
+      } else if (body.errore === 'non-attivo') {
+        messaggio('Il modulo non è ancora attivo. Per ora scrivici su', { href: 'https://www.instagram.com/marisuglialberi/', testo: 'Instagram' });
+      } else if (body.errore === 'troppe') {
+        messaggio('Hai mandato parecchie richieste di fila. Riprova tra un\'ora, o scrivici su', { href: 'https://www.instagram.com/marisuglialberi/', testo: 'Instagram' });
+      } else {
+        messaggio('Non siamo riusciti a mandarla. Riprova tra poco, o scrivici su', { href: 'https://www.instagram.com/marisuglialberi/', testo: 'Instagram' });
+      }
+    } catch {
+      messaggio('Sembra che manchi la connessione. Riprova appena torna il segnale.');
+    } finally {
+      invia.disabled = false;
+      etichetta.textContent = 'Manda la richiesta';
+    }
+  });
+</script>
+
+<style>
+  /* ---------- Top bar ---------- */
+  .barra {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--carta);
+    border-bottom: var(--filetto);
+  }
+  .barra-dentro {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-4);
+    min-height: 56px;
+  }
+  .barra-logo { width: 64px; flex: none; color: var(--ink); }
+  .nav-lista {
+    display: flex;
+    gap: var(--s-1);
+    list-style: none;
+    padding: 0;
+    font-weight: 700;
+    font-size: var(--t-s);
+  }
+  .nav-lista a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 var(--s-2);
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0 2px;
+    background-repeat: no-repeat;
+    background-position: var(--s-2) calc(100% - 10px);
+    transition: background-size 220ms var(--esce);
+  }
+  .nav-lista a:hover { background-size: calc(100% - 2 * var(--s-2)) 2px; }
+  .nav-lista li:last-child { display: none; }
+  .nav-portaci { color: var(--rosso); }
+  @media (max-width: 380px) {
+    .nav-lista li:nth-child(2) { display: none; }
+  }
+  @media (min-width: 768px) {
+    .nav-lista li:last-child { display: block; }
+  }
+
+  /* ---------- Cover ---------- */
+  .copertina {
+    padding-top: var(--s-3);
+    padding-bottom: var(--s-7);
+    display: grid;
+    gap: var(--s-4);
+  }
+  .busta { position: relative; }
+  .cover {
+    position: relative;
+    z-index: 1;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: var(--rosso-scuro);
+    animation: esce-dalla-busta 900ms var(--esce) both;
+  }
+  .cover :global(picture),
+  .bonus-foto :global(picture),
+  .note-foto :global(picture),
+  .striscia :global(picture) { width: 100%; height: 100%; }
+  .cover :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: 50% 15%; }
+  .cover-titolo {
+    position: absolute;
+    left: 4%;
+    bottom: 4%;
+    width: 58%;
+    color: var(--carta);
+    filter: drop-shadow(0 2px 14px rgb(0 0 0 / 0.35));
+  }
+  .disco { display: none; }
+
+  .claim {
+    font-size: var(--t-l);
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  .tracklist-testa {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--s-3);
+    margin-top: var(--s-3);
+    margin-bottom: var(--s-3);
+  }
+  .tracklist-titolo {
+    font-size: var(--t-s);
+    letter-spacing: 0.02em;
+  }
+  .tracklist-scegli { font-size: var(--t-s); font-weight: 700; color: var(--teal); }
+  .tracklist {
+    list-style: none;
+    padding: 0;
+    border-bottom: var(--filetto);
+  }
+  .brano {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 2.25rem 1fr auto;
+    align-items: center;
+    gap: var(--s-3);
+    min-height: 48px;
+    padding: 0 var(--s-2);
+    border: 0;
+    border-top: var(--filetto);
+    background: transparent;
+    text-align: left;
+    transition: background-color 180ms ease, color 180ms ease;
+  }
+  .brano-codice { font-weight: 700; font-size: var(--t-s); position: relative; }
+  .brano-nome {
+    font-family: var(--f-display);
+    font-weight: 900;
+    font-size: clamp(1.375rem, 1.2rem + 0.8vw, 1.75rem);
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .brano-nota { font-size: var(--t-s); color: var(--ink-2); }
+  .brano-nota::after {
+    content: '';
+    display: inline-block;
+    margin-left: var(--s-2);
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 5px 0 5px 9px;
+    border-color: transparent transparent transparent var(--rosso);
+    vertical-align: 0.05em;
+  }
+  .brano[aria-pressed='true'] .brano-nota::after { border-left-color: var(--carta); }
+  .brano:hover { background: var(--carta-2); }
+  .brano[aria-pressed='true'] { background: var(--rosso); color: var(--carta); }
+  .brano[aria-pressed='true'] .brano-nota { color: var(--carta); }
+  .brano[aria-pressed='true'] .brano-codice { color: transparent; }
+  .brano[aria-pressed='true'] .brano-codice::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 7px 0 7px 12px;
+    border-color: transparent transparent transparent var(--carta);
+    transform: translateY(-50%);
+  }
+  .cta { margin-top: var(--s-4); }
+
+  @keyframes esce-dalla-busta {
+    from { transform: translateY(14px); }
+  }
+  @keyframes esce-il-disco {
+    from { transform: translateX(-30%) rotate(-40deg); }
+  }
+
+  @media (min-width: 1024px) {
+    .copertina {
+      grid-template-columns: minmax(0, 560px) minmax(0, 1fr);
+      gap: clamp(7rem, 4rem + 6vw, 11rem);
+      align-items: end;
+      padding-top: var(--s-6);
+      padding-bottom: var(--s-8);
+    }
+    .busta { max-width: min(560px, calc(100svh - 140px)); }
+    .disco {
+      display: block;
+      position: absolute;
+      z-index: 0;
+      top: 3%;
+      right: -24%;
+      width: 94%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, var(--carta) 0 1.6%, var(--rosso) 1.9% 15%, var(--ink) 15.3%);
+      box-shadow: 0 10px 30px rgb(0 0 0 / 0.25);
+      animation: esce-il-disco 1400ms 200ms var(--esce) both;
+    }
+    .disco span {
+      position: absolute;
+      inset: 40% 40%;
+      display: grid;
+      place-items: center;
+      color: var(--carta);
+    }
+    .retro-cover { max-width: 520px; }
+  }
+
+  /* ---------- Section titles ---------- */
+  .lato-titolo {
+    font-size: var(--t-xxl);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 var(--s-4);
+    padding-bottom: var(--s-4);
+    border-bottom: var(--filetto);
+  }
+  .lato-titolo span {
+    font-size: var(--t-l);
+    letter-spacing: -0.02em;
+  }
+  .formato-codice {
+    font-family: var(--f-text);
+    font-weight: 700;
+    font-size: var(--t-s);
+    letter-spacing: 0.02em;
+    text-transform: none;
+  }
+
+  /* ---------- Side A ---------- */
+  .lato-a { padding-block: var(--s-6) var(--s-8); }
+  .formati {
+    display: grid;
+    border-bottom: var(--filetto);
+  }
+  .formato {
+    display: grid;
+    grid-template-columns: 2.25rem 1fr;
+    align-content: start;
+    column-gap: var(--s-3);
+    padding-block: var(--s-5);
+  }
+  .formato + .formato { border-top: var(--filetto); }
+  .formato .formato-codice { grid-row: span 2; padding-top: 0.35em; }
+  .formato h3 { font-size: var(--t-xl); margin-bottom: var(--s-3); }
+  .formato p:not(.formato-codice) { color: var(--ink-2); }
+  @media (min-width: 900px) {
+    .formati { grid-template-columns: repeat(2, 1fr); }
+    .formato { padding: var(--s-6) var(--s-5) var(--s-6) 0; }
+    .formato:nth-child(even) { border-left: var(--filetto); padding-left: var(--s-5); }
+    .formati .formato:nth-child(2) { border-top: 0; }
+  }
+
+  .bonus {
+    display: grid;
+    gap: var(--s-5);
+    margin-top: var(--s-7);
+  }
+  .bonus-foto { overflow: hidden; aspect-ratio: 3 / 2; }
+  .bonus-foto :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 500ms var(--esce); }
+  .bonus:hover .bonus-foto :global(img) { transform: scale(1.025); }
+  .bonus h3 { font-size: var(--t-xl); margin-bottom: var(--s-3); display: flex; align-items: baseline; gap: var(--s-3); }
+  .bonus h3 .formato-codice { flex: none; }
+  .bonus-testo p:not(.formato-codice) { color: var(--ink-2); }
+  @media (min-width: 900px) {
+    .bonus { grid-template-columns: 1.3fr 1fr; align-items: end; gap: var(--s-7); }
+  }
+
+  .bonus-dj {
+    margin-top: var(--s-7);
+    padding-top: var(--s-5);
+    border-top: var(--filetto);
+  }
+  .bonus-dj h3 { font-size: var(--t-xl); margin-bottom: var(--s-3); display: flex; align-items: baseline; gap: var(--s-3); }
+  .bonus-dj h3 .formato-codice { flex: none; }
+  .bonus-dj p { color: var(--ink-2); }
+
+  .link-freccia {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    min-height: 44px;
+    margin-top: var(--s-3);
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+  .link-freccia :global(.freccia) { width: 1.1em; height: 1.1em; transition: transform 200ms var(--esce); }
+  .link-freccia:hover :global(.freccia) { transform: translateX(4px); }
+
+  /* ---------- Liner notes ---------- */
+  .note {
+    background: var(--carta-2);
+    padding-block: var(--s-8);
+  }
+  .note-griglia { display: grid; gap: var(--s-6); }
+  .note-foto { aspect-ratio: 4 / 3; overflow: hidden; }
+  .note-foto :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; }
+  .note h2 { font-size: var(--t-xxl); margin-bottom: var(--s-5); }
+  .note-attacco { font-size: var(--t-l); font-weight: 700; line-height: 1.3; margin-bottom: var(--s-4); }
+  .note-testo > p:not(.note-attacco) { color: var(--ink-2); }
+  .crediti {
+    margin-top: var(--s-6);
+    border-top: var(--filetto);
+  }
+  .crediti div {
+    display: grid;
+    grid-template-columns: 7.5rem 1fr;
+    gap: var(--s-3);
+    padding-block: var(--s-4);
+    border-bottom: 1px solid var(--ink);
+  }
+  .crediti .con-santino { grid-template-columns: 7.5rem 1fr 112px; align-items: start; }
+  .santino {
+    margin: 0;
+    padding: 6px;
+    border: var(--filetto);
+    background: var(--carta);
+    aspect-ratio: 3 / 4;
+  }
+  .zoom { display: block; width: 100%; cursor: zoom-in; overflow: hidden; }
+  .zoom :global(img) { transition: transform 500ms var(--esce); }
+  .zoom:hover :global(img) { transform: scale(1.03); }
+  .santino :global(picture) { width: 100%; height: 100%; }
+  .santino :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; }
+  @media (max-width: 420px) {
+    .crediti .con-santino { grid-template-columns: 7.5rem 1fr; }
+    .santino { grid-column: 2; width: 140px; margin-top: var(--s-2); }
+  }
+  @media (min-width: 900px) {
+    .crediti .con-santino { grid-template-columns: 7.5rem 1fr 140px; }
+  }
+  .crediti dt {
+    font-family: var(--f-display);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+  }
+  .crediti dd { display: grid; gap: 0.1rem; color: var(--ink-2); }
+  .credito-ruolo { color: var(--ink); font-weight: 700; }
+  .credito-ig {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    font-size: var(--t-s);
+    font-weight: 700;
+    color: var(--teal);
+  }
+  .credito-ig:hover { color: var(--ink); }
+  @media (min-width: 900px) {
+    .note-griglia { grid-template-columns: 1fr 1fr; align-items: center; gap: var(--s-8); }
+  }
+
+  /* ---------- Side B: teal ground ---------- */
+  .lato-b {
+    background: var(--teal);
+    color: var(--carta);
+    padding-block: var(--s-8);
+    --filetto: 2px solid var(--carta);
+  }
+  .lato-b-griglia { display: grid; gap: var(--s-7); margin-top: var(--s-6); }
+  .b-blocco h3, .b-titolo-foto, .video h3 {
+    font-size: var(--t-xl);
+    display: flex;
+    align-items: baseline;
+    gap: var(--s-3);
+    margin-bottom: var(--s-4);
+  }
+  .vuoto { font-size: var(--t-l); line-height: 1.35; }
+  .date { list-style: none; padding: 0; border-top: var(--filetto); }
+  .date li { display: grid; gap: var(--s-1); padding-block: var(--s-3); border-bottom: 1px solid var(--carta); }
+  .date-quando { font-weight: 700; }
+
+  .cerca input {
+    width: 100%;
+    min-height: 56px;
+    padding: 0 var(--s-4);
+    border: 2px solid var(--carta);
+    border-radius: 0;
+    background: var(--teal-scuro);
+    color: var(--carta);
+    font-size: var(--t-m);
+  }
+  .cerca input::placeholder { color: var(--teal-chiaro); opacity: 0.85; }
+  .cerca input:focus-visible { outline-color: var(--carta); }
+  .cerca-esito { min-height: 3em; padding-top: var(--s-3); font-size: var(--t-m); }
+  .cerca-esito :global(strong) { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; }
+  .scaletta summary {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.2em;
+    cursor: pointer;
+  }
+  .scaletta ol {
+    margin-top: var(--s-3);
+    padding-left: 2.2em;
+    columns: 2 220px;
+    column-gap: var(--s-6);
+    font-size: var(--t-s);
+  }
+  .scaletta li { break-inside: avoid; padding-block: 0.2em; }
+  .scaletta li span { color: var(--teal-chiaro); }
+  .lato-b :focus-visible { outline-color: var(--carta); }
+  @media (min-width: 900px) {
+    .lato-b-griglia { grid-template-columns: 1fr 1fr; gap: var(--s-8); }
+  }
+
+  .b-titolo-foto { margin-top: var(--s-8); }
+  .striscia {
+    list-style: none;
+    display: flex;
+    gap: var(--s-3);
+    padding: 0 var(--margine) var(--s-3);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--margine);
+    scrollbar-color: var(--carta) var(--teal-scuro);
+  }
+  .striscia li { flex: 0 0 72vw; max-width: 360px; aspect-ratio: 4 / 5; overflow: hidden; scroll-snap-align: start; }
+  .striscia :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 500ms var(--esce); }
+  .striscia li:hover :global(img) { transform: scale(1.03); }
+  @media (min-width: 1304px) {
+    .striscia { padding-inline: calc((100vw - var(--larghezza)) / 2); scroll-padding-inline: calc((100vw - var(--larghezza)) / 2); }
+  }
+
+  .video {
+    position: relative;
+    margin-top: var(--s-7);
+    display: grid;
+    background: var(--ink);
+  }
+  .video :global(img) { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; filter: grayscale(1) contrast(1.2); opacity: 0.55; }
+  .video-testo { position: relative; z-index: 1; padding: var(--s-5); }
+  @media (min-width: 768px) {
+    .video :global(img) { aspect-ratio: 21 / 9; }
+    .video :global(picture) { grid-area: 1 / 1; }
+    .video-testo { grid-area: 1 / 1; align-self: end; padding: var(--s-6); max-width: 560px; }
+  }
+
+  /* ---------- The back: booking form ---------- */
+  .retro { padding-block: var(--s-8); }
+  .retro-griglia { display: grid; gap: var(--s-6); }
+  .retro h2 { font-size: var(--t-xxl); margin-bottom: var(--s-4); }
+  .retro-intro p { font-size: var(--t-l); line-height: 1.35; }
+  @media (min-width: 1024px) {
+    .retro-griglia { grid-template-columns: 1fr 1.2fr; gap: var(--s-8); align-items: start; }
+    .retro-intro { position: sticky; top: 96px; }
+  }
+
+  .modulo { display: grid; gap: var(--s-5); }
+  .campo { display: grid; gap: var(--s-2); border: 0; padding: 0; min-width: 0; }
+  .campo > label, .campo legend { font-weight: 700; }
+  .facoltativo { font-weight: 400; color: var(--ink-2); }
+  .campi-due { display: grid; gap: var(--s-5); }
+  @media (min-width: 640px) {
+    .campi-due { grid-template-columns: 1fr 1fr; }
+  }
+  .modulo input:not([type='radio']):not([type='checkbox']), .modulo textarea {
+    width: 100%;
+    min-height: 52px;
+    padding: var(--s-3);
+    border: 0;
+    border-bottom: var(--filetto);
+    border-radius: 0;
+    background: var(--carta-2);
+    font-size: var(--t-m);
+    caret-color: var(--rosso);
+  }
+  .modulo textarea { resize: vertical; min-height: 120px; }
+  .modulo input::placeholder, .modulo textarea::placeholder { color: var(--ink-2); opacity: 0.8; }
+  .modulo [aria-invalid='true'] { border-bottom-color: var(--rosso); background: #f5e1dd; }
+
+  .scelte { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-2); }
+  .scelte label { position: relative; }
+  .scelte input { position: absolute; opacity: 0; inset: 0; }
+  .scelte span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0 var(--s-4);
+    border: var(--filetto);
+    font-family: var(--f-display);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    transition: background-color 160ms ease, color 160ms ease;
+    cursor: pointer;
+  }
+  .scelte label:hover span { background: var(--carta-2); }
+  .scelte input:checked + span { background: var(--ink); color: var(--carta); }
+  .scelte input:focus-visible + span { outline: 3px solid var(--rosso); outline-offset: 3px; }
+
+  .spunta {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    min-height: 48px;
+    min-width: 0;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .spunta span { flex: 1; min-width: 0; }
+  .spunta input {
+    appearance: none;
+    flex: none;
+    width: 28px;
+    height: 28px;
+    margin: 0;
+    border: var(--filetto);
+    background: var(--carta);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+  .spunta input:checked { background: var(--ink); }
+  .spunta input:checked::after {
+    content: '';
+    width: 7px;
+    height: 13px;
+    border: solid var(--carta);
+    border-width: 0 3px 3px 0;
+    transform: translateY(-2px) rotate(45deg);
+  }
+  .spunta input:focus-visible { outline: 3px solid var(--rosso); outline-offset: 3px; }
+
+  .errore { color: var(--rosso-scuro); font-weight: 700; font-size: var(--t-s); }
+  .errore:empty { display: none; }
+  .miele { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .invia { width: 100%; }
+  @media (min-width: 640px) { .invia { width: auto; justify-self: start; } }
+  .stato { font-weight: 700; }
+  .stato:empty { display: none; }
+  .privacy { font-size: var(--t-xs); color: var(--ink-2); }
+  .modulo :global(.grazie) {
+    font-family: var(--f-display);
+    font-weight: 900;
+    font-size: var(--t-xl);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    padding: var(--s-6);
+    background: var(--ink);
+    color: var(--carta);
+  }
+
+  /* ---------- Motto: the one type moment ---------- */
+  .motto {
+    background: var(--ink);
+    color: var(--carta);
+    padding-block: var(--s-8);
+  }
+  .motto-testo {
+    max-width: none;
+    font-family: var(--f-display);
+    font-weight: 900;
+    font-size: var(--t-xxl);
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+  .motto-testo span { color: var(--rosso); display: block; }
+
+  /* ---------- Enlarged picture ---------- */
+  .ingrandita {
+    margin: auto;
+    max-width: min(92vw, 820px);
+    max-height: 92svh;
+    padding: var(--s-3);
+    border: var(--filetto);
+    background: var(--carta);
+    overflow: auto;
+  }
+  .ingrandita::backdrop { background: rgb(17 17 17 / 0.85); }
+  .ingrandita :global(img) { width: 100%; height: auto; max-height: calc(92svh - 96px); object-fit: contain; }
+  .ingrandita form { display: flex; justify-content: flex-end; margin-bottom: var(--s-2); }
+  .chiudi {
+    min-height: 44px;
+    padding: 0 var(--s-4);
+    border: var(--filetto);
+    background: var(--carta);
+    font-family: var(--f-display);
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+  .chiudi:hover { background: var(--ink); color: var(--carta); }
+
+  /* ---------- Footer ---------- */
+  .domenica-griglia {
+    display: grid;
+    gap: var(--s-5);
+    padding-bottom: var(--s-6);
+    margin-bottom: var(--s-6);
+    border-bottom: 2px solid var(--carta);
+  }
+  .domenica-foto { aspect-ratio: 4 / 3; overflow: hidden; }
+  .domenica-foto :global(picture) { width: 100%; height: 100%; }
+  .domenica-foto :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: 50% 45%; }
+  @media (min-width: 900px) {
+    .domenica-griglia { grid-template-columns: 420px 1fr; align-items: end; gap: var(--s-7); }
+  }
+  .domenica {
+    max-width: none;
+    font-family: var(--f-display);
+    font-weight: 900;
+    font-size: var(--t-xl);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+  .domenica span {
+    display: block;
+    margin-top: var(--s-2);
+    font-family: var(--f-text);
+    font-weight: 400;
+    font-size: var(--t-m);
+    letter-spacing: 0;
+    text-transform: none;
+    color: #bdb6aa;
+  }
+  .piede { background: var(--ink); color: var(--carta); padding-block: var(--s-7); }
+  .piede-dentro { display: grid; gap: var(--s-5); justify-items: start; }
+  .piede :global(.piede-logo) { width: 160px; }
+  .piede-ig {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    min-height: 44px;
+    font-weight: 700;
+  }
+  .piede-ig svg { width: 22px; height: 22px; }
+  .piede-nota { font-size: var(--t-xs); color: #bdb6aa; }
+  .piede :focus-visible { outline-color: var(--carta); }
+  @media (min-width: 768px) {
+    .piede-dentro { grid-template-columns: auto 1fr auto; align-items: end; justify-items: stretch; }
+    .piede-ig { justify-self: center; }
+  }
+</style>

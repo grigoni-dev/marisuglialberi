@@ -1,0 +1,20 @@
+---
+// Landing page after a booking request sent without JavaScript.
+import Base from '../layouts/Base.astro';
+import Logo from '../components/Logo.astro';
+---
+<Base title="Richiesta ricevuta · Mari sugli alberi" description="Abbiamo ricevuto la tua richiesta." noindex>
+  <main id="contenuto" class="grazie wrap">
+    <a href="/" class="grazie-logo" aria-label="Mari sugli alberi, home"><Logo /></a>
+    <h1>Ricevuto!</h1>
+    <p>Ti rispondiamo appena possibile. Intanto, scaldate le voci.</p>
+    <a class="bottone" href="/">Torna alla home</a>
+  </main>
+</Base>
+<style>
+  .grazie { min-height: 100svh; display: grid; align-content: center; gap: var(--s-5); padding-block: var(--s-7); }
+  .grazie-logo { width: 120px; }
+  h1 { font-size: var(--t-xxl); }
+  p { font-size: var(--t-l); }
+  .bottone { justify-self: start; }
+</style>
