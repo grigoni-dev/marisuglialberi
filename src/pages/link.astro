@@ -1,0 +1,168 @@
+---
+// Link in bio and QR page: opened on the phone, often in a dark room during a gig.
+// Same world as the home (DESIGN.md), on the night ground: ink, paper, red and teal.
+import { siInstagram, siSpotify } from 'simple-icons';
+import Base from '../layouts/Base.astro';
+import Logo from '../components/Logo.astro';
+import Freccia from '../components/Freccia.astro';
+import CercaScaletta from '../components/CercaScaletta.astro';
+import { prossimoConcerto, formatoDataLunga } from '../lib/date';
+import { INSTAGRAM, SPOTIFY } from '../lib/sito';
+
+// Static for now: dates live in src/lib/date.ts. When they move to Supabase this page
+// switches to `prerender = false` so "next gig" is computed per request.
+const prossimo = prossimoConcerto();
+
+const collegamenti = [
+  { href: INSTAGRAM, nome: 'Instagram', nota: '@marisuglialberi', icona: siInstagram.path },
+  ...(SPOTIFY ? [{ href: SPOTIFY, nome: 'Spotify', nota: 'ascoltaci', icona: siSpotify.path }] : []),
+  { href: '/', nome: 'Il sito', nota: 'chi siamo, formati, foto', icona: null },
+];
+---
+
+<Base
+  title="Mari sugli alberi · Link"
+  description="Prossima data, Instagram, la scaletta e il modo per portarci alla tua festa."
+  themeColor="#111111"
+>
+  <main id="contenuto" class="link">
+    <a class="link-logo" href="/" aria-label="Mari sugli alberi, home"><Logo /></a>
+    <h1 class="solo-lettori">Mari sugli alberi: tutti i link</h1>
+
+    {prossimo ? (
+      <section class="prossima" aria-labelledby="prossima-titolo">
+        <h2 id="prossima-titolo"><span class="codice">Prossima data</span> {formatoDataLunga(prossimo.data)}</h2>
+        <p class="prossima-dove">{prossimo.luogo}, {prossimo.citta}{prossimo.ora && ` · ore ${prossimo.ora}`}</p>
+        {prossimo.link && <a class="link-freccia" href={prossimo.link}>Tutti i dettagli <Freccia /></a>}
+      </section>
+    ) : (
+      <section class="prossima" aria-label="Il nostro motto">
+        <p class="motto">Uno spettacolo non richiesto, <span>ma che tutti vogliono.</span></p>
+        <p class="prossima-dove">Le prossime date arrivano presto: le annunciamo su Instagram.</p>
+      </section>
+    )}
+
+    <ul class="lista" aria-label="I nostri link">
+      {collegamenti.map((c) => (
+        <li>
+          <a class="riga" href={c.href}>
+            {c.icona ? (
+              <svg class="riga-icona" viewBox="0 0 24 24" aria-hidden="true"><path d={c.icona} fill="currentColor" /></svg>
+            ) : (
+              <Logo class="riga-icona riga-logo" />
+            )}
+            <span class="riga-nome">{c.nome}</span>
+            <span class="riga-nota">{c.nota}</span>
+            <Freccia class="riga-freccia" />
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <section class="fate-anche" aria-labelledby="fate-anche-titolo">
+      <h2 id="fate-anche-titolo">Fate anche…?</h2>
+      <CercaScaletta id="cerca-link" richiesta="/#portaci" />
+    </section>
+
+    <a class="bottone portaci" href="/#portaci">
+      <span>Portaci alla tua festa</span>
+      <Freccia />
+    </a>
+
+    <p class="domenica">Meno male che domani è domenica.</p>
+  </main>
+</Base>
+
+<style>
+  :global(body) { background: var(--ink); color: var(--carta); }
+  :global(::selection) { background: var(--rosso); color: var(--carta); }
+
+  .link {
+    --filetto: 2px solid var(--carta);
+    width: 100%;
+    max-width: 560px;
+    margin-inline: auto;
+    padding: var(--s-5) var(--margine) var(--s-7);
+    display: grid;
+    gap: var(--s-6);
+  }
+  .link :focus-visible { outline-color: var(--carta); }
+
+  .link-logo { width: 132px; color: var(--carta); }
+
+  .prossima h2 {
+    font-size: var(--t-xxl);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--s-2) var(--s-3);
+  }
+  .codice {
+    font-family: var(--f-text);
+    font-weight: 700;
+    font-size: var(--t-s);
+    letter-spacing: 0.02em;
+    text-transform: none;
+    color: var(--rosso);
+  }
+  .motto {
+    font-family: var(--f-display);
+    font-weight: 900;
+    font-size: var(--t-xl);
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+  .motto span { display: block; color: var(--rosso); }
+  .prossima-dove { margin-top: var(--s-4); font-size: var(--t-m); color: var(--carta-tenue); }
+
+  /* Link rows: the tracklist grammar, on the night ground */
+  .lista { list-style: none; padding: 0; border-bottom: var(--filetto); }
+  .riga {
+    display: grid;
+    grid-template-columns: 28px auto 1fr 22px;
+    align-items: center;
+    gap: var(--s-3);
+    min-height: 64px;
+    padding: 0 var(--s-2);
+    border-top: var(--filetto);
+    text-decoration: none;
+    transition: background-color 180ms ease, color 180ms ease;
+  }
+  .riga:hover { background: var(--teal); }
+  .riga:active { background: var(--teal-scuro); }
+  .riga-icona { width: 24px; height: 24px; }
+  .riga-logo { width: 28px; height: auto; }
+  .riga-nome {
+    font-family: var(--f-display);
+    font-weight: 900;
+    font-size: var(--t-l);
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+  .riga-nota { font-size: var(--t-s); color: var(--carta-tenue); justify-self: end; text-align: right; }
+  .riga :global(.riga-freccia) { width: 20px; height: 20px; transition: transform 200ms var(--esce); }
+  .riga:hover :global(.riga-freccia) { transform: translateX(3px); }
+  .riga:hover .riga-nota { color: var(--carta); }
+
+  .fate-anche {
+    --cerca-fondo: var(--ink-3);
+    --cerca-tenue: var(--carta-tenue);
+  }
+  .fate-anche h2 { font-size: var(--t-xl); margin-bottom: var(--s-4); }
+
+  .portaci { width: 100%; }
+
+  .domenica {
+    padding-top: var(--s-5);
+    border-top: var(--filetto);
+    font-family: var(--f-display);
+    font-weight: 900;
+    font-size: var(--t-l);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    color: var(--carta-tenue);
+  }
+</style>

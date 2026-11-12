@@ -233,6 +233,9 @@ Foto quadrata con il logo "MARI / SUGLI / ALBERI" in carta in basso a sinistra. 
 ### Immagini da ingrandire
 - **Le immagini da ingrandire** (per ora il santino di Chambers) sono bottoni con il cursore a lente. Si aprono in un `<dialog>` nativo con il fondo carta, il filetto nero e il bottone "Chiudi". Il dialog si chiude anche con Esc o toccando fuori.
 
+### Il fondo notte (pagina /link)
+La pagina che si apre dal QR e dal link in bio usa il fondo `--ink`, con il testo in `--carta` e quello secondario in `--carta-tenue`. I filetti sono color carta. Le righe dei link seguono la grammatica della tracklist: icona, nome in display maiuscolo, nota a destra, freccia. Passandoci sopra diventano teal. Il motto è in `--t-xl`, con la seconda metà in rosso. Il bottone rosso resta quello di sempre. La colonna è larga al massimo 560 px, centrata. Il campo della ricerca usa `--ink-3`.
+
 ### Motto e slogan
 - **Il motto** "Uno spettacolo non richiesto, ma che tutti vogliono." è l'unico momento tipografico della pagina. Sta in una fascia nera a tutta larghezza fra la copertina e il Lato A, in `--t-xxl`. La seconda metà della frase è in rosso.
 - **"Meno male che domani è domenica."** chiude il sito nel piè di pagina, in `--t-xl`, seguito da "(Di solito è lunedì.)" in testo normale.

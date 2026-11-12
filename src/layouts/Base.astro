@@ -8,9 +8,10 @@ interface Props {
   description: string;
   image?: string;
   noindex?: boolean;
+  themeColor?: string;
 }
 
-const { title, description, image = '/condivisione.jpg', noindex = false } = Astro.props;
+const { title, description, image = '/condivisione.jpg', noindex = false, themeColor = '#f3eee4' } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const immagine = new URL(image, Astro.site);
 ---
@@ -24,7 +25,7 @@ const immagine = new URL(image, Astro.site);
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex" />}
-    <meta name="theme-color" content="#f3eee4" />
+    <meta name="theme-color" content={themeColor} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <meta property="og:type" content="website" />

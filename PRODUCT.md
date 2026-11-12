@@ -81,7 +81,8 @@ Vincoli:
 - Le frasi celebri della band e dei fan: esistono, ma vanno raccolte. Si pubblicano solo frasi vere, e quelle dei fan solo con il loro permesso (o senza nome).
 - La storia del primo concerto nel panificio: quattro ore, con tanti ospiti sul palco.
 - 14 foto in `assets/images/` (fuori da git, originali pesanti): concerti all'aperto sotto gli alberi, serate in osteria con luci rosse e verdi, il pubblico attaccato al palco, la posa in completo nero e cappello.
-- Instagram: https://www.instagram.com/marisuglialberi/. Per ora non c'è un canale YouTube: i video hanno un segnaposto.
+- Instagram: https://www.instagram.com/marisuglialberi/.
+- Spotify, profilo artista: https://open.spotify.com/artist/03b8QmCN0Z7MMAYlQXRnoC. Per ora non c'è un canale YouTube: i video hanno un segnaposto.
 - **Non ci sono ancora** testimonianze scritte, l'elenco delle date, la scheda tecnica, il merch né gli indirizzi social. Non vanno inventati: finché mancano, le sezioni restano vuote o dicono "in arrivo".
 - Manca il permesso di pubblicare le foto del pubblico.
 

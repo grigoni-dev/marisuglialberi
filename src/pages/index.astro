@@ -1,10 +1,11 @@
 ---
 import { Picture } from 'astro:assets';
-import { siInstagram } from 'simple-icons';
+import { siInstagram, siSpotify } from 'simple-icons';
+import { SPOTIFY } from '../lib/sito';
 import Base from '../layouts/Base.astro';
 import Logo from '../components/Logo.astro';
 import Freccia from '../components/Freccia.astro';
-import repertorio from '../data/repertorio.json';
+import CercaScaletta from '../components/CercaScaletta.astro';
 import { prossimeDate } from '../lib/date';
 
 import copertina from '../assets/foto/copertina.jpg';
@@ -247,19 +248,7 @@ const formatoData = (iso: string) =>
 
           <div class="b-blocco">
             <h3><span class="formato-codice">B2</span> Fate anche…?</h3>
-            <form class="cerca" role="search" data-cerca>
-              <label for="cerca-brano" class="solo-lettori">Cerca una canzone nella scaletta</label>
-              <input id="cerca-brano" type="search" placeholder="Scrivi una canzone o un cantante" autocomplete="off" enterkeyhint="search" />
-            </form>
-            <p class="cerca-esito" aria-live="polite" data-esito></p>
-            <details class="scaletta">
-              <summary>Impara quelle che facciamo già, per cantarle con noi</summary>
-              <ol>
-                {repertorio.map((r) => (
-                  <li><strong>{r.titolo}</strong> <span>{r.artista}</span></li>
-                ))}
-              </ol>
-            </details>
+            <CercaScaletta id="cerca-brano" richiesta="#portaci" />
           </div>
         </div>
 
@@ -403,13 +392,18 @@ const formatoData = (iso: string) =>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d={siInstagram.path} fill="currentColor" /></svg>
         @marisuglialberi
       </a>
+      {SPOTIFY && (
+        <a class="piede-ig" href={SPOTIFY}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d={siSpotify.path} fill="currentColor" /></svg>
+          Spotify
+        </a>
+      )}
       <p class="piede-nota">© {new Date().getFullYear()} Mari sugli alberi</p>
     </div>
   </footer>
 </Base>
 
 <script>
-  import repertorio from '../data/repertorio.json';
   import { validaRichiesta } from '../lib/richiesta';
 
 
@@ -440,29 +434,6 @@ const brani = [...document.querySelectorAll<HTMLButtonElement>('.brano')];
     b.addEventListener('click', () => d.showModal());
     d.addEventListener('click', (e) => { if (e.target === d) d.close(); });
   }
-
-  // "Fate anche…?": search the setlist as you type.
-  const normalizza = (s: string) =>
-    s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
-  const indice = repertorio.map((r) => ({ ...r, chiave: normalizza(`${r.titolo} ${r.artista}`) }));
-  const campoCerca = document.querySelector<HTMLInputElement>('#cerca-brano')!;
-  const esito = document.querySelector<HTMLElement>('[data-esito]')!;
-  document.querySelector('[data-cerca]')!.addEventListener('submit', (e) => e.preventDefault());
-  campoCerca.addEventListener('input', () => {
-    const q = normalizza(campoCerca.value);
-    esito.replaceChildren();
-    if (q.length < 3) return;
-    const trovati = indice.filter((r) => r.chiave.includes(q)).slice(0, 3);
-    if (!trovati.length) {
-      esito.append('Questa non la facciamo, per ora. ');
-      const a = Object.assign(document.createElement('a'), { href: '#portaci', textContent: 'Chiedicela nel modulo' });
-      esito.append(a, '.');
-      return;
-    }
-    const si = document.createElement('strong');
-    si.textContent = 'Sì! ';
-    esito.append(si, trovati.map((r) => `${r.titolo} (${r.artista})`).join(', '));
-  });
 
   // Booking form: validate in place, send with fetch, show errors under each field.
   const stato = modulo.querySelector<HTMLElement>('[data-stato]')!;
@@ -893,39 +864,6 @@ const brani = [...document.querySelectorAll<HTMLButtonElement>('.brano')];
   .date li { display: grid; gap: var(--s-1); padding-block: var(--s-3); border-bottom: 1px solid var(--carta); }
   .date-quando { font-weight: 700; }
 
-  .cerca input {
-    width: 100%;
-    min-height: 56px;
-    padding: 0 var(--s-4);
-    border: 2px solid var(--carta);
-    border-radius: 0;
-    background: var(--teal-scuro);
-    color: var(--carta);
-    font-size: var(--t-m);
-  }
-  .cerca input::placeholder { color: var(--teal-chiaro); opacity: 0.85; }
-  .cerca input:focus-visible { outline-color: var(--carta); }
-  .cerca-esito { min-height: 3em; padding-top: var(--s-3); font-size: var(--t-m); }
-  .cerca-esito :global(strong) { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; }
-  .scaletta summary {
-    display: flex;
-    align-items: center;
-    min-height: 44px;
-    font-weight: 700;
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 0.2em;
-    cursor: pointer;
-  }
-  .scaletta ol {
-    margin-top: var(--s-3);
-    padding-left: 2.2em;
-    columns: 2 220px;
-    column-gap: var(--s-6);
-    font-size: var(--t-s);
-  }
-  .scaletta li { break-inside: avoid; padding-block: 0.2em; }
-  .scaletta li span { color: var(--teal-chiaro); }
   .lato-b :focus-visible { outline-color: var(--carta); }
   @media (min-width: 900px) {
     .lato-b-griglia { grid-template-columns: 1fr 1fr; gap: var(--s-8); }
@@ -1142,7 +1080,7 @@ const brani = [...document.querySelectorAll<HTMLButtonElement>('.brano')];
     font-size: var(--t-m);
     letter-spacing: 0;
     text-transform: none;
-    color: #bdb6aa;
+    color: var(--carta-tenue);
   }
   .piede { background: var(--ink); color: var(--carta); padding-block: var(--s-7); }
   .piede-dentro { display: grid; gap: var(--s-5); justify-items: start; }
@@ -1155,10 +1093,10 @@ const brani = [...document.querySelectorAll<HTMLButtonElement>('.brano')];
     font-weight: 700;
   }
   .piede-ig svg { width: 22px; height: 22px; }
-  .piede-nota { font-size: var(--t-xs); color: #bdb6aa; }
+  .piede-nota { font-size: var(--t-xs); color: var(--carta-tenue); }
   .piede :focus-visible { outline-color: var(--carta); }
   @media (min-width: 768px) {
-    .piede-dentro { grid-template-columns: auto 1fr auto; align-items: end; justify-items: stretch; }
-    .piede-ig { justify-self: center; }
+    .piede-dentro { grid-template-columns: auto 1fr auto auto; align-items: end; justify-items: stretch; column-gap: var(--s-6); }
+    .piede-ig { justify-self: end; }
   }
 </style>

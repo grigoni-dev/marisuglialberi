@@ -1,0 +1,95 @@
+---
+// "Fate anche…?": search the setlist as you type, plus the full list to learn.
+// Colours come from the surrounding section: --cerca-fondo (field) and --cerca-tenue (secondary text).
+import repertorio from '../data/repertorio.json';
+
+interface Props {
+  id: string;
+  /** Where "Chiedicela" points when a song isn't in the setlist. */
+  richiesta?: string;
+}
+const { id, richiesta = '/#portaci' } = Astro.props;
+---
+
+<div class="cerca-scaletta" data-cerca-scaletta data-richiesta={richiesta}>
+  <form class="cerca" role="search">
+    <label for={id} class="solo-lettori">Cerca una canzone nella scaletta</label>
+    <input id={id} type="search" placeholder="Scrivi una canzone o un cantante" autocomplete="off" enterkeyhint="search" />
+  </form>
+  <p class="cerca-esito" aria-live="polite" data-esito></p>
+  <details class="scaletta">
+    <summary>Impara quelle che facciamo già, per cantarle con noi</summary>
+    <ol>
+      {repertorio.map((r) => (
+        <li><strong>{r.titolo}</strong> <span>{r.artista}</span></li>
+      ))}
+    </ol>
+  </details>
+</div>
+
+<script>
+  import repertorio from '../data/repertorio.json';
+
+  const normalizza = (s: string) =>
+    s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+  const indice = repertorio.map((r) => ({ ...r, chiave: normalizza(`${r.titolo} ${r.artista}`) }));
+
+  for (const box of document.querySelectorAll<HTMLElement>('[data-cerca-scaletta]')) {
+    const campo = box.querySelector<HTMLInputElement>('input[type="search"]')!;
+    const esito = box.querySelector<HTMLElement>('[data-esito]')!;
+    box.querySelector('form')!.addEventListener('submit', (e) => e.preventDefault());
+    campo.addEventListener('input', () => {
+      const q = normalizza(campo.value);
+      esito.replaceChildren();
+      if (q.length < 3) return;
+      // Match from the start of a word, so "mina" finds Mina and not Fulminacci.
+      const trovati = indice.filter((r) => ` ${r.chiave}`.includes(` ${q}`)).slice(0, 3);
+      if (!trovati.length) {
+        esito.append('Questa non la facciamo, per ora. ');
+        const a = Object.assign(document.createElement('a'), { href: box.dataset.richiesta!, textContent: 'Chiedicela' });
+        esito.append(a, '.');
+        return;
+      }
+      const si = document.createElement('strong');
+      si.textContent = 'Sì! ';
+      esito.append(si, trovati.map((r) => `${r.titolo} (${r.artista})`).join(', '));
+    });
+  }
+</script>
+
+<style>
+  .cerca input {
+    width: 100%;
+    min-height: 56px;
+    padding: 0 var(--s-4);
+    border: 2px solid var(--carta);
+    border-radius: 0;
+    background: var(--cerca-fondo, var(--teal-scuro));
+    color: var(--carta);
+    font-size: var(--t-m);
+    caret-color: var(--rosso);
+  }
+  .cerca input::placeholder { color: var(--cerca-tenue, var(--teal-chiaro)); opacity: 0.85; }
+  .cerca input:focus-visible { outline-color: var(--carta); }
+  .cerca-esito { min-height: 3em; padding-top: var(--s-3); font-size: var(--t-m); }
+  .cerca-esito :global(strong) { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; }
+  .scaletta summary {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.2em;
+    cursor: pointer;
+  }
+  .scaletta ol {
+    margin-top: var(--s-3);
+    padding-left: 2.2em;
+    columns: 2 220px;
+    column-gap: var(--s-6);
+    font-size: var(--t-s);
+  }
+  .scaletta li { break-inside: avoid; padding-block: 0.2em; }
+  .scaletta li span { color: var(--cerca-tenue, var(--teal-chiaro)); }
+</style>
