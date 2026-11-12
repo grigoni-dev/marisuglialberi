@@ -69,7 +69,7 @@ Peso: 🟢 statica · 🟡 con pannello · 🔵 servizio esterno
 | 6 | Foto (galleria con visore) e video (4) | 🟡 | ✅ foto · 🟠 video | Galleria unica `/foto` caricata dal pannello, con visore e tasto Scarica. Foto del pubblico pubblicate con la nota per toglierle. Migrazione 0003 su dev e prod. Video: manca il canale YouTube |
 | 7 | Kit per gli organizzatori (11) | 🟢 | 🟠 | Foto in alta risoluzione, logo, bio, scheda tecnica |
 | 8 | Anteprime per la condivisione, Open Graph (7) | 🟢 | 🔵 | Fatti i meta tag e `public/condivisione.jpg`. Da provare con un link vero dopo la messa online |
-| 9 | Statistiche senza cookie (12) | 🟢 | ⚪ | Proposta: Vercel Web Analytics, gratis su Hobby |
+| 9 | Statistiche senza cookie (12) | 🟢 | ✅ | Vercel Web Analytics nelle pagine pubbliche (non in `/admin` e `/grazie`). Va attivato una volta su Vercel → progetto → Analytics → Enable. Da citare nella futura pagina privacy |
 
 ### Fase 2: subito dopo
 

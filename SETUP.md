@@ -58,6 +58,10 @@ Le migrazioni si eseguono a mano nel SQL Editor, in ordine, **prima su dev e poi
 
 Le funzioni del sito girano a Dublino (`regions: ["dub1"]` in `vercel.json`), vicino al database in Irlanda.
 
+## Statistiche
+
+Le visite si contano con **Vercel Web Analytics**: niente cookie e nessun dato personale, quindi non serve il banner. Si attiva una volta sola: Vercel → progetto `marisuglialberi` → **Analytics** → **Enable**. I numeri si leggono nella stessa pagina. Il piano Hobby include un numero limitato di eventi al mese, che per un sito di band basta.
+
 ## 4. Prova completa
 
 1. Apri il sito, vai in fondo alla home e manda una richiesta dal modulo "Portaci alla tua festa".

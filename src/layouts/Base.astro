@@ -2,6 +2,7 @@
 import '@fontsource-variable/schibsted-grotesk/wght.css';
 import '@fontsource-variable/atkinson-hyperlegible-next/wght.css';
 import '../styles/global.css';
+import Analytics from '@vercel/analytics/astro';
 
 interface Props {
   title: string;
@@ -40,5 +41,6 @@ const immagine = new URL(image, Astro.site);
   <body>
     <a class="salta" href="#contenuto">Vai al contenuto</a>
     <slot />
+    {!noindex && <Analytics />}
   </body>
 </html>
