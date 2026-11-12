@@ -33,7 +33,7 @@ Le migrazioni si eseguono a mano nel SQL Editor, in ordine, **prima su dev e poi
 
 | File | Cosa fa | dev | prod |
 |---|---|---|---|
-| `0001_richieste.sql` | Richieste di ingaggio e limite di richieste | | |
+| `0001_richieste.sql` | Richieste di ingaggio e limite di richieste | ✅ 12/11/2026 | ✅ 12/11/2026 |
 
 ## 2. Resend (email delle richieste)
 

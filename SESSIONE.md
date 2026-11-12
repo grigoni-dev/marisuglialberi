@@ -112,12 +112,14 @@ Nella scaletta ho sistemato alcuni titoli. Da confermare con la band:
 
 - Installati Impeccable (plugin), Playwright MCP, la CLI di Vercel, awesome-design-md (in `~/Development/riferimenti/`) e Taste.
 - `gh` ha il login come `grigoni-dev`.
-- Repository pubblico: https://github.com/grigoni-dev/marisuglialberi (branch `main`). Non è ancora collegato a Vercel, quindi il push per ora non pubblica niente.
+- Repository pubblico: https://github.com/grigoni-dev/marisuglialberi (branch `main`). È collegato a Vercel: **ogni push su `main` pubblica il sito**.
 
 ## Da fare
 
-- `vercel login` con l'account del progetto, quando si arriva alla messa online.
-- Creare su Supabase i progetti `marisuglialberi-dev` e `marisuglialberi-prod`, in Europa (Irlanda).
+- Supabase **dev** creato e collegato al `.env`, con la migrazione 0001 eseguita. Il modulo è provato: la richiesta si salva, il pubblico non può leggerla. Il ref del progetto è in `NOTE-PRIVATE.md`.
+- **Sito online** su https://marisuglialberi.vercel.app (Vercel Hobby, account della Gmail del progetto, collegato a GitHub: ogni push su `main` pubblica). Le funzioni girano a Dublino (`dub1`). Variabili di prod inserite su Vercel (12/11/2026).
+- Resend creato con la Gmail del progetto e provato in locale: l'email della richiesta arriva (12/11/2026).
+- Supabase **prod** creato (Irlanda), con la migrazione 0001 eseguita e le registrazioni chiuse. Le sue chiavi vanno solo su Vercel.
 
 ## Materiale che manca
 
