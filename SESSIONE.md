@@ -112,6 +112,7 @@ Nella scaletta ho sistemato alcuni titoli. Da confermare con la band:
 
 - Installati Impeccable (plugin), Playwright MCP, la CLI di Vercel, awesome-design-md (in `~/Development/riferimenti/`) e Taste.
 - `gh` ha il login come `grigoni-dev`.
+- Repository pubblico: https://github.com/grigoni-dev/marisuglialberi (branch `main`). Non è ancora collegato a Vercel, quindi il push per ora non pubblica niente.
 
 ## Da fare
 
