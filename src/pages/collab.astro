@@ -11,12 +11,13 @@ export const prerender = false;
 Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=600');
 
 type Collab = {
-  id: string; categoria: 'dj' | 'foto_video' | 'musicisti' | 'locali'; nome: string; descrizione: string | null;
+  id: string; categoria: 'dj' | 'foto_video' | 'musicisti' | 'locali' | 'grafica'; nome: string; descrizione: string | null;
   citta: string | null; instagram: string | null; sito: string | null; foto_path: string | null;
 };
 
 const CATEGORIE = [
   { id: 'dj', titolo: 'DJ', attacco: 'Per far ballare la sala dopo il concerto. Per matrimoni ed eventi aziendali li puoi chiedere direttamente nel modulo.' },
+  { id: 'grafica', titolo: 'Grafica e disegni', attacco: 'Chi disegna le nostre locandine e il nostro merch.' },
   { id: 'foto_video', titolo: 'Foto e video', attacco: 'Chi ci fotografa e ci riprende. Se vuoi un ricordo della tua festa, chiedi a loro.' },
   { id: 'musicisti', titolo: 'Altri musicisti', attacco: 'Band e artisti con cui suoniamo o ci passiamo le serate.' },
   { id: 'locali', titolo: 'Locali amici', attacco: 'Le osterie e i locali che ci ospitano e dove si sta bene.' },
@@ -35,7 +36,7 @@ const fotoUrl = (p: string) => `${PUBLIC_SUPABASE_URL}/storage/v1/object/public/
 
 <Base
   title="Collab · Mari sugli alberi"
-  description="DJ, fotografi, musicisti e locali amici con cui collabora Mari sugli alberi."
+  description="DJ, grafici e disegnatori, fotografi, musicisti e locali amici con cui collabora Mari sugli alberi."
 >
   <Barra />
   <main id="contenuto" class="wrap collab">

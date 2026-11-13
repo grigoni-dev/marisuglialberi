@@ -4,18 +4,18 @@
 
 Il sito è online su https://marisuglialberi.vercel.app. Ci sono queste pagine:
 - home ("Il retro del vinile"), con il modulo "Portaci alla tua festa", la scelta del DJ e "Siamo liberi quella sera?";
-- `/link`, `/date` (con l'archivio e la mappa "Il giro delle osterie"), `/foto`, `/kit`, `/collab`, `/privacy`;
-- il pannello `/admin`, con le schede Date, Richieste, Foto, Frasi, Testimonianze, Ospiti e Collab.
+- `/link`, `/date` (con l'archivio e la mappa "Il giro delle osterie"), `/foto`, `/kit`, `/collab`, `/merch`, `/privacy`;
+- il pannello `/admin`, con le schede Date, Richieste, Foto, Frasi, Testimonianze, Ospiti, Collab e Merch.
 
-Le migrazioni sono eseguite su dev e su prod fino alla 0009, e la pulizia automatica dei dati è attiva.
+Le migrazioni sono eseguite su dev e su prod fino alla 0010, e la pulizia automatica dei dati è attiva.
 
-Le Fasi 1 e 2 sono complete, tranne il merch (manca il materiale). Della Fase 3 sono fatti la mappa, la mancia e l'albo degli ospiti; "Stasera" è in sospeso e "Avvisami" è rimandata finché non c'è un dominio.
+Le Fasi 1 e 2 sono complete; il merch è una vetrina in attesa di foto e prezzi. Della Fase 3 sono fatti la mappa, la mancia e l'albo degli ospiti; "Stasera" è in sospeso e "Avvisami" è rimandata finché non c'è un dominio.
 
 ## Da qui si riparte
 
 1. **Contenuti dal pannello**, da inserire da parte della band: le date vere (anche quelle passate, per l'archivio e la mappa), le foto, le testimonianze, gli ospiti, i collaboratori. Dopo aver inserito date passate già salvate prima della mappa: Date → "Trova le posizioni".
 2. **Decisione sul dominio** (per esempio `marisuglialberi.it`, circa 10-15 € l'anno): sblocca "Avvisami", le email da un indirizzo vostro e un indirizzo più bello per QR e volantini.
-3. **Merch**: servono gli articoli, le foto, i prezzi e i link PayPal.
+3. **Merch**: la vetrina c'è. Dal pannello vanno inseriti le foto, i prezzi, le descrizioni e gli artisti delle grafiche (in Collab → Grafica e disegni).
 4. Da completare nel kit: prese di corrente e lista dei canali; foto più grandi per la stampa.
 5. Da decidere: "Meno male" o "Per fortuna" che domani è domenica (oggi ci sono entrambe).
 6. Ultima rilettura dei testi con la band: frase sotto la copertina, Aziendale, bonus track, storia del panificio, bio del kit.
@@ -81,7 +81,7 @@ Peso: 🟢 statica · 🟡 con pannello · 🔵 servizio esterno
 | 10 | Repertorio con ricerca, "fate anche…?" (8) | 🟡 | 🔵 | Nella home (Lato B): ricerca e scaletta completa da `src/data/repertorio.json`. Manca la gestione dal pannello |
 | 11 | Dicono di noi: testimonianze (10) | 🟡 | ✅ codice · 🟠 contenuti | Scheda nel pannello e sezione "Dicono di noi" nel Lato A, nascosta finché è vuota. Mancano le testimonianze vere |
 | 12 | "Siamo liberi quella sera?" nel booking (16) | 🟡 | ✅ | Nel modulo, alla scelta della data. Vista `giorni_occupati` (0004): esce solo il giorno |
-| 13 | Merch con link PayPal (5) | 🟢🔵 | 🟠 | Elenco del merch, foto, prezzi, link PayPal |
+| 13 | Merch (5) | 🟡 | ✅ codice · 🟠 contenuti | Vetrina `/merch` (ritiro al live, spedizione su richiesta, "Lo voglio" via Instagram), scheda Merch nel pannello con più foto per articolo, credit agli artisti da Collab (categoria "Grafica e disegni"). Migrazione 0010. Mancano foto e prezzi |
 | 14 | Le frasi celebri: cose dette dalla band o dai fan (19, aggiunta dall'utente) | 🟡 | ✅ | Scheda Frasi nel pannello e sezione in home (una alla volta, "Un'altra"). Le prime 7 sono nella migrazione 0005 |
 
 ### Aggiunte durante il lavoro

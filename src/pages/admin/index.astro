@@ -48,6 +48,7 @@ import Logo from '../../components/Logo.astro';
         <button type="button" role="tab" id="t-testimonianze" aria-controls="p-testimonianze" aria-selected="false" data-scheda="testimonianze">Testimonianze</button>
         <button type="button" role="tab" id="t-ospiti" aria-controls="p-ospiti" aria-selected="false" data-scheda="ospiti">Ospiti</button>
         <button type="button" role="tab" id="t-collab" aria-controls="p-collab" aria-selected="false" data-scheda="collab">Collab</button>
+        <button type="button" role="tab" id="t-merch" aria-controls="p-merch" aria-selected="false" data-scheda="merch">Merch</button>
       </div>
 
       <!-- Dates -->
@@ -235,6 +236,7 @@ import Logo from '../../components/Logo.astro';
               <label for="co-cat">Categoria</label>
               <select id="co-cat" name="categoria" required>
                 <option value="dj">DJ</option>
+                <option value="grafica">Grafica e disegni</option>
                 <option value="foto_video">Foto e video</option>
                 <option value="musicisti">Altri musicisti</option>
                 <option value="locali">Locali amici</option>
@@ -279,6 +281,62 @@ import Logo from '../../components/Logo.astro';
           <div>
             <h2>Collaboratori</h2>
             <ol class="lista" data-lista-collab></ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- Merch -->
+      <div role="tabpanel" id="p-merch" aria-labelledby="t-merch" data-pannello="merch" hidden>
+        <div class="adm-griglia">
+          <form class="adm-form" data-form-merch novalidate>
+            <h2 data-merch-titolo>Nuovo articolo</h2>
+            <input type="hidden" name="id" />
+            <div class="campo">
+              <label for="me-nome">Nome</label>
+              <input id="me-nome" name="nome" type="text" maxlength="80" required />
+            </div>
+            <div class="campo">
+              <label for="me-desc">Due righe <span class="facoltativo">(facoltative: colore, materiale, com'è)</span></label>
+              <textarea id="me-desc" name="descrizione" rows="3" maxlength="400"></textarea>
+            </div>
+            <div class="due">
+              <div class="campo">
+                <label for="me-prezzo">Prezzo in € <span class="facoltativo">(vuoto = "in arrivo")</span></label>
+                <input id="me-prezzo" name="prezzo" type="number" min="0" step="0.5" inputmode="decimal" />
+              </div>
+              <div class="campo">
+                <label for="me-ordine">Ordine</label>
+                <input id="me-ordine" name="ordine" type="number" value="0" />
+              </div>
+            </div>
+            <div class="campo">
+              <label for="me-taglie">Taglie <span class="facoltativo">(separate da virgola, es. S, M, L, XL; vuoto = taglia unica)</span></label>
+              <input id="me-taglie" name="taglie" type="text" />
+            </div>
+            <div class="campo">
+              <label for="me-artista">Grafica di <span class="facoltativo">(da Collab)</span></label>
+              <select id="me-artista" name="artista_id"><option value="">Nessuno</option></select>
+            </div>
+            <label class="spunta"><input type="checkbox" name="esaurito" /> <span>Esaurito</span></label>
+            <label class="spunta"><input type="checkbox" name="pubblicato" checked /> <span>Mostra sul sito</span></label>
+            <div class="azioni">
+              <button class="bottone" type="submit">Salva l'articolo</button>
+              <button class="secondario" type="button" data-merch-annulla hidden>Annulla</button>
+            </div>
+
+            <div class="merch-foto" data-merch-foto hidden>
+              <h3>Foto di questo articolo</h3>
+              <ol class="griglia-foto" data-merch-foto-lista></ol>
+              <div class="campo">
+                <label for="me-file">Aggiungi foto <span class="facoltativo">(anche più di una; la prima è quella che si vede subito)</span></label>
+                <input id="me-file" type="file" accept="image/*" multiple data-merch-file />
+              </div>
+              <p class="progresso" aria-live="polite" data-merch-progresso></p>
+            </div>
+          </form>
+          <div>
+            <h2>Articoli</h2>
+            <ol class="lista" data-lista-merch></ol>
           </div>
         </div>
       </div>
@@ -354,7 +412,7 @@ import Logo from '../../components/Logo.astro';
         return vista('login');
       }
       vista('pannello');
-      await Promise.all([caricaDate(), caricaRichieste(), caricaFoto(), caricaFrasi(), caricaTestimonianze(), caricaOspiti(), caricaCollab()]);
+      await Promise.all([caricaDate(), caricaRichieste(), caricaFoto(), caricaFrasi(), caricaTestimonianze(), caricaOspiti(), caricaCollab(), caricaMerch()]);
     };
 
     $('[data-login]').addEventListener('submit', async (e) => {
@@ -821,7 +879,7 @@ import Logo from '../../components/Logo.astro';
 
     // ---------- Collaborators ----------
     type Collab = { id: string; categoria: string; nome: string; descrizione: string | null; citta: string | null; instagram: string | null; sito: string | null; foto_path: string | null; ordine: number; pubblicato: boolean };
-    const CATEGORIE: Record<string, string> = { dj: 'DJ', foto_video: 'Foto e video', musicisti: 'Altri musicisti', locali: 'Locali amici' };
+    const CATEGORIE: Record<string, string> = { dj: 'DJ', grafica: 'Grafica e disegni', foto_video: 'Foto e video', musicisti: 'Altri musicisti', locali: 'Locali amici' };
     const formCollab = $<HTMLFormElement>('[data-form-collab]');
     let collab: Collab[] = [];
     const campoC = (n: string) => formCollab.elements.namedItem(n) as HTMLInputElement;
@@ -920,6 +978,176 @@ import Logo from '../../components/Logo.astro';
       msg('Salvato. Sul sito compare entro un minuto.');
       resetCollab();
       caricaCollab();
+    });
+
+    // ---------- Merch ----------
+    type MerchFoto = { id: string; path: string; thumb_path: string; ordine: number; created_at: string };
+    type Articolo = { id: string; nome: string; descrizione: string | null; prezzo: number | null; taglie: string[] | null; esaurito: boolean; artista_id: string | null; ordine: number; pubblicato: boolean; foto: MerchFoto[] };
+    const formMerch = $<HTMLFormElement>('[data-form-merch]');
+    let articoli: Articolo[] = [];
+    const campoM = (n: string) => formMerch.elements.namedItem(n) as HTMLInputElement;
+    const ordinaFoto = (f: MerchFoto[]) => [...f].sort((a, b) => a.ordine - b.ordine || a.created_at.localeCompare(b.created_at));
+
+    const resetMerch = () => {
+      formMerch.reset();
+      campoM('id').value = '';
+      $('[data-merch-titolo]').textContent = 'Nuovo articolo';
+      $('[data-merch-annulla]').hidden = true;
+      $('[data-merch-foto]').hidden = true;
+    };
+    $('[data-merch-annulla]').addEventListener('click', resetMerch);
+
+    function mostraFotoArticolo(a: Articolo) {
+      $('[data-merch-foto]').hidden = false;
+      $('[data-merch-foto-lista]').innerHTML = ordinaFoto(a.foto).map((f, i) => `
+        <li>
+          <img src="${esc(urlFoto(f.thumb_path))}" alt="" loading="lazy" />
+          <div class="foto-azioni">
+            ${i > 0 ? `<button type="button" class="secondario" data-merch-prima="${f.id}">Prima</button>` : '<span class="facoltativo">In copertina</span>'}
+            <button type="button" class="secondario pericolo" data-merch-foto-elimina="${f.id}">Elimina</button>
+          </div>
+        </li>`).join('') || '<li class="vuota">Nessuna foto: sul sito compare "Foto in arrivo".</li>';
+    }
+
+    async function caricaMerch() {
+      const [m, c] = await Promise.all([
+        sb.from('merch').select('*, foto:merch_foto(id,path,thumb_path,ordine,created_at)').order('ordine').order('created_at'),
+        sb.from('collab').select('id,nome,categoria').order('categoria').order('nome'),
+      ]);
+      if (m.error) return msg(`Non riesco a leggere il merch: ${m.error.message}`, true);
+      articoli = m.data as Articolo[];
+      const menu = $<HTMLSelectElement>('#me-artista');
+      const scelto = menu.value;
+      menu.innerHTML = '<option value="">Nessuno</option>' + ((c.data ?? []) as { id: string; nome: string; categoria: string }[])
+        .map((x) => `<option value="${x.id}">${esc(x.nome)}${x.categoria === 'grafica' ? '' : ` (${esc(CATEGORIE[x.categoria] ?? x.categoria)})`}</option>`).join('');
+      menu.value = scelto;
+      $('[data-lista-merch]').innerHTML = articoli.map((a) => `
+        <li class="voce${a.pubblicato ? '' : ' nascosta'}">
+          <div>
+            <strong>${esc(a.nome)}</strong>
+            <span>${a.prezzo != null ? `${Number(a.prezzo).toLocaleString('it-IT')} €` : 'prezzo in arrivo'} · ${a.foto.length} foto${a.taglie?.length ? ` · ${esc(a.taglie.join(', '))}` : ''}</span>
+            <span class="etichette">${a.esaurito ? '<em>Esaurito</em>' : ''}${a.pubblicato ? '' : '<em>Non sul sito</em>'}</span>
+          </div>
+          <div class="voce-azioni">
+            <button type="button" class="secondario" data-merch-modifica="${a.id}">Modifica e foto</button>
+            <button type="button" class="secondario pericolo" data-merch-elimina="${a.id}">Elimina</button>
+          </div>
+        </li>`).join('') || '<li class="vuota">Ancora nessun articolo.</li>';
+      const aperto = articoli.find((a) => a.id === campoM('id').value);
+      if (aperto) mostraFotoArticolo(aperto);
+    }
+
+    function apriArticolo(a: Articolo) {
+      campoM('id').value = a.id;
+      campoM('nome').value = a.nome;
+      (formMerch.elements.namedItem('descrizione') as HTMLTextAreaElement).value = a.descrizione ?? '';
+      campoM('prezzo').value = a.prezzo != null ? String(a.prezzo) : '';
+      campoM('ordine').value = String(a.ordine);
+      campoM('taglie').value = (a.taglie ?? []).join(', ');
+      (formMerch.elements.namedItem('artista_id') as HTMLSelectElement).value = a.artista_id ?? '';
+      campoM('esaurito').checked = a.esaurito;
+      campoM('pubblicato').checked = a.pubblicato;
+      $('[data-merch-titolo]').textContent = `Modifica: ${a.nome}`;
+      $('[data-merch-annulla]').hidden = false;
+      mostraFotoArticolo(a);
+      formMerch.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    document.addEventListener('click', async (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-merch-modifica],[data-merch-elimina],[data-merch-prima],[data-merch-foto-elimina]');
+      if (!b) return;
+      if (b.dataset.merchModifica || b.dataset.merchElimina) {
+        const a = articoli.find((x) => x.id === (b.dataset.merchModifica ?? b.dataset.merchElimina));
+        if (!a) return;
+        if (b.dataset.merchModifica) return apriArticolo(a);
+        if (!confirm(`Eliminare "${a.nome}" e le sue foto? Non si può annullare.`)) return;
+        const { error } = await sb.from('merch').delete().eq('id', a.id);
+        if (error) return msg(`Non riesco a eliminarlo: ${error.message}`, true);
+        const file = a.foto.flatMap((f) => [f.path, f.thumb_path]);
+        if (file.length) await sb.storage.from('foto').remove(file);
+        if (campoM('id').value === a.id) resetMerch();
+        msg('Articolo eliminato.');
+        return caricaMerch();
+      }
+      const a = articoli.find((x) => x.id === campoM('id').value);
+      if (!a) return;
+      if (b.dataset.merchPrima) {
+        // Move this photo first: give it an order lower than all the others.
+        const minimo = Math.min(...a.foto.map((f) => f.ordine));
+        const { error } = await sb.from('merch_foto').update({ ordine: minimo - 1 }).eq('id', b.dataset.merchPrima);
+        if (error) return msg(`Non riesco a spostarla: ${error.message}`, true);
+      } else {
+        const f = a.foto.find((x) => x.id === b.dataset.merchFotoElimina);
+        if (!f || !confirm('Eliminare questa foto?')) return;
+        const { error } = await sb.from('merch_foto').delete().eq('id', f.id);
+        if (error) return msg(`Non riesco a eliminarla: ${error.message}`, true);
+        await sb.storage.from('foto').remove([f.path, f.thumb_path]);
+      }
+      caricaMerch();
+    });
+
+    $('[data-merch-file]').addEventListener('change', async (e) => {
+      const input = e.target as HTMLInputElement;
+      const id = campoM('id').value;
+      const files = [...(input.files ?? [])];
+      if (!id || !files.length) return;
+      const a = articoli.find((x) => x.id === id)!;
+      let ordine = Math.max(0, ...a.foto.map((f) => f.ordine)) + 1;
+      const progresso = $('[data-merch-progresso]');
+      let fallite = 0;
+      for (const [i, file] of files.entries()) {
+        progresso.textContent = `Carico ${i + 1} di ${files.length}…`;
+        try {
+          const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+          const [g, t] = [await ridimensiona(bmp, 1600, 0.82), await ridimensiona(bmp, 720, 0.75)];
+          bmp.close();
+          const base = `merch/${crypto.randomUUID()}`;
+          const path = `${base}.${g.ext}`, thumb = `${base}-mini.${t.ext}`;
+          const opt = { cacheControl: '31536000', upsert: false };
+          const [x, y] = await Promise.all([
+            sb.storage.from('foto').upload(path, g.blob, { ...opt, contentType: g.blob.type }),
+            sb.storage.from('foto').upload(thumb, t.blob, { ...opt, contentType: t.blob.type }),
+          ]);
+          if (x.error || y.error) throw x.error ?? y.error;
+          const { error } = await sb.from('merch_foto').insert({ merch_id: id, path, thumb_path: thumb, width: g.w, height: g.h, ordine: ordine++ });
+          if (error) { await sb.storage.from('foto').remove([path, thumb]); throw error; }
+        } catch (err) {
+          console.error('foto merch', err);
+          fallite++;
+        }
+      }
+      progresso.textContent = '';
+      input.value = '';
+      msg(fallite ? `Alcune foto non sono state caricate (${fallite}).` : 'Foto caricate. Sul sito compaiono entro un minuto.', fallite > 0);
+      caricaMerch();
+    });
+
+    formMerch.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nome = campoM('nome').value.trim();
+      if (nome.length < 2) return msg('Manca il nome.', true);
+      const prezzoTesto = campoM('prezzo').value.trim();
+      const taglie = campoM('taglie').value.split(',').map((t) => t.trim()).filter(Boolean);
+      const riga = {
+        nome,
+        descrizione: (formMerch.elements.namedItem('descrizione') as HTMLTextAreaElement).value.trim() || null,
+        prezzo: prezzoTesto === '' ? null : Number(prezzoTesto.replace(',', '.')),
+        ordine: Number(campoM('ordine').value) || 0,
+        taglie: taglie.length ? taglie : null,
+        artista_id: (formMerch.elements.namedItem('artista_id') as HTMLSelectElement).value || null,
+        esaurito: campoM('esaurito').checked,
+        pubblicato: campoM('pubblicato').checked,
+      };
+      if (riga.prezzo != null && (Number.isNaN(riga.prezzo) || riga.prezzo < 0)) return msg('Il prezzo non è un numero valido.', true);
+      const id = campoM('id').value;
+      const r = id
+        ? await sb.from('merch').update(riga).eq('id', id).select('id').single()
+        : await sb.from('merch').insert(riga).select('id').single();
+      if (r.error) return msg(`Non riesco a salvare: ${r.error.message}`, true);
+      msg(id ? 'Articolo salvato.' : 'Articolo creato: ora puoi aggiungere le foto qui sotto.');
+      await caricaMerch();
+      const nuovo = articoli.find((a) => a.id === r.data.id);
+      if (nuovo) apriArticolo(nuovo);
     });
 
     entra();
@@ -1036,6 +1264,8 @@ import Logo from '../../components/Logo.astro';
   .richieste :global(dl div) { display: grid; grid-template-columns: 6rem 1fr; gap: var(--s-3); }
   .richieste :global(dt) { font-weight: 700; }
   .carica { max-width: 560px; }
+  .merch-foto { display: grid; gap: var(--s-3); margin-top: var(--s-4); padding-top: var(--s-4); border-top: var(--filetto); }
+  .merch-foto h3 { font-size: var(--t-m); }
   .carica input[type='file'] { padding: var(--s-3); }
   .progresso { font-weight: 700; color: var(--teal); }
   .griglia-foto { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--s-3); }

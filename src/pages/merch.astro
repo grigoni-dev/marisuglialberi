@@ -1,0 +1,192 @@
+---
+// Merch: a showcase, not a shop. Pick it up at the next gig; shipping on request.
+// Each item can have several photos and credits the artist who drew it (from Collab).
+import { PUBLIC_SUPABASE_URL } from 'astro:env/client';
+import Base from '../layouts/Base.astro';
+import Barra from '../components/Barra.astro';
+import Piede from '../components/Piede.astro';
+import Logo from '../components/Logo.astro';
+import Freccia from '../components/Freccia.astro';
+import { supabasePubblico } from '../lib/supabase';
+import { INSTAGRAM_DM } from '../lib/sito';
+
+export const prerender = false;
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=600');
+
+type Articolo = {
+  id: string; nome: string; descrizione: string | null; prezzo: number | null; taglie: string[] | null; esaurito: boolean;
+  artista: { nome: string; instagram: string | null } | null;
+  foto: { path: string; thumb_path: string; width: number; height: number; ordine: number; created_at: string }[];
+};
+
+let articoli: Articolo[] = [];
+const sb = supabasePubblico();
+if (sb) {
+  const { data, error } = await sb
+    .from('merch')
+    .select('id,nome,descrizione,prezzo,taglie,esaurito,artista:collab(nome,instagram),foto:merch_foto(path,thumb_path,width,height,ordine,created_at)')
+    .eq('pubblicato', true)
+    .order('ordine')
+    .order('created_at');
+  if (error) console.error('merch', error);
+  articoli = ((data ?? []) as unknown as Articolo[]).map((a) => ({
+    ...a,
+    foto: [...(a.foto ?? [])].sort((x, y) => x.ordine - y.ordine || x.created_at.localeCompare(y.created_at)),
+  }));
+}
+const url = (p: string) => `${PUBLIC_SUPABASE_URL}/storage/v1/object/public/foto/${p}`;
+const euro = (n: number) => n.toLocaleString('it-IT', { style: 'currency', currency: 'EUR', minimumFractionDigits: Number.isInteger(n) ? 0 : 2 });
+---
+
+<Base
+  title="Merch · Mari sugli alberi"
+  description="Berretti, t-shirt e felpe di Mari sugli alberi, con le grafiche dei nostri artisti. Si ritirano al prossimo live."
+>
+  <Barra />
+  <main id="contenuto" class="wrap merch">
+    <header class="merch-testa">
+      <h1>Merch</h1>
+      <p class="attacco">Si ritira al prossimo live. Se non puoi venire, scrivici e te lo spediamo.</p>
+    </header>
+
+    {articoli.length === 0 ? (
+      <p class="vuoto">Il merch arriva presto.</p>
+    ) : (
+      <ul class="articoli">
+        {articoli.map((a, i) => (
+          <li class="articolo">
+            {a.foto.length > 0 ? (
+              <ul class="foto-articolo" aria-label={`Foto: ${a.nome}`}>
+                {a.foto.map((f, n) => (
+                  <li>
+                    <a href={url(f.path)}>
+                      <img src={url(f.thumb_path)} alt={`${a.nome}, foto ${n + 1} di ${a.foto.length}`} width={f.width} height={f.height} loading={i < 2 ? 'eager' : 'lazy'} decoding="async" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div class="foto-in-arrivo" role="img" aria-label={`Le foto di ${a.nome} arrivano presto`}>
+                <Logo class="foto-in-arrivo-logo" />
+                <span>Foto in arrivo</span>
+              </div>
+            )}
+            {a.foto.length > 1 && <p class="scorri">{a.foto.length} foto, scorri di lato</p>}
+
+            <div class="articolo-testo">
+              <div class="articolo-riga">
+                <h2>{a.nome}</h2>
+                <p class="prezzo">{a.prezzo != null ? euro(Number(a.prezzo)) : 'Prezzo in arrivo'}</p>
+              </div>
+              {a.esaurito && <p class="esaurito">Esaurito, per ora</p>}
+              {a.descrizione && <p class="descrizione">{a.descrizione}</p>}
+              {a.taglie && a.taglie.length > 0 && (
+                <p class="taglie"><span class="solo-lettori">Taglie:</span>{a.taglie.map((t) => <span>{t}</span>)}</p>
+              )}
+              {a.artista && (
+                <p class="credit">
+                  Grafica di <a href="/collab#grafica">{a.artista.nome}</a>
+                  {a.artista.instagram && <> · <a href={`https://www.instagram.com/${a.artista.instagram}/`}>@{a.artista.instagram}</a></>}
+                </p>
+              )}
+              {!a.esaurito && (
+                <a class="lo-voglio" href={INSTAGRAM_DM}>Lo voglio <Freccia /></a>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+    )}
+
+    <section class="come" aria-labelledby="come-titolo">
+      <h2 id="come-titolo">Come si prende</h2>
+      <ol>
+        <li><strong>Al prossimo live.</strong> Passa al banchetto a fine concerto. Se vuoi essere sicuro di trovare la tua taglia, scrivici prima e te la teniamo da parte.</li>
+        <li><strong>Spedito a casa, su richiesta.</strong> Scrivici su Instagram con l'articolo, la taglia e la città: ti diciamo noi come fare.</li>
+      </ol>
+      <a class="bottone" href={INSTAGRAM_DM}>
+        <span>Scrivici su Instagram</span>
+        <Freccia />
+      </a>
+    </section>
+  </main>
+  <Piede />
+</Base>
+
+<style>
+  .merch { padding-block: var(--s-6) var(--s-8); display: grid; gap: var(--s-8); }
+  .merch-testa { display: grid; gap: var(--s-4); padding-bottom: var(--s-5); border-bottom: var(--filetto); }
+  h1 { font-size: var(--t-xxl); }
+  .attacco { font-size: var(--t-l); line-height: 1.35; font-weight: 700; max-width: 52ch; }
+  .vuoto { font-size: var(--t-l); }
+
+  .articoli { list-style: none; padding: 0; display: grid; gap: var(--s-8) var(--s-7); }
+  @media (min-width: 900px) { .articoli { grid-template-columns: 1fr 1fr; } }
+  .articolo { display: grid; gap: var(--s-3); align-content: start; min-width: 0; }
+
+  /* Several photos per item: a horizontal strip that snaps, one square frame at a time */
+  .foto-articolo {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 100%;
+    gap: var(--s-2);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-color: var(--ink) var(--carta-2);
+  }
+  .foto-articolo li { scroll-snap-align: start; aspect-ratio: 1; overflow: hidden; background: var(--carta-2); }
+  .foto-articolo a { display: block; width: 100%; height: 100%; cursor: zoom-in; }
+  .foto-articolo img { width: 100%; height: 100%; object-fit: cover; transition: transform 500ms var(--esce); }
+  .foto-articolo a:hover img { transform: scale(1.03); }
+  .scorri { font-size: var(--t-s); color: var(--ink-2); }
+
+  .foto-in-arrivo {
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: var(--s-4);
+    background: var(--carta-2);
+    border: 2px dashed var(--ink-2);
+    color: var(--ink-2);
+    font-weight: 700;
+  }
+  .foto-in-arrivo :global(.foto-in-arrivo-logo) { width: 38%; color: var(--ink-2); opacity: 0.5; }
+
+  .articolo-testo { display: grid; gap: var(--s-2); padding-top: var(--s-3); border-top: var(--filetto); }
+  .articolo-riga { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-4); }
+  .articolo-riga h2 { font-size: var(--t-xl); }
+  .prezzo { font-family: var(--f-display); font-weight: 900; font-size: var(--t-l); white-space: nowrap; }
+  .esaurito { justify-self: start; padding: 0 var(--s-2); background: var(--ink); color: var(--carta); font-weight: 700; font-size: var(--t-s); }
+  .descrizione { color: var(--ink-2); }
+  .taglie { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+  .taglie span:not(.solo-lettori) { min-width: 40px; padding: var(--s-1) var(--s-2); border: var(--filetto); text-align: center; font-weight: 700; font-size: var(--t-s); }
+  .credit { font-size: var(--t-s); color: var(--ink-2); }
+  .credit a { font-weight: 700; color: var(--teal); }
+  .lo-voglio {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    min-height: 48px;
+    margin-top: var(--s-2);
+    padding: 0 var(--s-4);
+    border: var(--filetto);
+    font-family: var(--f-display);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+    transition: background-color 160ms ease, color 160ms ease;
+  }
+  .lo-voglio:hover { background: var(--ink); color: var(--carta); }
+  .lo-voglio :global(.freccia) { width: 1.1em; height: 1.1em; }
+
+  .come { display: grid; gap: var(--s-4); justify-items: start; padding-top: var(--s-6); border-top: var(--filetto); }
+  .come h2 { font-size: var(--t-xl); }
+  .come ol { display: grid; gap: var(--s-3); padding-left: 1.2em; max-width: 65ch; }
+  .come li { color: var(--ink-2); }
+  .come strong { color: var(--ink); }
+</style>

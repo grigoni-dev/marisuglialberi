@@ -33,6 +33,7 @@ import domenicaLetto from '../assets/foto/domenica-letto.jpg';
       </a>
     )}
     <a class="piede-ig" href="/kit">Kit per chi organizza</a>
+    <a class="piede-ig" href="/merch">Merch</a>
     <a class="piede-ig" href="/collab">Collab</a>
     <a class="piede-ig" href="/privacy">Privacy</a>
     <p class="piede-nota">© {new Date().getFullYear()} Mari sugli alberi</p>
@@ -89,7 +90,7 @@ import domenicaLetto from '../assets/foto/domenica-letto.jpg';
   .piede-nota { font-size: var(--t-xs); color: var(--carta-tenue); }
   .piede :focus-visible { outline-color: var(--carta); }
   @media (min-width: 768px) {
-    .piede-dentro { grid-template-columns: auto 1fr repeat(4, auto) auto; align-items: end; justify-items: stretch; column-gap: var(--s-6); }
+    .piede-dentro { grid-template-columns: auto 1fr repeat(5, auto) auto; align-items: end; justify-items: stretch; column-gap: var(--s-6); }
     .piede-ig { justify-self: end; }
     .piede-dentro :global(.piede-logo), .piede-nota { margin: 0; }
   }

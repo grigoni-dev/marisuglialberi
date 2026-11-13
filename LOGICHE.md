@@ -70,3 +70,11 @@ Ogni regola va confermata dalla band. Accanto c'è la data della conferma; "da c
 
 - **Collab** (`/collab`): DJ, foto e video, altri musicisti, locali amici. Si gestiscono dal pannello (scheda Collab), solo con il loro permesso. Le categorie vuote non compaiono; se sono tutte vuote, la pagina dice "arrivano presto".
 - **DJ nel modulo:** tre scelte. "No, grazie", "Il DJ set di Chambers" (per qualsiasi festa) e "Un DJ dei collaboratori", che compare **solo per matrimoni ed eventi aziendali** e solo se in Collab c'è almeno un DJ. Si può indicare quale, oppure "Consigliatemelo voi". La scelta arriva nell'email e nel pannello.
+
+## Merch (13/11/2026, scelte dell'utente)
+
+- La sezione si chiama **Merch** (`/merch`). È una vetrina, **non un negozio**: il sito non incassa e non raccoglie ordini.
+- **Come si prende:** si ritira al prossimo live, al banchetto. La spedizione si fa su richiesta. Il bottone "Lo voglio" apre un messaggio Instagram alla band.
+- **Articoli:** si gestiscono dal pannello (scheda Merch): nome, due righe, prezzo (vuoto = "Prezzo in arrivo"), taglie (vuoto = taglia unica), esaurito, ordine, mostra sul sito, e **più foto** per articolo (la prima è la copertina). Senza foto compare il riquadro "Foto in arrivo".
+- **Credit:** ogni articolo può indicare chi ha disegnato la grafica, scelto tra i collaboratori. In Collab c'è la categoria **"Grafica e disegni"**, e il credit porta lì.
+- Primi articoli (13/11/2026): berretto invernale stampato, berretto invernale ricamato, t-shirt, felpa. Prezzi e foto da inserire.
