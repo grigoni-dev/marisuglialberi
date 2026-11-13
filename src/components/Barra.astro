@@ -27,9 +27,15 @@ const voci = [
       </ul>
     </nav>
 
-    <button type="button" class="menu-tasto" aria-expanded="false" aria-controls="menu-pannello" data-menu-apri>
-      <span>Menu</span>
-      <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
+    <!-- The menu button is the band's sunglasses: they slide down onto the nose when tapped. -->
+    <button type="button" class="occhiali" aria-label="Apri il menu" aria-expanded="false" aria-controls="menu-pannello" data-menu-apri>
+      <svg viewBox="0 0 52 24" aria-hidden="true">
+        <path class="occhiali-asta" d="M1 5h50" />
+        <path class="occhiali-lente" d="M3 5h19l-1.6 10.2c-.5 3-2.6 4.8-5.6 4.8H9.4c-3 0-5.1-1.8-5.6-4.8z" />
+        <path class="occhiali-lente" d="M30 5h19l-.8 10.2c-.5 3-2.6 4.8-5.6 4.8h-6.4c-3 0-5.1-1.8-5.6-4.8z" />
+        <path class="occhiali-ponte" d="M22 7.5q4-3 8 0" />
+        <path class="occhiali-riflesso" d="M8 8.5l4.5 0M35 8.5l4.5 0" />
+      </svg>
     </button>
   </div>
 
@@ -134,7 +140,31 @@ const voci = [
   .nav-lista a:hover { background-size: calc(100% - 2 * var(--s-2)) 2px; }
   .nav-portaci { color: var(--rosso); }
 
-  /* Phone and tablet: the Menu button */
+  /* Phone and tablet: the sunglasses */
+  .occhiali {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 44px;
+    margin-right: calc(-1 * var(--s-2));
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .occhiali svg { width: 44px; height: auto; overflow: visible; transition: transform 320ms var(--esce); }
+  .occhiali-asta { stroke: currentColor; stroke-width: 3; stroke-linecap: square; fill: none; }
+  .occhiali-lente { fill: currentColor; }
+  .occhiali-ponte { stroke: currentColor; stroke-width: 2.5; fill: none; }
+  .occhiali-riflesso { stroke: var(--carta); stroke-width: 1.8; stroke-linecap: round; opacity: 0.85; transition: stroke 200ms ease; }
+  /* Hover: they slip down a little. Open: down on the nose, with a red glint. */
+  .occhiali:hover svg { transform: translateY(2px); }
+  .occhiali[aria-expanded='true'] svg { transform: translateY(5px); }
+  .occhiali[aria-expanded='true'] .occhiali-riflesso,
+  .occhiali:active .occhiali-riflesso { stroke: var(--rosso); }
+
+  /* The close button inside the panel */
   .menu-tasto {
     display: inline-flex;
     align-items: center;
@@ -150,12 +180,12 @@ const voci = [
     letter-spacing: -0.01em;
     transition: background-color 160ms ease, color 160ms ease;
   }
-  .menu-tasto:hover, .menu-tasto[aria-expanded='true'] { background: var(--ink); color: var(--carta); }
+  .menu-tasto:hover { background: var(--ink); color: var(--carta); }
   .menu-tasto svg, .menu-tasto :global(.icona) { width: 20px; height: 20px; }
 
   @media (min-width: 1024px) {
     .nav-desktop { display: block; }
-    .menu-tasto[data-menu-apri] { display: none; }
+    .occhiali { display: none; }
   }
 
   /* The full-screen panel */
