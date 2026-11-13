@@ -52,3 +52,9 @@ Ogni regola va confermata dalla band. Accanto c'è la data della conferma; "da c
 - **Mappa:** in `/date`, sotto l'archivio, compare l'Italia con un punto rosso per ogni città dei concerti **passati** (anche le feste private: della festa privata la città è già pubblica). Il punto è più grande se ci abbiamo suonato più volte. Il nome compare sulla mappa solo dove c'è spazio; l'elenco accanto le contiene tutte.
 - **Coordinate:** quando si salva una data, il pannello cerca la città su OpenStreetMap e salva latitudine e longitudine **della città**, mai l'indirizzo del locale. Se una città non si trova, la data si salva lo stesso e non compare sulla mappa; il tasto "Trova le posizioni" riprova per tutte.
 - **Mancia:** in `/link` c'è "Offrici da bere", con il link PayPal.me scelto dalla band.
+
+## Albo d'oro degli ospiti (13/11/2026)
+
+- Chi è salito sul palco a suonare o cantare con la band. Si gestisce dal pannello (scheda Ospiti): nome o soprannome, cosa ha fatto, quando e dove, Instagram e foto, tutti facoltativi tranne il nome.
+- **Solo con il permesso dell'ospite.** La foto è facoltativa e sul sito compare come un quadratino in bianco e nero; senza foto compare l'iniziale.
+- Sul sito l'albo sta nelle note di copertina, sotto i crediti della band, e **resta nascosto finché non c'è almeno un ospite**.

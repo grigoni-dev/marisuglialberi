@@ -39,6 +39,7 @@ Le migrazioni si eseguono a mano nel SQL Editor, in ordine, **prima su dev e poi
 | `0004_giorni_occupati.sql` | "Siamo liberi quella sera?": vista con i soli giorni occupati | ✅ 13/11/2026 | ✅ 13/11/2026 |
 | `0005_frasi_e_testimonianze.sql` | Frasi celebri (con le prime 7) e testimonianze | ✅ 13/11/2026 | ✅ 13/11/2026 |
 | `0006_mappa.sql` | Coordinate delle città per la mappa del giro (`lat`, `lng` e la vista pubblica aggiornata) | ✅ 13/11/2026 | ✅ 13/11/2026 |
+| `0007_ospiti.sql` | Albo d'oro degli ospiti sul palco | ✅ 13/11/2026 | ✅ 13/11/2026 |
 
 ## 2. Resend (email delle richieste)
 

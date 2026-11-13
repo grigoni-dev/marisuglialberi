@@ -211,6 +211,11 @@ const striscia = [
               </div>
             ))}
           </dl>
+          <section class="albo" aria-labelledby="albo-titolo" data-albo hidden>
+            <h3 id="albo-titolo"><span class="formato-codice">Ospiti</span> Albo d'oro</h3>
+            <p class="albo-attacco">Chi è salito sul palco a suonare o cantare con noi, dal panificio in poi.</p>
+            <ol class="albo-lista" data-albo-lista></ol>
+          </section>
         </div>
       </div>
     </section>
@@ -455,6 +460,32 @@ const brani = [...document.querySelectorAll<HTMLButtonElement>('.brano')];
     altra.hidden = frasi.length < 2;
     altra.addEventListener('click', () => { n = (n + 1) % frasi.length; mostra(); });
     document.querySelector<HTMLElement>('[data-frasi]')!.hidden = false;
+  })();
+
+  // Hall of fame: guests who joined us on stage. Hidden until there's at least one.
+  (async () => {
+    const ospiti = await leggi<{ nome: string; cosa: string | null; quando: string | null; instagram: string | null; foto_path: string | null }>(
+      'ospiti', 'select=nome,cosa,quando,instagram,foto_path&pubblicato=eq.true&order=created_at.asc');
+    if (!ospiti.length) return;
+    const lista = document.querySelector<HTMLElement>('[data-albo-lista]')!;
+    for (const o of ospiti) {
+      const li = document.createElement('li');
+      if (o.foto_path) {
+        li.append(Object.assign(document.createElement('img'), {
+          src: `${PUBLIC_SUPABASE_URL}/storage/v1/object/public/foto/${o.foto_path}`, alt: '', width: 56, height: 56, loading: 'lazy', className: 'albo-foto',
+        }));
+      } else {
+        li.append(Object.assign(document.createElement('span'), { className: 'albo-foto albo-iniziale', textContent: o.nome.trim()[0]?.toUpperCase() ?? '' }));
+      }
+      const testo = document.createElement('div');
+      testo.append(Object.assign(document.createElement('strong'), { textContent: o.nome }));
+      const det = [o.cosa, o.quando].filter(Boolean).join(' · ');
+      if (det) testo.append(Object.assign(document.createElement('span'), { textContent: det }));
+      if (o.instagram) testo.append(Object.assign(document.createElement('a'), { href: `https://www.instagram.com/${o.instagram}/`, textContent: `@${o.instagram}` }));
+      li.append(testo);
+      lista.append(li);
+    }
+    document.querySelector<HTMLElement>('[data-albo]')!.hidden = false;
   })();
 
   // Testimonials: shown only when there is at least one real, published one.
@@ -894,6 +925,18 @@ const brani = [...document.querySelectorAll<HTMLButtonElement>('.brano')];
     text-transform: uppercase;
     letter-spacing: -0.02em;
   }
+  .albo { margin-top: var(--s-7); }
+  .albo h3 { font-size: var(--t-xl); display: flex; align-items: baseline; gap: var(--s-3); }
+  .albo h3 .formato-codice { flex: none; }
+  .albo-attacco { margin: var(--s-2) 0 var(--s-4); color: var(--ink-2); }
+  .albo-lista { list-style: none; padding: 0; border-top: var(--filetto); }
+  .albo-lista :global(li) { display: grid; grid-template-columns: 56px 1fr; gap: var(--s-4); align-items: center; padding-block: var(--s-3); border-bottom: 1px solid var(--ink); }
+  .albo-lista :global(.albo-foto) { width: 56px; height: 56px; object-fit: cover; filter: grayscale(1) contrast(1.15); }
+  .albo-lista :global(.albo-iniziale) { display: grid; place-items: center; background: var(--ink); color: var(--carta); font-family: var(--f-display); font-weight: 900; font-size: var(--t-l); }
+  .albo-lista :global(div) { display: grid; gap: 2px; }
+  .albo-lista :global(strong) { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; }
+  .albo-lista :global(span) { color: var(--ink-2); font-size: var(--t-s); }
+  .albo-lista :global(a) { justify-self: start; font-size: var(--t-s); font-weight: 700; color: var(--teal); }
   .crediti dd { display: grid; gap: 0.1rem; color: var(--ink-2); }
   .credito-ruolo { color: var(--ink); font-weight: 700; }
   .credito-ig {
@@ -907,7 +950,8 @@ const brani = [...document.querySelectorAll<HTMLButtonElement>('.brano')];
   }
   .credito-ig:hover { color: var(--ink); }
   @media (min-width: 900px) {
-    .note-griglia { grid-template-columns: 1fr 1fr; align-items: center; gap: var(--s-8); }
+    .note-griglia { grid-template-columns: 1fr 1fr; align-items: start; gap: var(--s-8); }
+    .note-foto { position: sticky; top: 96px; }
   }
 
   /* ---------- Side B: teal ground ---------- */

@@ -46,6 +46,7 @@ import Logo from '../../components/Logo.astro';
         <button type="button" role="tab" id="t-foto" aria-controls="p-foto" aria-selected="false" data-scheda="foto">Foto</button>
         <button type="button" role="tab" id="t-frasi" aria-controls="p-frasi" aria-selected="false" data-scheda="frasi">Frasi</button>
         <button type="button" role="tab" id="t-testimonianze" aria-controls="p-testimonianze" aria-selected="false" data-scheda="testimonianze">Testimonianze</button>
+        <button type="button" role="tab" id="t-ospiti" aria-controls="p-ospiti" aria-selected="false" data-scheda="ospiti">Ospiti</button>
       </div>
 
       <!-- Dates -->
@@ -182,6 +183,46 @@ import Logo from '../../components/Logo.astro';
         </div>
       </div>
 
+      <!-- Hall of fame -->
+      <div role="tabpanel" id="p-ospiti" aria-labelledby="t-ospiti" data-pannello="ospiti" hidden>
+        <div class="adm-griglia">
+          <form class="adm-form" data-form-ospite novalidate>
+            <h2 data-ospite-titolo>Nuovo ospite</h2>
+            <p class="facoltativo">Chi è salito sul palco con voi. Solo con il suo permesso: nome, soprannome e foto compaiono sul sito.</p>
+            <input type="hidden" name="id" />
+            <div class="campo">
+              <label for="os-nome">Nome o soprannome</label>
+              <input id="os-nome" name="nome" type="text" maxlength="80" required />
+            </div>
+            <div class="campo">
+              <label for="os-cosa">Cosa ha fatto <span class="facoltativo">(facoltativo, es. "armonica su Rino Gaetano")</span></label>
+              <input id="os-cosa" name="cosa" type="text" maxlength="80" />
+            </div>
+            <div class="campo">
+              <label for="os-quando">Quando e dove <span class="facoltativo">(facoltativo, es. "Panificio, ottobre 2023")</span></label>
+              <input id="os-quando" name="quando" type="text" maxlength="80" />
+            </div>
+            <div class="campo">
+              <label for="os-ig">Instagram <span class="facoltativo">(facoltativo, senza la @)</span></label>
+              <input id="os-ig" name="instagram" type="text" maxlength="30" pattern="[A-Za-z0-9._]+" />
+            </div>
+            <div class="campo">
+              <label for="os-foto">Foto <span class="facoltativo">(facoltativa: sul sito è un quadratino in bianco e nero)</span></label>
+              <input id="os-foto" name="foto" type="file" accept="image/*" />
+            </div>
+            <label class="spunta"><input type="checkbox" name="pubblicato" checked /> <span>Mostra sul sito</span></label>
+            <div class="azioni">
+              <button class="bottone" type="submit">Salva</button>
+              <button class="secondario" type="button" data-ospite-annulla hidden>Annulla</button>
+            </div>
+          </form>
+          <div>
+            <h2>Albo d'oro</h2>
+            <ol class="lista" data-lista-ospiti></ol>
+          </div>
+        </div>
+      </div>
+
       <!-- Booking requests -->
       <div role="tabpanel" id="p-richieste" aria-labelledby="t-richieste" data-pannello="richieste" hidden>
         <h2>Richieste di ingaggio</h2>
@@ -253,7 +294,7 @@ import Logo from '../../components/Logo.astro';
         return vista('login');
       }
       vista('pannello');
-      await Promise.all([caricaDate(), caricaRichieste(), caricaFoto(), caricaFrasi(), caricaTestimonianze()]);
+      await Promise.all([caricaDate(), caricaRichieste(), caricaFoto(), caricaFrasi(), caricaTestimonianze(), caricaOspiti()]);
     };
 
     $('[data-login]').addEventListener('submit', async (e) => {
@@ -622,6 +663,100 @@ import Logo from '../../components/Logo.astro';
       salva: '[data-test-salva]', annulla: '[data-test-annulla]', nuovo: 'Nuova testimonianza', modifica: 'Modifica la testimonianza',
       campi: ['testo', 'chi', 'occasione'], vuoto: 'Ancora nessuna: sul sito la sezione resta nascosta.',
       riassunto: (v) => `<strong>«${esc(v.testo)}»</strong><span>${esc(v.chi)}${v.occasione ? ` · ${esc(v.occasione)}` : ''}</span>`,
+    });
+
+    // ---------- Hall of fame ----------
+    type Ospite = { id: string; nome: string; cosa: string | null; quando: string | null; instagram: string | null; foto_path: string | null; pubblicato: boolean };
+    const formOspite = $<HTMLFormElement>('[data-form-ospite]');
+    let ospiti: Ospite[] = [];
+    const campoO = (n: string) => formOspite.elements.namedItem(n) as HTMLInputElement;
+    const resetOspite = () => {
+      formOspite.reset();
+      campoO('id').value = '';
+      $('[data-ospite-titolo]').textContent = 'Nuovo ospite';
+      $('[data-ospite-annulla]').hidden = true;
+    };
+    $('[data-ospite-annulla]').addEventListener('click', resetOspite);
+
+    async function caricaOspiti() {
+      const { data, error } = await sb.from('ospiti').select('*').order('created_at');
+      if (error) return msg(`Non riesco a leggere gli ospiti: ${error.message}`, true);
+      ospiti = data as Ospite[];
+      $('[data-lista-ospiti]').innerHTML = ospiti.map((o) => `
+        <li class="voce${o.pubblicato ? '' : ' nascosta'}">
+          <div>
+            <strong>${esc(o.nome)}</strong>
+            <span>${esc([o.cosa, o.quando].filter(Boolean).join(' · '))}${o.instagram ? ` · @${esc(o.instagram)}` : ''}</span>
+            <span class="etichette">${o.foto_path ? '<em>Foto</em>' : ''}${o.pubblicato ? '' : '<em>Non sul sito</em>'}</span>
+          </div>
+          <div class="voce-azioni">
+            <button type="button" class="secondario" data-ospite-modifica="${o.id}">Modifica</button>
+            <button type="button" class="secondario pericolo" data-ospite-elimina="${o.id}">Elimina</button>
+          </div>
+        </li>`).join('') || '<li class="vuota">Ancora nessuno: sul sito l\'albo resta nascosto.</li>';
+    }
+
+    document.addEventListener('click', async (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-ospite-modifica],[data-ospite-elimina]');
+      if (!b) return;
+      const o = ospiti.find((x) => x.id === (b.dataset.ospiteModifica ?? b.dataset.ospiteElimina));
+      if (!o) return;
+      if (b.dataset.ospiteModifica) {
+        campoO('id').value = o.id;
+        campoO('nome').value = o.nome;
+        campoO('cosa').value = o.cosa ?? '';
+        campoO('quando').value = o.quando ?? '';
+        campoO('instagram').value = o.instagram ?? '';
+        campoO('pubblicato').checked = o.pubblicato;
+        $('[data-ospite-titolo]').textContent = 'Modifica ospite';
+        $('[data-ospite-annulla]').hidden = false;
+        formOspite.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        if (!confirm(`Togliere ${o.nome} dall'albo? Non si può annullare.`)) return;
+        const { error } = await sb.from('ospiti').delete().eq('id', o.id);
+        if (error) return msg(`Non riesco a eliminarlo: ${error.message}`, true);
+        if (o.foto_path) await sb.storage.from('foto').remove([o.foto_path]);
+        msg('Tolto dall\'albo.');
+        caricaOspiti();
+      }
+    });
+
+    formOspite.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nome = campoO('nome').value.trim();
+      const ig = campoO('instagram').value.trim().replace(/^@/, '');
+      if (nome.length < 2) return msg('Manca il nome.', true);
+      if (ig && !/^[A-Za-z0-9._]{1,30}$/.test(ig)) return msg('Instagram: solo lettere, numeri, punti e trattini bassi.', true);
+      const riga: Record<string, unknown> = {
+        nome,
+        cosa: campoO('cosa').value.trim() || null,
+        quando: campoO('quando').value.trim() || null,
+        instagram: ig || null,
+        pubblicato: campoO('pubblicato').checked,
+      };
+      const id = campoO('id').value;
+      const prima = ospiti.find((x) => x.id === id);
+      const file = campoO('foto').files?.[0];
+      if (file) {
+        try {
+          const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+          const r = await ridimensiona(bmp, 400, 0.8);
+          bmp.close();
+          const path = `ospiti/${crypto.randomUUID()}.${r.ext}`;
+          const up = await sb.storage.from('foto').upload(path, r.blob, { contentType: r.blob.type, cacheControl: '31536000' });
+          if (up.error) throw up.error;
+          riga.foto_path = path;
+        } catch (err) {
+          console.error('foto ospite', err);
+          return msg('Non riesco a caricare la foto.', true);
+        }
+      }
+      const { error } = id ? await sb.from('ospiti').update(riga).eq('id', id) : await sb.from('ospiti').insert(riga);
+      if (error) return msg(`Non riesco a salvare: ${error.message}`, true);
+      if (file && prima?.foto_path) await sb.storage.from('foto').remove([prima.foto_path]);
+      msg('Salvato. Sul sito si vede alla prossima apertura della home.');
+      resetOspite();
+      caricaOspiti();
     });
 
     entra();
