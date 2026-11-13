@@ -364,7 +364,9 @@ import Logo from '../../components/Logo.astro';
   /** City → coordinates, from OpenStreetMap (only the city name leaves the browser). */
   async function trovaCitta(citta: string): Promise<{ lat: number; lng: number } | null> {
     try {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=it&city=${encodeURIComponent(citta)}`;
+      // "Salgareda (TV)" → "Salgareda, TV": the province helps instead of confusing the search.
+      const q = citta.replace(/\s*\(([^)]*)\)\s*/g, ', $1').trim();
+      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=it&q=${encodeURIComponent(q)}`;
       const r = await fetch(url, { headers: { 'Accept-Language': 'it' } });
       const [primo] = await r.json();
       return primo ? { lat: Number(primo.lat), lng: Number(primo.lon) } : null;
@@ -548,6 +550,7 @@ import Logo from '../../components/Logo.astro';
       let trovate = 0;
       for (const c of mancanti) {
         const k = c.citta.trim().toLowerCase();
+        if (k === 'da definire') continue;
         if (!cache.has(k)) {
           cache.set(k, await trovaCitta(c.citta));
           await new Promise((r) => setTimeout(r, 1100)); // OpenStreetMap asks for at most one request per second

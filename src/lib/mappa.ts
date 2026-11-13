@@ -5,7 +5,7 @@ import type { FeatureCollection, Geometry } from 'geojson';
 import confini from '../data/confini.json';
 import italia from '../data/italia.json';
 import { proiezione as proiezioneItalia } from './mappa-proiezione.mjs';
-import type { Concerto } from './date';
+import { cittaPulita, type Concerto } from './date';
 
 export const LARGHEZZA = 600;
 export const ALTEZZA = 520;
@@ -32,10 +32,11 @@ export function mappaGiro(concerti: ConCoordinate[]): Mappa | null {
   const perCitta = new Map<string, { citta: string; volte: number; lat: number; lng: number }>();
   for (const c of concerti) {
     if (c.lat == null || c.lng == null) continue;
-    const k = c.citta.trim().toLowerCase();
+    const nome = cittaPulita(c.citta);
+    const k = nome.toLowerCase();
     const t = perCitta.get(k);
     if (t) t.volte++;
-    else perCitta.set(k, { citta: c.citta.trim(), volte: 1, lat: c.lat, lng: c.lng });
+    else perCitta.set(k, { citta: nome, volte: 1, lat: c.lat, lng: c.lng });
   }
   const citta = [...perCitta.values()];
   if (!citta.length) return null;
@@ -81,10 +82,11 @@ export function mappaGiro(concerti: ConCoordinate[]): Mappa | null {
 export function elencoCitta(concerti: Concerto[]) {
   const m = new Map<string, { citta: string; volte: number }>();
   for (const c of concerti) {
-    const k = c.citta.trim().toLowerCase();
+    const nome = cittaPulita(c.citta);
+    const k = nome.toLowerCase();
     const t = m.get(k);
     if (t) t.volte++;
-    else m.set(k, { citta: c.citta.trim(), volte: 1 });
+    else m.set(k, { citta: nome, volte: 1 });
   }
   return [...m.values()].sort((a, b) => b.volte - a.volte || a.citta.localeCompare(b.citta, 'it'));
 }

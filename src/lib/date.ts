@@ -51,6 +51,9 @@ export const formatoDataCompleta = (iso: string) =>
 
 export const formatoOra = (ora: string | null) => (ora ? ora.slice(0, 5).replace(':', '.') : null);
 
+/** City name without the province in brackets: "Motta di Livenza (TV)" → "Motta di Livenza". */
+export const cittaPulita = (citta: string) => citta.replace(/\s*\([^)]*\)\s*/g, ' ').replace(/\s+/g, ' ').trim();
+
 /** "Locale, Città" for public gigs, "Festa privata, Città" for private ones. */
 export const dove = (c: Pick<Concerto, 'privato' | 'locale' | 'citta'>) =>
   c.privato ? `Festa privata, ${c.citta}` : c.locale ? `${c.locale}, ${c.citta}` : c.citta;
