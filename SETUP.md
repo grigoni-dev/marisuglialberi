@@ -40,6 +40,7 @@ Le migrazioni si eseguono a mano nel SQL Editor, in ordine, **prima su dev e poi
 | `0005_frasi_e_testimonianze.sql` | Frasi celebri (con le prime 7) e testimonianze | ✅ 13/11/2026 | ✅ 13/11/2026 |
 | `0006_mappa.sql` | Coordinate delle città per la mappa del giro (`lat`, `lng` e la vista pubblica aggiornata) | ✅ 13/11/2026 | ✅ 13/11/2026 |
 | `0007_ospiti.sql` | Albo d'oro degli ospiti sul palco | ✅ 13/11/2026 | ✅ 13/11/2026 |
+| `0008_pulizia.sql` | Pulizia automatica con `pg_cron`: limite di richieste dopo 1 ora, richieste dopo 2 anni | ✅ 13/11/2026 | ✅ 13/11/2026 |
 
 ## 2. Resend (email delle richieste)
 
@@ -68,6 +69,10 @@ I testi del kit (bio e scheda tecnica) stanno in `src/lib/kit.ts`; i file da sca
 1. si aggiorna `src/lib/kit.ts`;
 2. si rigenera il PDF aprendo `/kit/rider` e stampandolo in PDF (A4, con lo sfondo) come `public/kit/rider-tecnico.pdf`;
 3. si rifà lo ZIP: dentro `public/kit`, `zip -r -X mari-sugli-alberi-kit.zip rider-tecnico.pdf mari-sugli-alberi-logo-* foto`.
+
+## Controllare la pulizia automatica
+
+Nel SQL Editor di ciascun progetto: `select jobname, schedule, active from cron.job order by jobname;` deve mostrare `pulizia-limiti` (`17 * * * *`) e `pulizia-richieste` (`23 3 * * 0`), entrambi attivi.
 
 ## Statistiche
 

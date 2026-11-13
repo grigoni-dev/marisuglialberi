@@ -58,3 +58,10 @@ Ogni regola va confermata dalla band. Accanto c'è la data della conferma; "da c
 - Chi è salito sul palco a suonare o cantare con la band. Si gestisce dal pannello (scheda Ospiti): nome o soprannome, cosa ha fatto, quando e dove, Instagram e foto, tutti facoltativi tranne il nome.
 - **Solo con il permesso dell'ospite.** La foto è facoltativa e sul sito compare come un quadratino in bianco e nero; senza foto compare l'iniziale.
 - Sul sito l'albo sta nelle note di copertina, sotto i crediti della band, e **resta nascosto finché non c'è almeno un ospite**.
+
+## Privacy (13/11/2026)
+
+- Titolare del trattamento: Giovanni Rigoni, per conto del gruppo (Mari sugli alberi è un gruppo informale; per la fatturazione si appoggia all'associazione Esibirsi, che non tratta i dati del sito). Il codice fiscale non si pubblica.
+- Contatto per la privacy: la Gmail del progetto. Sulla pagina arriva dalla variabile `EMAIL_NOTIFICHE`, quindi non è scritta nel codice.
+- La pulizia automatica (migrazione 0008, `pg_cron`) cancella le impronte del limite di richieste dopo un'ora e le richieste di ingaggio dopo due anni, come dice la pagina `/privacy`.
+- Ogni nuova raccolta di dati (per esempio "Avvisami") va aggiunta alla pagina `/privacy` prima di andare online.

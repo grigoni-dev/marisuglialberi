@@ -1,0 +1,79 @@
+---
+// Privacy notice, in plain Italian. The contact address comes from EMAIL_NOTIFICHE at build
+// time, so it is shown on the page but never written in the public repository.
+import { EMAIL_NOTIFICHE } from 'astro:env/server';
+import Base from '../layouts/Base.astro';
+import Barra from '../components/Barra.astro';
+import Piede from '../components/Piede.astro';
+import { TITOLARE, INSTAGRAM } from '../lib/sito';
+
+const contatto = EMAIL_NOTIFICHE ?? null;
+const aggiornata = '13 novembre 2026';
+---
+
+<Base title="Privacy · Mari sugli alberi" description="Come Mari sugli alberi tratta i dati di chi usa il sito.">
+  <Barra />
+  <main id="contenuto" class="wrap privacy">
+    <h1>Privacy</h1>
+    <p class="attacco">Raccogliamo pochissimo, solo quello che serve, e non lo vendiamo a nessuno. Qui sotto c'è tutto, in parole semplici.</p>
+
+    <section>
+      <h2>Chi è il titolare</h2>
+      <p>Mari sugli alberi è un gruppo musicale informale, non un'azienda né un'associazione. Il titolare del trattamento dei dati raccolti da questo sito è <strong>{TITOLARE}</strong>, per conto del gruppo.</p>
+      <p>
+        Per qualsiasi domanda o richiesta sui tuoi dati:{' '}
+        {contatto ? <a href={`mailto:${contatto}`}>{contatto}</a> : <span>scrivici su <a href={INSTAGRAM}>Instagram</a></span>}.
+      </p>
+    </section>
+
+    <section>
+      <h2>Il modulo «Portaci alla tua festa»</h2>
+      <p><strong>Cosa raccogliamo:</strong> che festa è, la data e il luogo, quante persone, il tuo nome, un'email o un telefono, il messaggio e se vuoi il DJ set.</p>
+      <p><strong>Perché:</strong> per risponderti e organizzare la serata che ci chiedi. È una richiesta che fai tu, prima di un eventuale accordo (art. 6.1.b del GDPR).</p>
+      <p><strong>Per quanto tempo:</strong> due anni, poi la richiesta si cancella da sola.</p>
+      <p><strong>Chi li vede:</strong> solo noi della band. Per far funzionare il modulo usiamo questi servizi: Supabase (database, server in Irlanda), Resend (invio dell'email di avviso) e Gmail (la casella dove ci arriva). Il sito è ospitato da Vercel. Alcuni di questi fornitori sono aziende statunitensi: trattano i dati per conto nostro, con le garanzie previste dal GDPR per i trasferimenti fuori dall'Unione europea.</p>
+    </section>
+
+    <section>
+      <h2>Contro lo spam</h2>
+      <p>Per evitare invii a raffica, quando mandi il modulo salviamo un'<strong>impronta cifrata</strong> del tuo indirizzo IP, mai l'indirizzo in chiaro. Si cancella dopo un'ora.</p>
+    </section>
+
+    <section>
+      <h2>Statistiche e cookie</h2>
+      <p>Contiamo le visite con Vercel Web Analytics: <strong>niente cookie</strong>, nessun profilo, solo numeri complessivi (quante visite, da quali pagine, da che tipo di dispositivo). Per questo non c'è nessun banner da accettare.</p>
+      <p>Il pannello riservato alla band salva sul dispositivo di chi entra i dati della sessione, solo per restare collegati. Il pubblico non lo usa.</p>
+    </section>
+
+    <section>
+      <h2>Foto, frasi e ospiti</h2>
+      <p>Nella galleria ci sono foto dei concerti, dove a volte si vede il pubblico. <strong>Se ti riconosci e vuoi che togliamo una foto, scrivici</strong> e la togliamo.</p>
+      <p>Le frasi dei fan e i nomi degli ospiti saliti sul palco li pubblichiamo solo con il loro permesso; chi vuole essere tolto può chiedercelo in ogni momento.</p>
+    </section>
+
+    <section>
+      <h2>Link ad altri siti</h2>
+      <p>Instagram, Spotify e PayPal sono semplici link: finché non li tocchi, non caricano niente e non sanno che sei qui. Quando li apri valgono le loro regole sulla privacy.</p>
+    </section>
+
+    <section>
+      <h2>I tuoi diritti</h2>
+      <p>Puoi chiederci in ogni momento di vedere, correggere o cancellare i tuoi dati, di limitarne l'uso, di opporti o di riceverne una copia. Basta scriverci al contatto qui sopra. Se pensi che non li trattiamo bene, puoi rivolgerti al <a href="https://www.garanteprivacy.it">Garante per la protezione dei dati personali</a>.</p>
+    </section>
+
+    <p class="aggiornata">Ultimo aggiornamento: {aggiornata}.</p>
+  </main>
+  <Piede />
+</Base>
+
+<style>
+  .privacy { padding-block: var(--s-6) var(--s-8); display: grid; gap: var(--s-6); max-width: calc(760px + 2 * var(--margine)); margin-inline: 0; }
+  h1 { font-size: var(--t-xxl); padding-bottom: var(--s-4); border-bottom: var(--filetto); }
+  .attacco { font-size: var(--t-l); line-height: 1.35; font-weight: 700; }
+  section { display: grid; gap: var(--s-3); padding-top: var(--s-4); border-top: 1px solid var(--ink); }
+  h2 { font-size: var(--t-l); }
+  section p { color: var(--ink-2); }
+  section strong { color: var(--ink); }
+  .aggiornata { font-size: var(--t-s); color: var(--ink-2); }
+  @media (min-width: 1304px) { .privacy { margin-inline: calc((100vw - var(--larghezza)) / 2); padding-inline: 0; } }
+</style>
