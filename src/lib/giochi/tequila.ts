@@ -14,9 +14,9 @@ type Oggetto = { tipo: Tipo; x: number; x0: number; y: number; v: number; s: P.S
 
 /** Each band member: speed (px/s), catch width, lives, and their weak spot. */
 export const PERSONAGGI: Record<Personaggio, { nome: string; velocita: number; presa: number; vite: number; pro: string; contro: string }> = {
-  giova: { nome: 'Giova', velocita: 100, presa: 19, vite: 5, pro: 'il frontman: la tequila per lui vale 10', contro: 'la visiera: quello che gli cade sopra la testa sparisce all\'ultimo' },
+  giova: { nome: 'Giova', velocita: 112, presa: 18, vite: 5, pro: 'il frontman: la tequila per lui vale 10', contro: 'la visiera: quello che gli cade sopra la testa sparisce all\'ultimo' },
   celi: { nome: 'Celi', velocita: 125, presa: 15, vite: 5, pro: 'il più veloce', contro: 'vescica piccola: ogni 5 bevute, bagno' },
-  coraz: { nome: 'Coraz', velocita: 95, presa: 18, vite: 6, pro: 'una vita in più', contro: 'se passa una ragazza, va in tilt' },
+  coraz: { nome: 'Coraz', velocita: 112, presa: 18, vite: 6, pro: 'una vita in più', contro: 'se passa una ragazza, va in tilt' },
 };
 
 const PUNTI: Partial<Record<Tipo, number>> = { birra: 1, spritz: 2, tequila: 5 };
@@ -27,7 +27,7 @@ export function novitaLivello(n: number): string {
   if (n === 3) return 'Arriva il buttafuori!';
   if (n === 4) return 'Ora cade più roba insieme!';
   if (n === 5) return 'Occhio ai bicchieri rotti!';
-  if (n === 7) return 'Chambers non perdona!';
+  if (n === 7) return 'Chambers arriva più spesso!';
   return 'Più veloce!';
 }
 
@@ -55,7 +55,10 @@ export function creaTequila(tela: HTMLCanvasElement, personaggio: Personaggio, a
   let prossimo = 0.6, prossimoChambers = 24 + Math.random() * 10;
   let bagno = 0;                                             // Celi: seconds left in the bathroom
   let ragazza = { t: 0, x: -20, dir: 1 }, prossimaRagazza = 10 + Math.random() * 8; // Coraz only
-  const buttafuori = { attivo: false, x: -20, dir: 1, pausa: 0, colpito: 0 };
+  // The bouncer: out → warning arrow → walks in up to about mid-stage → stands → walks back out.
+  type Fase = 'fuori' | 'avviso' | 'entra' | 'fermo' | 'esce';
+  const buttafuori = { fase: 'fuori' as Fase, x: -20, dir: 1, t: 0, meta: 0, colpito: 0 };
+  const inScena = () => buttafuori.fase === 'entra' || buttafuori.fase === 'fermo' || buttafuori.fase === 'esce';
   let lampo = 0, festa = 0;
   let ultimo = 0, rif = 0;
 
@@ -146,17 +149,29 @@ export function creaTequila(tela: HTMLCanvasElement, personaggio: Personaggio, a
       if (ragazza.t > 0) { ragazza.t -= dt; ragazza.x += ragazza.dir * 40 * dt; }
     }
 
-    // the bouncer (level 3+): walks the stage, pauses, and shoves you away if you touch him
+    // the bouncer (level 3+): comes in from one side, announced by a red arrow, walks to about
+    // the middle, stands there a moment and goes back out. Stay on the other half of the stage.
     if (stato.livello >= 3) {
       const b = buttafuori;
-      if (!b.attivo) { b.attivo = true; b.dir = Math.random() < 0.5 ? 1 : -1; b.x = b.dir > 0 ? -16 : LARGO; b.pausa = 0; }
-      if (b.pausa > 0) b.pausa -= dt;
-      else {
-        b.x += b.dir * (22 + L() * 3) * dt;
-        if (b.x < -18 || b.x > LARGO + 2) { b.dir *= -1; b.pausa = 1.5 + Math.random() * 3; }
+      const cammino = (26 + L() * 3) * dt;
+      b.t -= dt;
+      if (b.fase === 'fuori' && b.t <= 0) {
+        b.dir = Math.random() < 0.5 ? 1 : -1;
+        b.x = b.dir > 0 ? -16 : LARGO;
+        const r = Math.random() * 0.2;
+        b.meta = b.dir > 0 ? LARGO * (0.35 + r) - 16 : LARGO * (0.65 - r);
+        b.fase = 'avviso'; b.t = 1.1;
+      } else if (b.fase === 'avviso' && b.t <= 0) b.fase = 'entra';
+      else if (b.fase === 'entra') {
+        b.x += b.dir * cammino;
+        if (b.dir > 0 ? b.x >= b.meta : b.x <= b.meta) { b.x = b.meta; b.fase = 'fermo'; b.t = 0.8 + Math.random(); }
+      } else if (b.fase === 'fermo' && b.t <= 0) b.fase = 'esce';
+      else if (b.fase === 'esce') {
+        b.x -= b.dir * cammino;
+        if (b.x < -18 || b.x > LARGO + 2) { b.fase = 'fuori'; b.t = Math.max(1.5, 4 - L() * 0.3) + Math.random() * 2; }
       }
       b.colpito = Math.max(0, b.colpito - dt);
-      if (b.colpito <= 0 && Math.abs(b.x + 8 - x) < 12) {
+      if (inScena() && b.colpito <= 0 && Math.abs(b.x + 8 - x) < 12) {
         stato.vite--; lampo = 0.35; b.colpito = 1.2;
         x = Math.max(io.w / 2, Math.min(LARGO - io.w / 2, x + (x < b.x + 8 ? -26 : 26)));
         obiettivo = x;
@@ -220,9 +235,15 @@ export function creaTequila(tela: HTMLCanvasElement, personaggio: Personaggio, a
 
     const py = ALTO - PALCO - io.h + 2;
 
-    if (buttafuori.attivo) {
-      const s = buttafuori.dir > 0 ? spr.buttafuori : buttafuoriSx;
+    if (inScena()) {
+      const destra = buttafuori.fase === 'esce' ? buttafuori.dir < 0 : buttafuori.dir > 0;
+      const s = destra ? spr.buttafuori : buttafuoriSx;
       ctx.drawImage(s.tela, Math.round(buttafuori.x), ALTO - PALCO - s.h + 2);
+    } else if (buttafuori.fase === 'avviso' && Math.floor(buttafuori.t * 6) % 2 === 0) {
+      // blinking red arrow on the side he is coming from, pointing inwards
+      const ay = ALTO - PALCO - 14, ax = buttafuori.dir > 0 ? 3 : LARGO - 4;
+      ctx.fillStyle = P.TAVOLOZZA.r;
+      for (let k = 0; k < 6; k++) ctx.fillRect(ax + buttafuori.dir * k, ay - (5 - k), 1, (5 - k) * 2 + 1);
     }
 
     // the player
