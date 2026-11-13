@@ -349,7 +349,7 @@ import Logo from '../../components/Logo.astro';
         <dl class="vincitori" data-vincitori></dl>
         <h2 class="spazio">Ultime partite</h2>
         <p class="facoltativo">Qui si tolgono i soprannomi offensivi o i punteggi sospetti.</p>
-        <div class="azioni"><button type="button" class="secondario" data-giochi-filtro="tequila">3 tequila</button><button type="button" class="secondario" data-giochi-filtro="ritardo">In ritardo</button></div>
+        <div class="azioni"><button type="button" class="secondario" data-giochi-filtro="tequila">3 tequila</button><button type="button" class="secondario" data-giochi-filtro="ritardo">In ritardo</button><button type="button" class="secondario" data-giochi-filtro="caddy">In Caddy</button></div>
         <ol class="lista" data-lista-punteggi></ol>
       </div>
 
@@ -1169,7 +1169,7 @@ import Logo from '../../components/Logo.astro';
     let giocoScelto = 'tequila';
     type Punteggio = { id: string; nome: string; punti: number; personaggio: string | null; durata_s: number; created_at: string };
     async function caricaVincitori() {
-      const giochi = [['tequila', '3 tequila sul palco'], ['ritardo', 'Arrivo comunque in ritardo']] as const;
+      const giochi = [['tequila', '3 tequila sul palco'], ['ritardo', 'Arrivo comunque in ritardo'], ['caddy', 'In Caddy fino in Toscana']] as const;
       const righe = await Promise.all(giochi.map(async ([g, nome]) => {
         const [gara, prec] = await Promise.all([
           sb.rpc('classifica', { p_gioco: g, p_periodo: 'gara' }).order('punti', { ascending: false }).limit(1),

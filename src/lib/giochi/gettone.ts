@@ -2,8 +2,8 @@
 // so the score API can reject scores that are impossible for the time actually played.
 import { RATE_LIMIT_SALT } from 'astro:env/server';
 
-export type Gioco = 'tequila' | 'ritardo';
-export const GIOCHI: Gioco[] = ['tequila', 'ritardo'];
+export type Gioco = 'tequila' | 'ritardo' | 'caddy';
+export const GIOCHI: Gioco[] = ['tequila', 'ritardo', 'caddy'];
 
 const enc = new TextEncoder();
 const b64 = (b: ArrayBuffer | Uint8Array) => Buffer.from(b instanceof Uint8Array ? b : new Uint8Array(b)).toString('base64url');
@@ -32,7 +32,9 @@ export async function leggiGettone(gettone: string): Promise<{ gioco: Gioco; ini
 
 /** Highest believable score for a game lasting `secondi` seconds. */
 export function punteggioMassimo(gioco: Gioco, secondi: number) {
-  return gioco === 'tequila' ? Math.ceil(secondi * 14 + 40) : Math.ceil(secondi * 45 + 60);
+  if (gioco === 'tequila') return Math.ceil(secondi * 14 + 40);
+  if (gioco === 'caddy') return Math.ceil(secondi * 20 + 260); // km + Braulio + the arrival bonus
+  return Math.ceil(secondi * 45 + 60);
 }
 
 // A few words a nickname may not contain. Not exhaustive: the panel can delete the rest.

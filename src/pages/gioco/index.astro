@@ -8,18 +8,19 @@ import Freccia from '../../components/Freccia.astro';
 const giochi = [
   { id: 'tequila', titolo: '3 tequila sul palco, grazie', testo: 'Scegli Giova, Celi o Coraz e bevi tutto quello che cade dal soffitto. Evita le sveglie del lunedì. E se cade Chambers, è finita.', href: '/gioco/tequila', sprite: 'coraz' },
   { id: 'ritardo', titolo: 'Arrivo comunque in ritardo', testo: 'Giova è in ritardo per il concerto, come sempre. Salta casse, cavi e transenne dalla piazza fino al palco.', href: '/gioco/ritardo', sprite: 'giova-corsa' },
+  { id: 'caddy', titolo: 'In Caddy fino in Toscana', testo: 'Chambers guida il Caddy verde fino al Pachamama. Evita buche e camion, bevi il Braulio ma occhio alla polizia. E dietro Celi e Giova fanno i dispettosi.', href: '/gioco/caddy', sprite: 'caddy' },
 ];
 ---
 
 <Base
   title="Gioca · Mari sugli alberi"
-  description="Due giochi arcade di Mari sugli alberi. La gara va da un live all'altro: chi è primo vince un gadget del merch."
+  description="Tre giochi arcade di Mari sugli alberi. La gara va da un live all'altro: chi è primo vince un gadget del merch."
 >
   <Barra />
   <main id="contenuto" class="wrap giochi">
     <header class="giochi-testa">
       <h1>Sfida la band</h1>
-      <p class="attacco">Due giochi, una gara da un live all'altro. Chi è primo quando si chiude vince un gadget del merch e lo ritira al live.</p>
+      <p class="attacco">Tre giochi, una gara da un live all'altro. Chi è primo quando si chiude vince un gadget del merch e lo ritira al live.</p>
       <p class="chiusura-gara" data-chiusura-gara></p>
     </header>
 
@@ -50,7 +51,7 @@ const giochi = [
   import { classifica, disegnaClassifica, gare, nomeSalvato, testoChiusura, type Gioco } from '../../lib/giochi/client';
   gare().then(({ corrente }) => (document.querySelector('[data-chiusura-gara]')!.textContent = testoChiusura(corrente)));
 
-  const SPRITE: Record<string, string[]> = { coraz: P.CORAZ, 'giova-corsa': P.GIOVA_CORSA[0] };
+  const SPRITE: Record<string, string[]> = { coraz: P.CORAZ, 'giova-corsa': P.GIOVA_CORSA[0], caddy: P.CADDY };
   document.querySelectorAll<HTMLCanvasElement>('[data-sprite]').forEach((c) => {
     const s = P.sprite(SPRITE[c.dataset.sprite!]);
     c.width = s.w; c.height = s.h;

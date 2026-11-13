@@ -1,7 +1,7 @@
 // Browser side of the games: start token, score submission, leaderboards, remembered nickname.
 import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from 'astro:env/client';
 
-export type Gioco = 'tequila' | 'ritardo';
+export type Gioco = 'tequila' | 'ritardo' | 'caddy';
 export type Riga = { nome: string; punti: number; personaggio: string | null };
 
 export async function iniziaPartita(gioco: Gioco): Promise<string | null> {

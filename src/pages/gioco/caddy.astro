@@ -1,0 +1,299 @@
+---
+// Game 3: "In Caddy fino in Toscana" (the trip to the Pachamama Festival).
+import Base from '../../layouts/Base.astro';
+import Barra from '../../components/Barra.astro';
+import Piede from '../../components/Piede.astro';
+import Classifica from '../../components/gioco/Classifica.astro';
+import Comandi from '../../components/gioco/Comandi.astro';
+---
+
+<Base
+  title="In Caddy fino in Toscana · Gioco · Mari sugli alberi"
+  description="Chambers guida il Caddy verde fino al Pachamama Festival. Evita buche e camion, bevi il Braulio ma occhio alla polizia. E dietro Celi e Giova fanno i dispettosi."
+>
+  <Barra />
+  <main id="contenuto" class="wrap gioco">
+    <a class="indietro" href="/gioco">Tutti i giochi</a>
+    <h1>In Caddy fino in Toscana</h1>
+
+    <div class="palco" data-palco>
+      <div class="hud" data-hud hidden>
+        <span class="hud-km"><strong data-km>300</strong> <span data-km-testo>km a Capannoli</span></span>
+        <span class="tasso" aria-label="Tasso alcolico">
+          <span class="tasso-nome">Tasso</span>
+          <span class="tasso-barra"><span class="tasso-livello" data-tasso></span><span class="tasso-soglia"></span></span>
+        </span>
+        <span class="gomme" data-gomme aria-label="Gomme"></span>
+      </div>
+      <div class="punti-hud" data-punti-hud hidden><strong data-punti>0</strong> punti</div>
+      <div class="annuncio" data-annuncio aria-live="polite" hidden>
+        <span class="annuncio-titolo" data-annuncio-titolo></span>
+        <span class="annuncio-testo" data-annuncio-testo></span>
+      </div>
+      <canvas class="tela" data-tela width="128" height="208" aria-label="La strada vista dall'alto: sposta il Caddy trascinando il dito, con i tasti o con le frecce"></canvas>
+      <Comandi sinistra={{ tasto: 'ArrowLeft', etichetta: 'Sinistra', icona: 'sinistra' }} destra={{ tasto: 'ArrowRight', etichetta: 'Destra', icona: 'destra' }} />
+
+      <div class="schermo" data-schermo="inizio">
+        <canvas class="ritratto" data-ritratto aria-hidden="true"></canvas>
+        <h2>Si va al Pachamama</h2>
+        <p>Chambers guida, Coraz gli fa da navigatore, Celi e Giova dietro fanno i bambini. Destinazione: Capannoli, 300 km.</p>
+        <button type="button" class="bottone parti" data-parti>Si parte!</button>
+      </div>
+
+      <div class="schermo" data-schermo="fine" hidden>
+        <h2 data-fine-titolo>Fine del viaggio</h2>
+        <p class="fine-punti"><strong data-fine-punti>0</strong> punti</p>
+        <p class="fine-dettaglio" data-fine-dettaglio></p>
+        <form class="fine-form" data-fine-form>
+          <label for="soprannome">Il tuo soprannome per la classifica</label>
+          <div class="fine-riga">
+            <input id="soprannome" name="nome" type="text" minlength="2" maxlength="16" autocomplete="nickname" required />
+            <button type="submit" class="bottone fine-invia">Salva</button>
+          </div>
+          <p class="fine-esito" role="status" aria-live="polite" data-fine-esito></p>
+        </form>
+        <div class="fine-azioni">
+          <button type="button" class="secondario" data-parti>Riparti</button>
+        </div>
+      </div>
+    </div>
+
+    <section class="regole" aria-labelledby="regole-titolo">
+      <h2 id="regole-titolo">Come si gioca</h2>
+      <ul>
+        <li>Il Caddy va avanti da solo: <strong>trascina il dito</strong>, usa i tasti sotto la strada (sul telefono si gioca a tutto schermo) o le frecce della tastiera per spostarlo a destra e a sinistra.</li>
+        <li>Hai <strong>3 gomme</strong>: buche, camion, coni dei cantieri, pecore e la macchina della polizia te ne bucano una. Senza gomme il viaggio finisce.</li>
+        <li><strong>Il Braulio vale 15 punti</strong>, ma alza il <strong>tasso</strong>. Il tasso scende da solo, piano, e il <strong>caffè</strong> lo abbassa di colpo. Sopra la metà della barra il Caddy sbanda un po'.</li>
+        <li><strong>La polizia</strong> (con le luci blu e rosse) ti controlla quando ti passa accanto: se il tasso è oltre la tacca bianca, <strong>patente ritirata</strong> e partita finita. Se sei sobrio, ti saluta.</li>
+        <li>Le tappe sono annunciate a schermo: si parte, Bologna (arriva la polizia), l'Appennino (nebbia), Firenze, la Toscana (pecore). Dall'Appennino <strong>Celi e Giova fanno le marachelle</strong>: Giova copre gli occhi a Chambers, Celi fa il solletico a Coraz (si sbanda) e il «quanto manca?» fa girare Chambers (comandi al contrario).</li>
+        <li>Ogni km è un punto. <strong>A 300 km si arriva al Pachamama</strong>: 200 punti di bonus, e poi si torna a casa di notte, sempre più veloce, finché reggono le gomme.</li>
+      </ul>
+    </section>
+
+    <Classifica gioco="caddy" unita="punti" />
+  </main>
+  <Piede />
+</Base>
+
+<script>
+  import { creaCaddy, KM_ARRIVO, type Stato } from '../../lib/giochi/caddy';
+  import * as P from '../../lib/giochi/pixel';
+  import { iniziaPartita, inviaPunteggio, nomeSalvato, salvaNome, MESSAGGI_ERRORE } from '../../lib/giochi/client';
+  import { entra, esci } from '../../lib/giochi/schermo-intero';
+
+  const $ = (s: string) => document.querySelector<HTMLElement>(s)!;
+  const tela = document.querySelector<HTMLCanvasElement>('[data-tela]')!;
+  const palco = $('[data-palco]');
+  const hud = $('[data-hud]'), puntiHud = $('[data-punti-hud]');
+  const schermo = (nome: string | null) => document.querySelectorAll<HTMLElement>('[data-schermo]').forEach((s) => (s.hidden = s.dataset.schermo !== nome));
+
+  // The Caddy on the start screen, and the empty road behind it.
+  const ritratto = document.querySelector<HTMLCanvasElement>('[data-ritratto]')!;
+  const caddy = P.sprite(P.CADDY);
+  ritratto.width = caddy.w; ritratto.height = caddy.h;
+  ritratto.getContext('2d')!.drawImage(caddy.tela, 0, 0);
+  const anteprima = creaCaddy(tela, () => {});
+  anteprima.disegnaFermo();
+  anteprima.ferma();
+
+  let partita: ReturnType<typeof creaCaddy> | null = null;
+  let gettone: string | null = null;
+  let finale = 0, salvato = false, annuncioVisto = 0, timerAnnuncio = 0;
+
+  function annuncia(titolo: string, testo: string) {
+    const box = $('[data-annuncio]');
+    $('[data-annuncio-titolo]').textContent = titolo;
+    $('[data-annuncio-testo]').textContent = testo;
+    box.hidden = false;
+    box.classList.remove('entra'); void box.offsetWidth; box.classList.add('entra');
+    clearTimeout(timerAnnuncio);
+    timerAnnuncio = window.setTimeout(() => (box.hidden = true), 2200);
+  }
+
+  function gomme(n: number) {
+    const el = $('[data-gomme]');
+    if (el.childElementCount === n) return;
+    el.replaceChildren(...Array.from({ length: n }, () => Object.assign(document.createElement('span'), { className: 'gomma' })));
+    el.setAttribute('aria-label', `${n} gomme`);
+  }
+
+  async function parti() {
+    partita?.ferma();
+    entra(palco, () => {
+      partita?.ferma();
+      $('[data-annuncio]').hidden = true;
+      hud.hidden = true; puntiHud.hidden = true;
+      schermo('inizio');
+    });
+    schermo(null);
+    hud.hidden = false; puntiHud.hidden = false;
+    salvato = false; annuncioVisto = 0;
+    gomme(3);
+    gettone = await iniziaPartita('caddy');
+    partita = creaCaddy(tela, (s: Stato) => {
+      if (s.annuncio.n !== annuncioVisto && !s.finita) { annuncioVisto = s.annuncio.n; annuncia(s.annuncio.titolo, s.annuncio.testo); }
+      $('[data-km]').textContent = String(s.ritorno ? s.km : Math.max(0, KM_ARRIVO - s.km));
+      $('[data-km-testo]').textContent = s.ritorno ? 'km in tutto' : 'km a Capannoli';
+      $('[data-punti]').textContent = String(s.punti);
+      const t = $('[data-tasso]');
+      t.style.width = `${s.tasso}%`;
+      t.classList.toggle('alto', s.tasso >= 50);
+      gomme(s.gomme);
+      if (s.finita) fine(s);
+    });
+    partita.avvia();
+    tela.focus();
+  }
+
+  function fine(s: Stato) {
+    finale = s.punti;
+    esci();
+    $('[data-annuncio]').hidden = true;
+    $('[data-fine-titolo]').textContent = s.motivo === 'polizia' ? 'Patente ritirata!' : 'Tutte le gomme a terra!';
+    $('[data-fine-punti]').textContent = String(s.punti);
+    const dove = s.ritorno ? `Arrivati al Pachamama e ${s.km - KM_ARRIVO} km di ritorno` : `${s.km} km su ${KM_ARRIVO}, il Pachamama era a ${KM_ARRIVO - s.km} km`;
+    $('[data-fine-dettaglio]').textContent = `${dove}. Braulio bevuti: ${s.braulii}.`;
+    $('[data-fine-esito]').textContent = '';
+    document.querySelector<HTMLInputElement>('#soprannome')!.value = nomeSalvato();
+    schermo('fine');
+  }
+
+  document.querySelectorAll('[data-parti]').forEach((b) => b.addEventListener('click', parti));
+
+  document.querySelector<HTMLFormElement>('[data-fine-form]')!.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const esito = $('[data-fine-esito]');
+    if (salvato) return;
+    const nome = (document.querySelector<HTMLInputElement>('#soprannome')!.value || '').trim();
+    if (!gettone) { esito.textContent = MESSAGGI_ERRORE['non-attivo']; return; }
+    esito.textContent = 'Salvo…';
+    const r = await inviaPunteggio({ gettone, nome, punti: finale });
+    if (r.ok) {
+      salvato = true;
+      salvaNome(nome);
+      esito.textContent = 'Salvato! Guarda dove sei in classifica.';
+      document.querySelector('[data-classifica]')?.dispatchEvent(new Event('aggiorna'));
+    } else esito.textContent = MESSAGGI_ERRORE[r.errore] ?? 'Non riesco a salvarlo, riprova.';
+  });
+</script>
+
+<style>
+  .gioco { padding-block: var(--s-4) var(--s-8); display: grid; gap: var(--s-6); justify-items: center; }
+  .gioco > * { width: 100%; max-width: 560px; }
+  .indietro { font-weight: 700; }
+  h1 { font-size: var(--t-xl); }
+
+  .palco { --rapporto: calc(128 / 208); position: relative; border: var(--filetto); background: var(--ink); }
+  .tela {
+    display: block;
+    width: 100%;
+    max-height: calc(100svh - 160px);
+    aspect-ratio: 128 / 208;
+    object-fit: contain;
+    margin-inline: auto;
+    image-rendering: pixelated;
+    touch-action: none;
+    cursor: grab;
+  }
+  .hud {
+    position: absolute;
+    inset: 0 0 auto 0;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--s-2);
+    padding: var(--s-2) var(--s-3);
+    background: color-mix(in srgb, var(--ink) 78%, transparent);
+    color: var(--carta);
+    font-family: var(--f-display);
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: var(--t-xs);
+    pointer-events: none;
+  }
+  .hud strong { font-size: var(--t-m); font-variant-numeric: tabular-nums; }
+  .tasso { display: grid; gap: 2px; justify-items: center; }
+  .tasso-barra { position: relative; display: block; width: 72px; height: 10px; border: 2px solid var(--carta); }
+  .tasso-livello { display: block; height: 100%; width: 0; background: var(--teal-chiaro); }
+  .tasso-livello.alto { background: var(--rosso); }
+  .tasso-soglia { position: absolute; left: 50%; top: -4px; bottom: -4px; width: 2px; background: var(--carta); }
+  .gomme { display: flex; gap: 3px; }
+  .gomme :global(.gomma) { width: 12px; height: 12px; border-radius: 50%; background: var(--carta); box-shadow: inset 0 0 0 3px var(--ink-2); }
+  .punti-hud {
+    position: absolute;
+    top: 3.2rem;
+    right: var(--s-3);
+    z-index: 2;
+    padding: 0 var(--s-2);
+    background: var(--ink);
+    color: var(--carta);
+    font-weight: 700;
+    font-size: var(--t-xs);
+    pointer-events: none;
+  }
+  .punti-hud[hidden] { display: none; }
+  .punti-hud strong { font-family: var(--f-display); font-size: var(--t-s); }
+
+  .annuncio {
+    position: absolute;
+    inset: 30% 8% auto 8%;
+    z-index: 2;
+    display: grid;
+    gap: var(--s-1);
+    justify-items: center;
+    padding: var(--s-3) var(--s-4);
+    background: var(--rosso);
+    color: var(--carta);
+    border: 2px solid var(--ink);
+    text-align: center;
+    pointer-events: none;
+  }
+  .annuncio[hidden] { display: none; }
+  .annuncio-titolo { font-family: var(--f-display); font-weight: 900; font-size: var(--t-xl); text-transform: uppercase; line-height: 1; letter-spacing: -0.03em; }
+  .annuncio-testo { font-weight: 700; }
+  @media (prefers-reduced-motion: no-preference) {
+    .annuncio.entra { animation: annuncio 2.2s var(--esce) both; }
+  }
+  @keyframes annuncio {
+    0% { transform: scale(0.6); opacity: 0; }
+    10% { transform: scale(1.06); opacity: 1; }
+    18%, 84% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1); opacity: 0; }
+  }
+
+  .schermo {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: var(--s-4);
+    padding: var(--s-5) var(--s-4);
+    background: color-mix(in srgb, var(--carta) 95%, transparent);
+    overflow-y: auto;
+    text-align: center;
+  }
+  .schermo[hidden] { display: none; }
+  .schermo h2 { font-size: var(--t-xl); }
+  .ritratto { width: 80px; height: auto; image-rendering: pixelated; }
+  .parti { padding: 0 var(--s-5); }
+
+  .fine-punti { font-size: var(--t-l); }
+  .fine-punti strong { font-family: var(--f-display); font-size: var(--t-xxl); font-weight: 900; display: block; line-height: 1; }
+  .fine-dettaglio { font-weight: 700; color: var(--teal); }
+  .fine-form { display: grid; gap: var(--s-2); text-align: left; width: 100%; }
+  .fine-form label { font-weight: 700; }
+  .fine-riga { display: flex; gap: var(--s-2); }
+  .fine-riga input { flex: 1; min-width: 0; min-height: 52px; padding: 0 var(--s-3); border: 0; border-bottom: var(--filetto); border-radius: 0; background: var(--carta-2); font-size: var(--t-m); }
+  .fine-invia { padding: 0 var(--s-4); }
+  .fine-esito { font-weight: 700; font-size: var(--t-s); }
+  .fine-azioni { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-2); }
+  .secondario { min-height: 48px; padding: 0 var(--s-4); border: var(--filetto); background: var(--carta); font-weight: 700; }
+  .secondario:hover { background: var(--ink); color: var(--carta); }
+
+  .regole h2 { font-size: var(--t-l); margin-bottom: var(--s-3); }
+  .regole ul { display: grid; gap: var(--s-2); padding-left: 1.1em; color: var(--ink-2); }
+  .regole strong { color: var(--ink); }
+</style>

@@ -1,6 +1,6 @@
 ---
 // Leaderboard with "this week" / "all time" tabs. Filled in the browser (see client.ts).
-interface Props { gioco: 'tequila' | 'ritardo'; unita: string }
+interface Props { gioco: 'tequila' | 'ritardo' | 'caddy'; unita: string }
 const { gioco, unita } = Astro.props;
 ---
 <section class="classifica" aria-labelledby={`cl-${gioco}`} data-classifica={gioco} data-unita={unita}>

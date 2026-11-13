@@ -23,6 +23,12 @@ export const TAVOLOZZA: Record<string, string> = {
   p: '#e86a8a', // pink
   u: '#3b6fb5', // blue
   e: '#7a7a7a', // grey
+  v: '#2f5a3a', // Caddy green
+  V: '#1d3b26', // dark green
+  z: '#7fb2e0', // police light blue
+  A: '#4a4744', // asphalt
+  f: '#7d9a46', // grass
+  F: '#5f7a33', // dark grass
 };
 
 export type Sprite = { w: number; h: number; tela: HTMLCanvasElement };
@@ -409,4 +415,191 @@ export const BOTTIGLIA = [
   'ttttttttttt.',
   'ttwwtttttt..',
   'tttttttttt..',
+];
+
+// ---------------------------------------------------------------- the Caddy trip (top-down)
+
+/** The dark green Caddy from above: Chambers driving (halo), Coraz beside him, Celi and Giova in the back. */
+export const CADDY = [
+  '.....kkkkkkkkkk.....',
+  '...kkvvvvvvvvvvkk...',
+  '..kvvvvvvvvvvvvvvk..',
+  '..kwwvvvvvvvvvvwwk..',
+  '..kvvvvvvvvvvvvvvk..',
+  '..kvvvvvvvvvvvvvvk..',
+  '..kVVVVVVVVVVVVVVk..',
+  '.kkggggggggggggggkk.',
+  'kVkGggggggggggggGkVk',
+  '..kVVVVVVVVVVVVVVk..',
+  '..kVeellleehhheeVk..',
+  '..kVelsssleehhhhVk..',
+  '..kVelsssleehhhhVk..',
+  '..kVeellleeehhheVk..',
+  '..kVeeeeeeeeeeeeVk..',
+  '..kVVVVVVVVVVVVVVk..',
+  '..kVeheheeeekkkeVk..',
+  '..kVhhhhheekkkkkVk..',
+  '..kVhhhhheekkkkkVk..',
+  '..kVehhheeeekkkeVk..',
+  '..kVeeeeeeeeeeeeVk..',
+  '..kVVVVVVVVVVVVVVk..',
+  '..kGggggggggggggGk..',
+  '..kvvvvvvvvvvvvvvk..',
+  '..kvvvvvvvvvvvvvvk..',
+  '..krrvvvvvvvvvvrrk..',
+  '...kkvvvvvvvvvvkk...',
+  '.....kkkkkkkkkk.....',
+];
+
+/** Police car from above: white and light blue, blue and red lights on the roof. */
+export const POLIZIA = [
+  '....kkkkkkkkkk....',
+  '..kkwwwwwwwwwwkk..',
+  '.kwwwwwwwwwwwwwwk.',
+  '.kwwzzzzzzzzzzwwk.',
+  '.kwwwwwwwwwwwwwwk.',
+  '.kzzzzzzzzzzzzzzk.',
+  '.kggggggggggggggk.',
+  'kzkGggggggggggGkzk',
+  '.kwwwwwwwwwwwwwwk.',
+  '.kwwuuuuurrrrrwwk.',
+  '.kwwuuuuurrrrrwwk.',
+  '.kwwwwwwwwwwwwwwk.',
+  '.kwwwwwwwwwwwwwwk.',
+  '.kwwwwwwwwwwwwwwk.',
+  '.kwwwwwwwwwwwwwwk.',
+  '.kGggggggggggggGk.',
+  '.kzzzzzzzzzzzzzzk.',
+  '.kwwwwwwwwwwwwwwk.',
+  '.krrwwwwwwwwwwrrk.',
+  '..kkwwwwwwwwwwkk..',
+  '....kkkkkkkkkk....',
+];
+
+/** A slow lorry from above: red cab, long grey trailer. */
+export const CAMION = [
+  '...kkkkkkkkkkkkkkkk...',
+  '..krrrrrrrrrrrrrrrrk..',
+  '..krwwrrrrrrrrrrwwrk..',
+  '..krrrrrrrrrrrrrrrrk..',
+  '..kggggggggggggggggk..',
+  '..krrrrrrrrrrrrrrrrk..',
+  '..kkkkkkkkkkkkkkkkkk..',
+  '..kCeeeeeeeeeeeeeeCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kCeeeeeeeeeeeeeeCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kCeeeeeeeeeeeeeeCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kCeeeeeeeeeeeeeeCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kCeeeeeeeeeeeeeeCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kCCCCCCCCCCCCCCCCk..',
+  '..kkkkkkkkkkkkkkkkkk..',
+];
+
+/** A pothole. */
+export const BUCA = [
+  '...kkkkkk...',
+  '.kkHHHHHHkk.',
+  'kHHkkkkkkHHk',
+  'kHkkkkkkkkHk',
+  'kHHkkkkkkHHk',
+  '.kkHHHHHHkk.',
+  '...kkkkkk...',
+];
+
+/** Braulio, the alpine bitter: dark bottle, cream label with mountains. */
+export const BRAULIO = [
+  '...kk...',
+  '...VV...',
+  '...VV...',
+  '..VVVV..',
+  '.VVVVVV.',
+  '.VVVVVV.',
+  '.bbbbbb.',
+  '.bhbbhb.',
+  '.hhhhhh.',
+  '.bbbbbb.',
+  '.VVVVVV.',
+  '.VVVVVV.',
+  '..VVVV..',
+];
+
+/** An espresso at the Autogrill. */
+export const CAFFE = [
+  '..H.H...',
+  '...H....',
+  '.wwwwww.',
+  '.wHHHHwk',
+  '.wwwwwwk',
+  '.wwwwww.',
+  'wwwwwwww',
+  '.wwwwww.',
+];
+
+/** A roadworks cone. */
+export const CONO = [
+  '...o...',
+  '...o...',
+  '..www..',
+  '..ooo..',
+  '.wwwww.',
+  '.ooooo.',
+  'ooooooo',
+];
+
+/** A Tuscan sheep crossing the road. */
+export const PECORA = [
+  '..wwwwwww...',
+  '.wwwwwwwwwkk',
+  'wwwwwwwwwwkk',
+  'wwwwwwwwwwk.',
+  '.wwwwwwwww..',
+  '..k.k..k.k..',
+  '..k.k..k.k..',
+];
+
+/** A cypress on the Tuscan roadside. */
+export const CIPRESSO = [
+  '..V..',
+  '.VVV.',
+  '.VVV.',
+  'VVVVV',
+  'VVVVV',
+  'VVVVV',
+  '.VVV.',
+  '.VVV.',
+  '..h..',
+];
+
+/** Someone doing yoga on a mat (the Pachamama Festival). */
+export const YOGA = [
+  '.....ss.......',
+  '.....ss.......',
+  '....pppp......',
+  '...pp..pp.....',
+  '..pp....pp....',
+  '.ss......ss...',
+  'pppppppppppppp',
 ];
