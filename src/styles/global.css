@@ -12,7 +12,7 @@
   --rosso-scuro: #9e151d;
   --teal: #1f6f6a;
   --teal-scuro: #16524e;
-  --teal-chiaro: #cfe3df;
+  --teal-chiaro: #d6e8e4;
 
   --f-display: 'Schibsted Grotesk Variable', 'Helvetica Neue', Arial, sans-serif;
   --f-text: 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif;
@@ -92,7 +92,7 @@ h1, h2, h3 {
   text-wrap: balance;
 }
 
-p { text-wrap: pretty; max-width: 65ch; }
+p { text-wrap: pretty; max-width: 58ch; }
 
 .solo-lettori {
   position: absolute !important;

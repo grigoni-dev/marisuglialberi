@@ -10,7 +10,7 @@ colors:
   rosso-scuro: "#9e151d"
   teal: "#1f6f6a"
   teal-scuro: "#16524e"
-  teal-chiaro: "#cfe3df"
+  teal-chiaro: "#d6e8e4"
 typography:
   display:
     fontFamily: "'Schibsted Grotesk Variable', 'Helvetica Neue', Arial, sans-serif"

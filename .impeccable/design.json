@@ -127,13 +127,13 @@
       "teal-chiaro": {
         "role": "secondary",
         "displayName": "Teal Chiaro",
-        "canonical": "#cfe3df",
+        "canonical": "#d6e8e4",
         "tonalRamp": [
           "#333534",
           "#5a615f",
           "#818c89",
           "#a8b8b4",
-          "#cfe3df",
+          "#d6e8e4",
           "#deeae6",
           "#ebf1ec",
           "#f5f5f1"
@@ -299,7 +299,7 @@
       "refersTo": "search-field-side-b",
       "description": "Campo su fondo teal: fondo teal scuro, bordo e focus color carta.",
       "html": "<div class=\"ds-lato-b\"><input type=\"search\" placeholder=\"Scrivi un artista o una canzone\"></div>",
-      "css": ".ds-lato-b{background:var(--teal,#1f6f6a);padding:1.5rem} .ds-lato-b input{width:100%;min-height:56px;padding:0 1rem;border:2px solid var(--carta,#f3eee4);border-radius:0;background:var(--teal-scuro,#16524e);color:var(--carta,#f3eee4);font-family:var(--f-text, 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif);font-size:1.0625rem} .ds-lato-b input::placeholder{color:var(--teal-chiaro,#cfe3df);opacity:0.85} .ds-lato-b input:focus-visible{outline:3px solid var(--carta,#f3eee4);outline-offset:3px}"
+      "css": ".ds-lato-b{background:var(--teal,#1f6f6a);padding:1.5rem} .ds-lato-b input{width:100%;min-height:56px;padding:0 1rem;border:2px solid var(--carta,#f3eee4);border-radius:0;background:var(--teal-scuro,#16524e);color:var(--carta,#f3eee4);font-family:var(--f-text, 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif);font-size:1.0625rem} .ds-lato-b input::placeholder{color:var(--teal-chiaro,#d6e8e4);opacity:0.85} .ds-lato-b input:focus-visible{outline:3px solid var(--carta,#f3eee4);outline-offset:3px}"
     }
   ],
   "narrative": {
