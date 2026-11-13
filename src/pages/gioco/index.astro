@@ -1,0 +1,101 @@
+---
+// The games: pick one, see who's on top this week.
+import Base from '../../layouts/Base.astro';
+import Barra from '../../components/Barra.astro';
+import Piede from '../../components/Piede.astro';
+import Freccia from '../../components/Freccia.astro';
+
+const giochi = [
+  { id: 'tequila', titolo: '3 tequila sul palco, grazie', testo: 'Scegli Giova, Celi o Coraz e bevi tutto quello che cade dal soffitto. Evita le sveglie del lunedì. E se cade Chambers, è finita.', href: '/gioco/tequila', sprite: 'coraz' },
+  { id: 'ritardo', titolo: 'Arrivo comunque in ritardo', testo: 'Giova è in ritardo per il concerto, come sempre. Salta casse, cavi e transenne dalla piazza fino al palco.', href: '/gioco/ritardo', sprite: 'giova-corsa' },
+];
+---
+
+<Base
+  title="Giochi · Mari sugli alberi"
+  description="Due giochi arcade di Mari sugli alberi, con la classifica della settimana. Chi è primo vince un gadget del merch."
+>
+  <Barra />
+  <main id="contenuto" class="wrap giochi">
+    <header class="giochi-testa">
+      <h1>Sfida la band</h1>
+      <p class="attacco">Due giochi, una classifica a settimana. Chi è primo vince un gadget del merch, da ritirare al prossimo live.</p>
+    </header>
+
+    <ul class="elenco">
+      {giochi.map((g) => (
+        <li class="gioco-scheda">
+          <a href={g.href} class="gioco-link">
+            <canvas class="gioco-sprite" data-sprite={g.sprite} aria-hidden="true"></canvas>
+            <span class="gioco-testo">
+              <span class="gioco-titolo">{g.titolo}</span>
+              <span class="gioco-desc">{g.testo}</span>
+              <span class="gioco-gioca">Gioca <Freccia /></span>
+            </span>
+          </a>
+          <div class="podio">
+            <h2 class="podio-titolo">I primi tre della settimana</h2>
+            <ol class="podio-lista" data-podio={g.id}><li class="vuota">Carico…</li></ol>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </main>
+  <Piede />
+</Base>
+
+<script>
+  import * as P from '../../lib/giochi/pixel';
+  import { classifica, disegnaClassifica, nomeSalvato, type Gioco } from '../../lib/giochi/client';
+
+  const SPRITE: Record<string, string[]> = { coraz: P.CORAZ, 'giova-corsa': P.GIOVA_CORSA[0] };
+  document.querySelectorAll<HTMLCanvasElement>('[data-sprite]').forEach((c) => {
+    const s = P.sprite(SPRITE[c.dataset.sprite!]);
+    c.width = s.w; c.height = s.h;
+    c.getContext('2d')!.drawImage(s.tela, 0, 0);
+  });
+  document.querySelectorAll<HTMLElement>('[data-podio]').forEach(async (ol) => {
+    disegnaClassifica(ol, await classifica(ol.dataset.podio as Gioco, true, 3), 'punti', nomeSalvato());
+  });
+</script>
+
+<style>
+  .giochi { padding-block: var(--s-6) var(--s-8); display: grid; gap: var(--s-7); }
+  .giochi-testa { display: grid; gap: var(--s-4); padding-bottom: var(--s-5); border-bottom: var(--filetto); }
+  h1 { font-size: var(--t-xxl); }
+  .attacco { font-size: var(--t-l); line-height: 1.35; font-weight: 700; max-width: 52ch; }
+
+  .elenco { list-style: none; padding: 0; display: grid; gap: var(--s-7); }
+  @media (min-width: 900px) { .elenco { grid-template-columns: 1fr 1fr; } }
+  .gioco-scheda { display: grid; gap: var(--s-4); align-content: start; }
+  .gioco-link {
+    display: grid;
+    grid-template-columns: 88px 1fr;
+    gap: var(--s-4);
+    align-items: start;
+    padding: var(--s-4);
+    border: var(--filetto);
+    background: var(--carta);
+    text-decoration: none;
+    transition: background-color 160ms ease, color 160ms ease;
+  }
+  .gioco-link:hover { background: var(--ink); color: var(--carta); }
+  .gioco-sprite { width: 88px; height: auto; image-rendering: pixelated; background: var(--carta-2); padding: 8px; }
+  .gioco-testo { display: grid; gap: var(--s-2); }
+  .gioco-titolo { font-family: var(--f-display); font-weight: 900; font-size: var(--t-l); line-height: 1; text-transform: uppercase; letter-spacing: -0.02em; }
+  .gioco-desc { color: var(--ink-2); }
+  .gioco-link:hover .gioco-desc { color: var(--carta-tenue); }
+  .gioco-gioca { display: inline-flex; align-items: center; gap: var(--s-2); font-family: var(--f-display); font-weight: 900; text-transform: uppercase; color: var(--rosso); }
+  .gioco-gioca :global(.freccia) { width: 1.1em; height: 1.1em; }
+  .gioco-link:hover .gioco-gioca { color: var(--carta); }
+
+  .podio-titolo { font-size: var(--t-m); margin-bottom: var(--s-2); }
+  .podio-lista { list-style: none; padding: 0; border-top: var(--filetto); }
+  .podio-lista :global(li) { display: grid; grid-template-columns: 2rem 1fr auto; gap: var(--s-3); padding: var(--s-2); border-bottom: 1px solid var(--ink); }
+  .podio-lista :global(.pos) { font-family: var(--f-display); font-weight: 900; }
+  .podio-lista :global(li:first-child .pos) { color: var(--rosso); }
+  .podio-lista :global(.chi) { font-weight: 700; overflow-wrap: anywhere; }
+  .podio-lista :global(.quanti) { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .podio-lista :global(.tu) { background: var(--teal-chiaro); }
+  .podio-lista :global(.vuota) { display: block; color: var(--ink-2); }
+</style>

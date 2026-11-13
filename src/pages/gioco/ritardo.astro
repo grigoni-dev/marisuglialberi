@@ -1,0 +1,237 @@
+---
+// Game 2: "Arrivo comunque in ritardo" (Giova runs to the gig).
+import Base from '../../layouts/Base.astro';
+import Barra from '../../components/Barra.astro';
+import Piede from '../../components/Piede.astro';
+import Classifica from '../../components/gioco/Classifica.astro';
+---
+
+<Base
+  title="Arrivo comunque in ritardo · Gioco · Mari sugli alberi"
+  description="Giova è in ritardo per il concerto, come sempre. Salta le casse di bottiglie e i cavi del service e arriva al palco."
+>
+  <Barra />
+  <main id="contenuto" class="wrap gioco">
+    <a class="indietro" href="/gioco">Tutti i giochi</a>
+    <h1>Arrivo comunque in ritardo</h1>
+
+    <div class="palco" data-palco>
+      <div class="hud" data-hud hidden>
+        <span><strong data-metri>0</strong> m</span>
+        <span class="tappa" data-tappa>La piazza</span>
+        <span>Plettri <strong data-plettri>0</strong></span>
+      </div>
+      <div class="annuncio" data-annuncio aria-live="polite" hidden>
+        <span class="annuncio-titolo" data-annuncio-titolo></span>
+        <span class="annuncio-testo" data-annuncio-testo></span>
+      </div>
+      <canvas class="tela" data-tela width="128" height="92" aria-label="La strada verso il concerto: tocca o premi spazio per saltare, scorri giù o freccia giù per abbassarti"></canvas>
+
+      <div class="schermo" data-schermo="inizio">
+        <h2>Giova è in ritardo. Come sempre.</h2>
+        <p>Tocca per saltare, tieni premuto per saltare più in alto. Scorri verso il basso per abbassarti.</p>
+        <button type="button" class="bottone parti" data-parti>Corri, Giova!</button>
+      </div>
+
+      <div class="schermo" data-schermo="fine" hidden>
+        <h2 data-fine-titolo>Inciampato!</h2>
+        <p class="fine-punti"><strong data-fine-punti>0</strong> punti</p>
+        <p class="fine-dettaglio" data-fine-dettaglio></p>
+        <form class="fine-form" data-fine-form>
+          <label for="soprannome">Il tuo soprannome per la classifica</label>
+          <div class="fine-riga">
+            <input id="soprannome" name="nome" type="text" minlength="2" maxlength="16" autocomplete="nickname" required />
+            <button type="submit" class="bottone fine-invia">Salva</button>
+          </div>
+          <p class="fine-esito" role="status" aria-live="polite" data-fine-esito></p>
+        </form>
+        <div class="fine-azioni">
+          <button type="button" class="secondario" data-parti>Riprova</button>
+        </div>
+      </div>
+    </div>
+
+    <section class="regole" aria-labelledby="regole-titolo">
+      <h2 id="regole-titolo">Come si gioca</h2>
+      <ul>
+        <li>Giova corre da solo: <strong>tocca lo schermo</strong> (o premi spazio) per saltare. <strong>Tieni premuto</strong> per saltare più in alto.</li>
+        <li><strong>Scorri verso il basso</strong> (o freccia giù) per abbassarti: serve per le bottiglie lanciate, i piccioni alti e lo striscione.</li>
+        <li>Salta <strong>casse di bottiglie, cavi del service, transenne e custodie</strong>, ma <strong>non saltare sotto le lucine della sagra</strong>. Al primo ostacolo Giova inciampa.</li>
+        <li>Ogni metro è un punto, ogni <strong>plettro rosso</strong> ne vale 10. Più corri, più va veloce: dalla piazza alla sagra, all'osteria, fino al palco.</li>
+      </ul>
+    </section>
+
+    <Classifica gioco="ritardo" unita="punti" />
+  </main>
+  <Piede />
+</Base>
+
+<script>
+  import { creaRitardo, type Stato } from '../../lib/giochi/ritardo';
+  import { iniziaPartita, inviaPunteggio, nomeSalvato, salvaNome, MESSAGGI_ERRORE } from '../../lib/giochi/client';
+
+  const tela = document.querySelector<HTMLCanvasElement>('[data-tela]')!;
+  const hud = document.querySelector<HTMLElement>('[data-hud]')!;
+  const schermo = (nome: string | null) => document.querySelectorAll<HTMLElement>('[data-schermo]').forEach((s) => (s.hidden = s.dataset.schermo !== nome));
+  const $ = (s: string) => document.querySelector<HTMLElement>(s)!;
+
+  // Draw the street behind the start screen.
+  const anteprima = creaRitardo(tela, () => {});
+  anteprima.disegnaFermo();
+  anteprima.ferma();
+
+  let partita: ReturnType<typeof creaRitardo> | null = null;
+  let gettone: string | null = null;
+  let finale = 0;
+  let salvato = false;
+  let livello = 0;
+  let timerAnnuncio = 0;
+
+  function annuncia(titolo: string, testo: string) {
+    const box = $('[data-annuncio]');
+    $('[data-annuncio-titolo]').textContent = titolo;
+    $('[data-annuncio-testo]').textContent = testo;
+    box.hidden = false;
+    box.classList.remove('entra'); void box.offsetWidth; box.classList.add('entra');
+    clearTimeout(timerAnnuncio);
+    timerAnnuncio = window.setTimeout(() => (box.hidden = true), 1800);
+  }
+
+  async function parti() {
+    partita?.ferma();
+    schermo(null);
+    hud.hidden = false;
+    salvato = false;
+    livello = 0;
+    gettone = await iniziaPartita('ritardo');
+    partita = creaRitardo(tela, (s: Stato) => {
+      if (s.livello !== livello && !s.finita) { livello = s.livello; annuncia(s.tappa, s.avviso); }
+      $('[data-metri]').textContent = String(s.metri);
+      $('[data-plettri]').textContent = String(s.plettri);
+      $('[data-tappa]').textContent = s.tappa;
+      if (s.finita) fine(s);
+    });
+    partita.avvia();
+    tela.focus();
+  }
+
+  function fine(s: Stato) {
+    finale = s.punti;
+    $('[data-annuncio]').hidden = true;
+    const minuti = Math.floor(s.metri / 100);
+    $('[data-fine-titolo]').textContent = s.tappa === 'Il palco' ? 'Quasi sul palco!' : 'Inciampato!';
+    $('[data-fine-punti]').textContent = String(s.punti);
+    $('[data-fine-dettaglio]').textContent = `${s.metri} metri, ${s.plettri} plettri. Ritardo recuperato: ${minuti} ${minuti === 1 ? 'minuto' : 'minuti'}.`;
+    $('[data-fine-esito]').textContent = '';
+    document.querySelector<HTMLInputElement>('#soprannome')!.value = nomeSalvato();
+    schermo('fine');
+  }
+
+  document.querySelectorAll('[data-parti]').forEach((b) => b.addEventListener('click', parti));
+
+  document.querySelector<HTMLFormElement>('[data-fine-form]')!.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const esito = $('[data-fine-esito]');
+    if (salvato) return;
+    const nome = (document.querySelector<HTMLInputElement>('#soprannome')!.value || '').trim();
+    if (!gettone) { esito.textContent = MESSAGGI_ERRORE['non-attivo']; return; }
+    esito.textContent = 'Salvo…';
+    const r = await inviaPunteggio({ gettone, nome, punti: finale });
+    if (r.ok) {
+      salvato = true;
+      salvaNome(nome);
+      esito.textContent = 'Salvato! Guarda dove sei in classifica.';
+      document.querySelector('[data-classifica]')?.dispatchEvent(new Event('aggiorna'));
+    } else esito.textContent = MESSAGGI_ERRORE[r.errore] ?? 'Non riesco a salvarlo, riprova.';
+  });
+</script>
+
+<style>
+  .gioco { padding-block: var(--s-4) var(--s-8); display: grid; gap: var(--s-6); justify-items: center; }
+  .gioco > * { width: 100%; max-width: 720px; }
+  .indietro { font-weight: 700; }
+  h1 { font-size: var(--t-xl); }
+
+  .palco { position: relative; border: var(--filetto); background: var(--ink); }
+  .tela { display: block; width: 100%; aspect-ratio: 128 / 92; image-rendering: pixelated; touch-action: none; user-select: none; -webkit-user-select: none; cursor: pointer; }
+  .hud {
+    position: absolute;
+    inset: 0 0 auto 0;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--s-3);
+    padding: var(--s-2) var(--s-3);
+    font-family: var(--f-display);
+    font-weight: 900;
+    text-transform: uppercase;
+    pointer-events: none;
+    color: var(--carta);
+    text-shadow: 0 1px 0 var(--ink), 0 -1px 0 var(--ink), 1px 0 0 var(--ink), -1px 0 0 var(--ink);
+  }
+  .hud strong { font-size: var(--t-l); font-variant-numeric: tabular-nums; }
+  .tappa { font-size: var(--t-xs); }
+
+  .annuncio {
+    position: absolute;
+    inset: 22% 10% auto 10%;
+    z-index: 2;
+    display: grid;
+    gap: 2px;
+    justify-items: center;
+    padding: var(--s-2) var(--s-3);
+    background: var(--rosso);
+    color: var(--carta);
+    border: 2px solid var(--ink);
+    text-align: center;
+    pointer-events: none;
+  }
+  .annuncio[hidden] { display: none; }
+  .annuncio-titolo { font-family: var(--f-display); font-weight: 900; font-size: var(--t-l); text-transform: uppercase; line-height: 1; letter-spacing: -0.03em; }
+  .annuncio-testo { font-weight: 700; font-size: var(--t-s); }
+  @media (prefers-reduced-motion: no-preference) {
+    .annuncio.entra { animation: annuncio 1.8s var(--esce) both; }
+  }
+  @keyframes annuncio {
+    0% { transform: scale(0.6); opacity: 0; }
+    12% { transform: scale(1.06); opacity: 1; }
+    20%, 82% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1); opacity: 0; }
+  }
+
+  .schermo {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: var(--s-3);
+    padding: var(--s-4);
+    background: rgb(243 238 228 / 0.95);
+    overflow-y: auto;
+    text-align: center;
+  }
+  .schermo[hidden] { display: none; }
+  /* The end screen sits under the (short, wide) canvas instead of over it. */
+  .schermo[data-schermo='fine'] { position: static; background: var(--carta); border-top: var(--filetto); padding-block: var(--s-5); }
+  .schermo h2 { font-size: var(--t-l); }
+  .parti { padding: 0 var(--s-5); }
+
+  .fine-punti strong { font-family: var(--f-display); font-size: var(--t-xl); font-weight: 900; }
+  .fine-dettaglio { font-weight: 700; color: var(--teal); font-size: var(--t-s); }
+  .fine-form { display: grid; gap: var(--s-2); text-align: left; width: 100%; max-width: 420px; }
+  .fine-form label { font-weight: 700; font-size: var(--t-s); }
+  .fine-riga { display: flex; gap: var(--s-2); }
+  .fine-riga input { flex: 1; min-width: 0; min-height: 48px; padding: 0 var(--s-3); border: 0; border-bottom: var(--filetto); border-radius: 0; background: var(--carta-2); font-size: var(--t-m); }
+  .fine-invia { padding: 0 var(--s-4); min-height: 48px; }
+  .fine-esito { font-weight: 700; font-size: var(--t-s); }
+  .fine-azioni { display: flex; gap: var(--s-2); }
+  .secondario { min-height: 44px; padding: 0 var(--s-4); border: var(--filetto); background: var(--carta); font-weight: 700; }
+  .secondario:hover { background: var(--ink); color: var(--carta); }
+
+  .regole h2 { font-size: var(--t-l); margin-bottom: var(--s-3); }
+  .regole ul { display: grid; gap: var(--s-2); padding-left: 1.1em; color: var(--ink-2); }
+  .regole strong { color: var(--ink); }
+</style>

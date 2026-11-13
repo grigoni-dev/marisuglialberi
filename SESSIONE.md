@@ -91,6 +91,8 @@ Peso: 🟢 statica · 🟡 con pannello · 🔵 servizio esterno
 | 20 | Collab: DJ, foto e video, altri musicisti, locali amici (aggiunta dall'utente) | 🟡 | ✅ codice · 🟠 contenuti | Pagina `/collab` e scheda nel pannello (migrazione 0009). Mancano i collaboratori, con il loro permesso |
 | 21 | DJ nel modulo: Chambers, oppure un DJ dei collaboratori per matrimoni e aziende (aggiunta dall'utente) | 🟡 | ✅ | L'opzione dei collaboratori compare solo per matrimonio/aziendale e solo se c'è almeno un DJ in Collab |
 | 22 | Pagina privacy e pulizia automatica dei dati | 🟢 | ✅ | `/privacy` (titolare Giovanni Rigoni) e migrazione 0008 |
+| 23 | Menu a tutto schermo su telefono, con il tasto a occhiali da sole | 🟢 | ✅ | |
+| 24 | Giochi arcade e classifiche (aggiunta dall'utente) | 🟡 | ✅ | `/gioco`, "3 tequila sul palco, grazie" e "Arrivo comunque in ritardo", in pixel art; classifiche settimanali; scheda Giochi nel pannello. Migrazione 0011 |
 
 ### Fase 3: idee in più
 

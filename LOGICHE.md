@@ -80,3 +80,16 @@ Ogni regola va confermata dalla band. Accanto c'è la data della conferma; "da c
 - **Articoli:** si gestiscono dal pannello (scheda Merch): nome, due righe, prezzo (vuoto = "Prezzo in arrivo"), taglie (vuoto = taglia unica), esaurito, ordine, mostra sul sito, e **più foto** per articolo (la prima è la copertina). Senza foto compare il riquadro "Foto in arrivo".
 - **Credit:** ogni articolo può indicare chi ha disegnato la grafica, scelto tra i collaboratori. In Collab c'è la categoria **"Grafica e disegni"**, e il credit porta lì.
 - Primi articoli (13/11/2026): berretto invernale stampato, berretto invernale ricamato, t-shirt, felpa. Prezzi e foto da inserire.
+
+## Giochi e classifiche (13/11/2026)
+
+- **Due giochi arcade in pixel art** su `/gioco`: "3 tequila sul palco, grazie" (`/gioco/tequila`) e "Arrivo comunque in ritardo" (`/gioco/ritardo`). Si gioca dal telefono con un dito, o da tastiera.
+- **3 tequila:** si sceglie Giova, Celi o Coraz. Si beve quello che cade: birra 1 punto, spritz 2, tequila 5. Sveglia del lunedì, conto, multa e acqua tolgono una vita (5 vite). **Se si prende Chambers la partita finisce**; prima di cadere è annunciato da un punto esclamativo rosso. Ci si muove liberamente a destra e a sinistra (dito o frecce): il personaggio resta dove lo si lascia.
+  - Giova, il frontman: per lui la tequila vale 10, ma la visiera del cappellino copre la vista: quello che gli cade proprio sopra la testa sparisce negli ultimi centimetri.
+  - Celi: il più veloce, ma ogni 5 bevute va in bagno e resta fermo per circa 2 secondi.
+  - Coraz: 6 vite, ma quando passa una ragazza che lo saluta va in tilt (comandi invertiti e tremolanti per circa 3 secondi).
+  - **Livelli ogni 25 secondi**, annunciati a schermo: a ogni livello caduta più veloce, più cose da evitare, Chambers più frequente e con meno preavviso. Dal livello 3 il buttafuori cammina sul palco (toglie una vita e ti spinge via), dal 4 cadono due o tre cose insieme, dal 5 arrivano i bicchieri rotti a zig-zag.
+- **In ritardo:** corre sempre Giova. Tocco = salto (tenuto = più alto), scorri giù o freccia giù = si abbassa. Si perde al primo ostacolo. Un punto per metro, 10 per ogni plettro. Le tappe sono annunciate a schermo e aggiungono ostacoli: la piazza (casse, cavi, custodie, piccioni bassi da saltare), dai 250 m la sagra (transenne e lucine: non saltare; piccioni anche alti), dai 600 m l'osteria (bottiglie lanciate: abbassarsi), dai 1000 m il palco (lo striscione "Ultima e poi andiamo": abbassarsi). Poi ogni 400 m un "Bis!", sempre più veloce.
+- **Classifiche:** una per gioco, della settimana (da lunedì, ora italiana) e di sempre, con il miglior punteggio per soprannome. Solo un soprannome da 2 a 16 caratteri, con un filtro per le parolacce più comuni.
+- **Contro chi bara:** la partita parte con un gettone firmato dal server, e un punteggio impossibile per il tempo giocato viene rifiutato. Al massimo 40 partite salvate all'ora dallo stesso indirizzo. Dal pannello (scheda Giochi) si tolgono soprannomi offensivi e punteggi sospetti.
+- **Premio:** chi è primo nella classifica della settimana vince un gadget del merch, da ritirare al prossimo live.

@@ -49,6 +49,7 @@ import Logo from '../../components/Logo.astro';
         <button type="button" role="tab" id="t-ospiti" aria-controls="p-ospiti" aria-selected="false" data-scheda="ospiti">Ospiti</button>
         <button type="button" role="tab" id="t-collab" aria-controls="p-collab" aria-selected="false" data-scheda="collab">Collab</button>
         <button type="button" role="tab" id="t-merch" aria-controls="p-merch" aria-selected="false" data-scheda="merch">Merch</button>
+        <button type="button" role="tab" id="t-giochi" aria-controls="p-giochi" aria-selected="false" data-scheda="giochi">Giochi</button>
       </div>
 
       <!-- Dates -->
@@ -341,6 +342,14 @@ import Logo from '../../components/Logo.astro';
         </div>
       </div>
 
+      <!-- Games: moderate the leaderboards -->
+      <div role="tabpanel" id="p-giochi" aria-labelledby="t-giochi" data-pannello="giochi" hidden>
+        <h2>Ultime partite</h2>
+        <p class="facoltativo">Qui si tolgono i soprannomi offensivi o i punteggi sospetti. Per il premio guarda la classifica della settimana su <a href="/gioco">/gioco</a>.</p>
+        <div class="azioni"><button type="button" class="secondario" data-giochi-filtro="tequila">3 tequila</button><button type="button" class="secondario" data-giochi-filtro="ritardo">In ritardo</button></div>
+        <ol class="lista" data-lista-punteggi></ol>
+      </div>
+
       <!-- Booking requests -->
       <div role="tabpanel" id="p-richieste" aria-labelledby="t-richieste" data-pannello="richieste" hidden>
         <h2>Richieste di ingaggio</h2>
@@ -414,7 +423,7 @@ import Logo from '../../components/Logo.astro';
         return vista('login');
       }
       vista('pannello');
-      await Promise.all([caricaDate(), caricaRichieste(), caricaFoto(), caricaFrasi(), caricaTestimonianze(), caricaOspiti(), caricaCollab(), caricaMerch()]);
+      await Promise.all([caricaDate(), caricaRichieste(), caricaFoto(), caricaFrasi(), caricaTestimonianze(), caricaOspiti(), caricaCollab(), caricaMerch(), caricaPunteggi()]);
     };
 
     $('[data-login]').addEventListener('submit', async (e) => {
@@ -1151,6 +1160,32 @@ import Logo from '../../components/Logo.astro';
       await caricaMerch();
       const nuovo = articoli.find((a) => a.id === r.data.id);
       if (nuovo) apriArticolo(nuovo);
+    });
+
+    // ---------- Games ----------
+    let giocoScelto = 'tequila';
+    type Punteggio = { id: string; nome: string; punti: number; personaggio: string | null; durata_s: number; created_at: string };
+    async function caricaPunteggi() {
+      const { data, error } = await sb.from('punteggi').select('id,nome,punti,personaggio,durata_s,created_at').eq('gioco', giocoScelto).order('created_at', { ascending: false }).limit(60);
+      if (error) return msg(`Non riesco a leggere i punteggi: ${error.message}`, true);
+      $('[data-lista-punteggi]').innerHTML = (data as Punteggio[]).map((p) => `
+        <li class="voce">
+          <div>
+            <strong>${esc(p.nome)} · ${p.punti.toLocaleString('it-IT')}</strong>
+            <span>${esc(new Date(p.created_at).toLocaleString('it-IT', { dateStyle: 'short', timeStyle: 'short' }))} · ${p.durata_s} s${p.personaggio ? ` · ${esc(p.personaggio)}` : ''}</span>
+          </div>
+          <div class="voce-azioni"><button type="button" class="secondario pericolo" data-punteggio-elimina="${p.id}">Togli</button></div>
+        </li>`).join('') || '<li class="vuota">Nessuna partita salvata.</li>';
+      document.querySelectorAll<HTMLButtonElement>('[data-giochi-filtro]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.giochiFiltro === giocoScelto)));
+    }
+    document.querySelectorAll<HTMLButtonElement>('[data-giochi-filtro]').forEach((b) => b.addEventListener('click', () => { giocoScelto = b.dataset.giochiFiltro!; caricaPunteggi(); }));
+    document.addEventListener('click', async (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-punteggio-elimina]');
+      if (!b || !confirm('Togliere questa partita dalla classifica?')) return;
+      const { error } = await sb.from('punteggi').delete().eq('id', b.dataset.punteggioElimina!);
+      if (error) return msg(`Non riesco a toglierla: ${error.message}`, true);
+      msg('Tolta dalla classifica.');
+      caricaPunteggi();
     });
 
     entra();

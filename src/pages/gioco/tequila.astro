@@ -1,0 +1,314 @@
+---
+// Game 1: "3 tequila sul palco, grazie".
+import Base from '../../layouts/Base.astro';
+import Barra from '../../components/Barra.astro';
+import Piede from '../../components/Piede.astro';
+import Classifica from '../../components/gioco/Classifica.astro';
+import { PERSONAGGI } from '../../lib/giochi/tequila';
+
+const scelte = (['giova', 'celi', 'coraz'] as const).map((id) => ({ id, ...PERSONAGGI[id] }));
+---
+
+<Base
+  title="3 tequila sul palco, grazie · Gioco · Mari sugli alberi"
+  description="Scegli Giova, Celi o Coraz, bevi tutto quello che cade dal soffitto ed evita le sveglie del lunedì. Ma se cade Chambers, è finita."
+>
+  <Barra />
+  <main id="contenuto" class="wrap gioco">
+    <a class="indietro" href="/gioco">Tutti i giochi</a>
+    <h1>3 tequila sul palco, grazie</h1>
+
+    <div class="palco" data-palco>
+      <div class="hud" data-hud hidden aria-live="off">
+        <span>Punti <strong data-punti>0</strong></span>
+        <span class="livello">Liv. <strong data-livello>1</strong></span>
+        <span class="vite" data-vite aria-label="Vite"></span>
+      </div>
+      <div class="annuncio" data-annuncio aria-live="polite" hidden>
+        <span class="annuncio-titolo" data-annuncio-titolo></span>
+        <span class="annuncio-testo" data-annuncio-testo></span>
+      </div>
+      <canvas class="tela" data-tela width="128" height="208" aria-label="Il palco: muovi il personaggio trascinando il dito o con le frecce"></canvas>
+
+      <div class="schermo" data-schermo="scelta">
+        <h2>Chi sale sul palco?</h2>
+        <ul class="scelte">
+          {scelte.map((p) => (
+            <li>
+              <button type="button" class="scelta" data-personaggio={p.id}>
+                <canvas class="ritratto" data-ritratto={p.id} width="18" height="20" aria-hidden="true"></canvas>
+                <span class="scelta-nome">{p.nome}</span>
+                <span class="scelta-pro">+ {p.pro}</span>
+                <span class="scelta-contro">− {p.contro}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="schermo" data-schermo="fine" hidden>
+        <h2 data-fine-titolo>Serata finita!</h2>
+        <p class="fine-punti"><strong data-fine-punti>0</strong> punti</p>
+        <p class="fine-frase" data-fine-frase></p>
+        <form class="fine-form" data-fine-form>
+          <label for="soprannome">Il tuo soprannome per la classifica</label>
+          <div class="fine-riga">
+            <input id="soprannome" name="nome" type="text" minlength="2" maxlength="16" autocomplete="nickname" required />
+            <button type="submit" class="bottone fine-invia">Salva</button>
+          </div>
+          <p class="fine-esito" role="status" aria-live="polite" data-fine-esito></p>
+        </form>
+        <div class="fine-azioni">
+          <button type="button" class="secondario" data-rigioca>Rigioca</button>
+          <button type="button" class="secondario" data-cambia>Cambia personaggio</button>
+        </div>
+      </div>
+    </div>
+
+    <section class="regole" aria-labelledby="regole-titolo">
+      <h2 id="regole-titolo">Come si gioca</h2>
+      <ul>
+        <li>Trascina il dito (o usa le frecce) per spostarti sul palco e bere quello che cade: <strong>birra 1 punto, spritz 2, tequila 5</strong>.</li>
+        <li>Evita la <strong>sveglia del lunedì, il conto, la multa e l'acqua</strong>: ognuno ti toglie una vita. Ne hai 5.</li>
+        <li><strong>Se prendi Chambers è finita</strong>: lo zio responsabile ti porta a casa. Quando sta per cadere compare un punto esclamativo rosso.</li>
+        <li><strong>Ogni 25 secondi sali di livello</strong>: tutto più veloce, più cose da evitare. Dal livello 3 il buttafuori ti spinge via, dal 4 cade più roba insieme, dal 5 arrivano i bicchieri rotti a zig-zag.</li>
+      </ul>
+    </section>
+
+    <Classifica gioco="tequila" unita="punti" />
+  </main>
+  <Piede />
+</Base>
+
+<script>
+  import { creaTequila, novitaLivello, PERSONAGGI, type Personaggio, type Stato } from '../../lib/giochi/tequila';
+  import * as P from '../../lib/giochi/pixel';
+  import { iniziaPartita, inviaPunteggio, nomeSalvato, salvaNome, MESSAGGI_ERRORE } from '../../lib/giochi/client';
+  import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from 'astro:env/client';
+
+  const tela = document.querySelector<HTMLCanvasElement>('[data-tela]')!;
+  const hud = document.querySelector<HTMLElement>('[data-hud]')!;
+  const puntiEl = document.querySelector<HTMLElement>('[data-punti]')!;
+  const viteEl = document.querySelector<HTMLElement>('[data-vite]')!;
+  const schermo = (nome: string | null) => document.querySelectorAll<HTMLElement>('[data-schermo]').forEach((s) => (s.hidden = s.dataset.schermo !== nome));
+
+  // Character portraits on the choice screen.
+  const RITRATTI = { giova: P.GIOVA, celi: P.CELI, coraz: P.CORAZ };
+  document.querySelectorAll<HTMLCanvasElement>('[data-ritratto]').forEach((c) => {
+    const s = P.sprite(RITRATTI[c.dataset.ritratto as Personaggio]);
+    c.width = s.w; c.height = s.h;
+    c.getContext('2d')!.drawImage(s.tela, 0, 0);
+  });
+
+  // An empty stage behind the choice screen.
+  const ctx = tela.getContext('2d')!;
+  ctx.fillStyle = P.TAVOLOZZA.c; ctx.fillRect(0, 0, 128, 208);
+  ctx.fillStyle = P.TAVOLOZZA.k; ctx.fillRect(0, 186, 128, 22);
+
+  // A famous line for the end screen.
+  let frasi: string[] = [];
+  if (PUBLIC_SUPABASE_URL && PUBLIC_SUPABASE_ANON_KEY) {
+    fetch(`${PUBLIC_SUPABASE_URL}/rest/v1/frasi?select=testo&pubblicata=eq.true`, { headers: { apikey: PUBLIC_SUPABASE_ANON_KEY } })
+      .then((r) => (r.ok ? r.json() : [])).then((r: { testo: string }[]) => (frasi = r.map((x) => x.testo))).catch(() => {});
+  }
+
+  let partita: ReturnType<typeof creaTequila> | null = null;
+  let personaggio: Personaggio = 'giova';
+  let gettone: string | null = null;
+  let finale = 0;
+  let salvato = false;
+  let livello = 1;
+  let timerAnnuncio = 0;
+
+  // Big on-screen announcement when the level goes up.
+  function annuncia(titolo: string, testo: string) {
+    const box = document.querySelector<HTMLElement>('[data-annuncio]')!;
+    document.querySelector('[data-annuncio-titolo]')!.textContent = titolo;
+    document.querySelector('[data-annuncio-testo]')!.textContent = testo;
+    box.hidden = false;
+    box.classList.remove('entra'); void box.offsetWidth; box.classList.add('entra');
+    clearTimeout(timerAnnuncio);
+    timerAnnuncio = window.setTimeout(() => (box.hidden = true), 1800);
+  }
+
+  function vite(n: number) {
+    viteEl.replaceChildren(...Array.from({ length: n }, () => Object.assign(document.createElement('span'), { className: 'vita' })));
+    viteEl.setAttribute('aria-label', `${n} vite`);
+  }
+
+  async function gioca(p: Personaggio) {
+    personaggio = p;
+    partita?.ferma();
+    schermo(null);
+    hud.hidden = false;
+    vite(PERSONAGGI[p].vite);
+    salvato = false;
+    livello = 1;
+    gettone = await iniziaPartita('tequila');
+    partita = creaTequila(tela, p, (s: Stato) => {
+      puntiEl.textContent = String(s.punti);
+      if (s.livello !== livello) {
+        livello = s.livello;
+        document.querySelector('[data-livello]')!.textContent = String(livello);
+        annuncia(`Livello ${livello}`, novitaLivello(livello));
+      }
+      if (viteEl.childElementCount !== s.vite) vite(Math.max(0, s.vite));
+      if (s.finita) fine(s);
+    });
+    document.querySelector('[data-livello]')!.textContent = '1';
+    partita.avvia();
+    annuncia('Livello 1', 'Bevi tutto, evita il resto!');
+    tela.focus();
+  }
+
+  function fine(s: Stato) {
+    finale = s.punti;
+    document.querySelector<HTMLElement>('[data-annuncio]')!.hidden = true;
+    document.querySelector('[data-fine-titolo]')!.textContent = s.motivo === 'chambers' ? 'Chambers ti ha portato a casa!' : 'Serata finita!';
+    document.querySelector('[data-fine-punti]')!.textContent = String(s.punti);
+    document.querySelector('[data-fine-frase]')!.textContent = frasi.length ? `«${frasi[Math.floor(Math.random() * frasi.length)]}»` : '';
+    document.querySelector('[data-fine-esito]')!.textContent = '';
+    const campo = document.querySelector<HTMLInputElement>('#soprannome')!;
+    campo.value = nomeSalvato();
+    schermo('fine');
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('[data-personaggio]').forEach((b) => b.addEventListener('click', () => gioca(b.dataset.personaggio as Personaggio)));
+  document.querySelector('[data-rigioca]')!.addEventListener('click', () => gioca(personaggio));
+  document.querySelector('[data-cambia]')!.addEventListener('click', () => { hud.hidden = true; schermo('scelta'); });
+
+  document.querySelector<HTMLFormElement>('[data-fine-form]')!.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const esito = document.querySelector<HTMLElement>('[data-fine-esito]')!;
+    if (salvato) return;
+    const nome = (document.querySelector<HTMLInputElement>('#soprannome')!.value || '').trim();
+    if (!gettone) { esito.textContent = MESSAGGI_ERRORE['non-attivo']; return; }
+    esito.textContent = 'Salvo…';
+    const r = await inviaPunteggio({ gettone, nome, punti: finale, personaggio });
+    if (r.ok) {
+      salvato = true;
+      salvaNome(nome);
+      esito.textContent = 'Salvato! Guarda dove sei in classifica.';
+      document.querySelector('[data-classifica]')?.dispatchEvent(new Event('aggiorna'));
+    } else esito.textContent = MESSAGGI_ERRORE[r.errore] ?? 'Non riesco a salvarlo, riprova.';
+  });
+</script>
+
+<style>
+  .gioco { padding-block: var(--s-4) var(--s-8); display: grid; gap: var(--s-6); justify-items: center; }
+  .gioco > * { width: 100%; max-width: 560px; }
+  .indietro { font-weight: 700; }
+  h1 { font-size: var(--t-xl); }
+
+  .palco { position: relative; border: var(--filetto); background: var(--ink); }
+  .tela {
+    display: block;
+    width: 100%;
+    max-height: calc(100svh - 160px);
+    aspect-ratio: 128 / 208;
+    object-fit: contain;
+    margin-inline: auto;
+    image-rendering: pixelated;
+    touch-action: none;
+    cursor: grab;
+  }
+  .hud {
+    position: absolute;
+    inset: 0 0 auto 0;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--s-2) var(--s-3);
+    font-family: var(--f-display);
+    font-weight: 900;
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+  .hud strong { font-size: var(--t-l); font-variant-numeric: tabular-nums; }
+  .livello { font-size: var(--t-s); }
+  .livello strong { font-size: var(--t-m); }
+  .vite { display: flex; gap: 4px; }
+
+  /* Level-up announcement */
+  .annuncio {
+    position: absolute;
+    inset: 32% 8% auto 8%;
+    z-index: 2;
+    display: grid;
+    gap: var(--s-1);
+    justify-items: center;
+    padding: var(--s-3) var(--s-4);
+    background: var(--rosso);
+    color: var(--carta);
+    border: 2px solid var(--ink);
+    text-align: center;
+    pointer-events: none;
+  }
+  .annuncio[hidden] { display: none; }
+  .annuncio-titolo { font-family: var(--f-display); font-weight: 900; font-size: var(--t-xl); text-transform: uppercase; line-height: 1; letter-spacing: -0.03em; }
+  .annuncio-testo { font-weight: 700; }
+  @media (prefers-reduced-motion: no-preference) {
+    .annuncio.entra { animation: annuncio 1.8s var(--esce) both; }
+  }
+  @keyframes annuncio {
+    0% { transform: scale(0.6); opacity: 0; }
+    12% { transform: scale(1.06); opacity: 1; }
+    20%, 82% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1); opacity: 0; }
+  }
+  .vite :global(.vita) { width: 12px; height: 12px; background: var(--rosso); box-shadow: inset 0 0 0 2px var(--rosso-scuro); }
+
+  .schermo {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: grid;
+    align-content: center;
+    gap: var(--s-4);
+    padding: var(--s-5) var(--s-4);
+    background: rgb(243 238 228 / 0.96);
+    overflow-y: auto;
+    text-align: center;
+  }
+  .schermo[hidden] { display: none; }
+  .schermo h2 { font-size: var(--t-xl); }
+
+  .scelte { list-style: none; padding: 0; display: grid; gap: var(--s-2); }
+  .scelta {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    grid-template-rows: auto auto auto;
+    column-gap: var(--s-3);
+    align-items: center;
+    padding: var(--s-2) var(--s-3);
+    border: var(--filetto);
+    background: var(--carta);
+    text-align: left;
+    transition: background-color 160ms ease, color 160ms ease;
+  }
+  .scelta:hover { background: var(--ink); color: var(--carta); }
+  .ritratto { grid-row: span 3; width: 52px; height: auto; image-rendering: pixelated; }
+  .scelta-nome { font-family: var(--f-display); font-weight: 900; font-size: var(--t-l); text-transform: uppercase; }
+  .scelta-pro { font-size: var(--t-s); font-weight: 700; color: var(--teal); }
+  .scelta-contro { font-size: var(--t-s); color: var(--rosso-scuro); }
+  .scelta:hover .scelta-pro, .scelta:hover .scelta-contro { color: var(--carta); }
+
+  .fine-punti { font-size: var(--t-l); }
+  .fine-punti strong { font-family: var(--f-display); font-size: var(--t-xxl); font-weight: 900; display: block; line-height: 1; }
+  .fine-frase { font-weight: 700; color: var(--teal); }
+  .fine-form { display: grid; gap: var(--s-2); text-align: left; }
+  .fine-form label { font-weight: 700; }
+  .fine-riga { display: flex; gap: var(--s-2); }
+  .fine-riga input { flex: 1; min-width: 0; min-height: 52px; padding: 0 var(--s-3); border: 0; border-bottom: var(--filetto); border-radius: 0; background: var(--carta-2); font-size: var(--t-m); }
+  .fine-invia { padding: 0 var(--s-4); }
+  .fine-esito { font-weight: 700; font-size: var(--t-s); }
+  .fine-azioni { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-2); }
+  .secondario { min-height: 48px; padding: 0 var(--s-4); border: var(--filetto); background: var(--carta); font-weight: 700; }
+  .secondario:hover { background: var(--ink); color: var(--carta); }
+
+  .regole h2 { font-size: var(--t-l); margin-bottom: var(--s-3); }
+  .regole ul { display: grid; gap: var(--s-2); padding-left: 1.1em; color: var(--ink-2); }
+  .regole strong { color: var(--ink); }
+</style>

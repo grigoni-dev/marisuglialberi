@@ -1,0 +1,67 @@
+---
+// Leaderboard with "this week" / "all time" tabs. Filled in the browser (see client.ts).
+interface Props { gioco: 'tequila' | 'ritardo'; unita: string }
+const { gioco, unita } = Astro.props;
+---
+<section class="classifica" aria-labelledby={`cl-${gioco}`} data-classifica={gioco} data-unita={unita}>
+  <div class="cl-testa">
+    <h2 id={`cl-${gioco}`}>Classifica</h2>
+    <div class="cl-schede" role="group" aria-label="Periodo">
+      <button type="button" aria-pressed="true" data-periodo="settimana">Settimana</button>
+      <button type="button" aria-pressed="false" data-periodo="sempre">Di sempre</button>
+    </div>
+  </div>
+  <ol class="cl-lista" data-cl-lista><li class="vuota">Carico…</li></ol>
+  <p class="cl-premio">Chi è primo in classifica vince un gadget del merch. Lo ritiri al prossimo live.</p>
+</section>
+
+<script>
+  import { classifica, disegnaClassifica, nomeSalvato, type Gioco } from '../../lib/giochi/client';
+  for (const box of document.querySelectorAll<HTMLElement>('[data-classifica]')) {
+    const gioco = box.dataset.classifica as Gioco;
+    const lista = box.querySelector<HTMLElement>('[data-cl-lista]')!;
+    let settimana = true;
+    const carica = async () => disegnaClassifica(lista, await classifica(gioco, settimana), box.dataset.unita!, nomeSalvato());
+    for (const b of box.querySelectorAll<HTMLButtonElement>('[data-periodo]')) {
+      b.addEventListener('click', () => {
+        settimana = b.dataset.periodo === 'settimana';
+        box.querySelectorAll('[data-periodo]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        carica();
+      });
+    }
+    box.addEventListener('aggiorna', carica);
+    carica();
+  }
+</script>
+
+<style>
+  .classifica { display: grid; gap: var(--s-3); }
+  .cl-testa { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: var(--s-3); }
+  .cl-testa h2 { font-size: var(--t-xl); }
+  .cl-schede { display: flex; gap: var(--s-1); }
+  .cl-schede button {
+    min-height: 40px;
+    padding: 0 var(--s-3);
+    border: var(--filetto);
+    background: var(--carta);
+    font-weight: 700;
+    font-size: var(--t-s);
+  }
+  .cl-schede button[aria-pressed='true'] { background: var(--ink); color: var(--carta); }
+  .cl-lista { list-style: none; padding: 0; border-top: var(--filetto); counter-reset: none; }
+  .cl-lista :global(li) {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr auto;
+    align-items: baseline;
+    gap: var(--s-3);
+    padding: var(--s-2) var(--s-2);
+    border-bottom: 1px solid var(--ink);
+  }
+  .cl-lista :global(.pos) { font-family: var(--f-display); font-weight: 900; font-variant-numeric: tabular-nums; }
+  .cl-lista :global(li:first-child .pos) { color: var(--rosso); }
+  .cl-lista :global(.chi) { font-weight: 700; overflow-wrap: anywhere; }
+  .cl-lista :global(.quanti) { font-variant-numeric: tabular-nums; color: var(--ink-2); }
+  .cl-lista :global(.tu) { background: var(--teal-chiaro); }
+  .cl-lista :global(.vuota) { display: block; color: var(--ink-2); }
+  .cl-premio { font-size: var(--t-s); color: var(--ink-2); }
+</style>
