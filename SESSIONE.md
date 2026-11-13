@@ -1,22 +1,24 @@
 # Diario di lavoro – sito Mari sugli alberi
 
-## Dove siamo rimasti (12 novembre 2026, notte)
+## Dove siamo rimasti (13 novembre 2026)
 
-Il sito è online su https://marisuglialberi.vercel.app con home, `/link`, `/date` e il pannello `/admin`. Il modulo, le date e il pannello funzionano su prod. Supabase (dev e prod), Resend e Vercel sono collegati.
+Il sito è online su https://marisuglialberi.vercel.app. Ci sono queste pagine:
+- home ("Il retro del vinile"), con il modulo "Portaci alla tua festa", la scelta del DJ e "Siamo liberi quella sera?";
+- `/link`, `/date` (con l'archivio e la mappa "Il giro delle osterie"), `/foto`, `/kit`, `/collab`, `/privacy`;
+- il pannello `/admin`, con le schede Date, Richieste, Foto, Frasi, Testimonianze, Ospiti e Collab.
 
-### Prima, la sera
+Le migrazioni sono eseguite su dev e su prod fino alla 0009, e la pulizia automatica dei dati è attiva.
 
-La prima versione della home è costruita: "Il retro del vinile", scelta fra tre bozze sulla pagina di decisione di Impeccable. Ci sono la copertina con la foto davanti al muro rosso e il logo, la tracklist Lato A che compila il modulo, i formati con la bonus track dello spettacolo a tema, le note di copertina, il Lato B (date, "fate anche…?" con ricerca nella scaletta, foto, segnaposto per il video) e il modulo "Portaci alla tua festa".
-Il modulo ha la sua API (`/api/richiesta`) e la migrazione `0001_richieste.sql`. In locale risponde "non ancora attivo" perché Supabase e Resend non sono configurati.
-Build e `astro check` passano. Il detector di Impeccable non trova problemi. La revisione finale di Impeccable ha chiesto 7 correzioni, tutte applicate e approvate (verdetto: ship). `DESIGN.md` e `.impeccable/design.json` sono scritti a partire dalla home costruita.
+Le Fasi 1 e 2 sono complete, tranne il merch (manca il materiale). Della Fase 3 sono fatti la mappa, la mancia e l'albo degli ospiti; "Stasera" è in sospeso e "Avvisami" è rimandata finché non c'è un dominio.
 
 ## Da qui si riparte
 
-1. La band inserisce le date vere da https://marisuglialberi.vercel.app/admin (prossime e passate, per l'archivio).
-2. Caricare le foto vere dal pannello (scheda Foto).
-3. Attivare Vercel Web Analytics (Vercel → progetto → Analytics → Enable).
-4. La Fase 1 è completa. Si passa alla Fase 2: testimonianze, frasi celebri, "siamo liberi quella sera?", merch. Il repertorio con ricerca c'è già.
-4. Rilettura dei testi con la band: la frase sotto la copertina, Aziendale, la bonus track, la storia del panificio.
+1. **Contenuti dal pannello**, da inserire da parte della band: le date vere (anche quelle passate, per l'archivio e la mappa), le foto, le testimonianze, gli ospiti, i collaboratori. Dopo aver inserito date passate già salvate prima della mappa: Date → "Trova le posizioni".
+2. **Decisione sul dominio** (per esempio `marisuglialberi.it`, circa 10-15 € l'anno): sblocca "Avvisami", le email da un indirizzo vostro e un indirizzo più bello per QR e volantini.
+3. **Merch**: servono gli articoli, le foto, i prezzi e i link PayPal.
+4. Da completare nel kit: prese di corrente e lista dei canali; foto più grandi per la stampa.
+5. Da decidere: "Meno male" o "Per fortuna" che domani è domenica (oggi ci sono entrambe).
+6. Ultima rilettura dei testi con la band: frase sotto la copertina, Aziendale, bonus track, storia del panificio, bio del kit.
 
 ## Scelte sui testi (12/11/2026)
 
