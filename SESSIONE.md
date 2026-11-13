@@ -14,14 +14,13 @@ Le Fasi 1 e 2 sono complete; il merch è una vetrina in attesa di foto e prezzi.
 
 ## Da qui si riparte
 
-1. **Provare i giochi su un telefono vero**: tutto schermo, tasti in basso, X per uscire, salvataggio del punteggio. Su Android sparisce anche la barra del browser, su iPhone no (limite di Safari). Finora sono stati provati solo su un telefono simulato.
-2. **La prima gara dei giochi si chiude l'11 dicembre a Salgareda**, all'inizio del live: il vincitore si vede in /admin → Giochi → Premi. Decidere quale gadget dare.
-3. **Contenuti dal pannello**, da inserire da parte della band: le date nuove, le foto, le testimonianze, gli ospiti, i collaboratori. Dopo aver inserito date passate già salvate prima della mappa: Date → "Trova le posizioni".
-4. **Merch**: la vetrina c'è. Dal pannello vanno inseriti le foto, i prezzi, le descrizioni e gli artisti delle grafiche (in Collab → Grafica e disegni).
-5. **Decisione sul dominio** (per esempio `marisuglialberi.it`, circa 10-15 € l'anno): sblocca "Avvisami", le email da un indirizzo vostro e un indirizzo più bello per QR e volantini.
-6. **Statistiche**: attivare Web Analytics dal pannello di Vercel (il codice c'è già).
-7. Da completare nel kit: prese di corrente e lista dei canali; foto più grandi per la stampa.
-8. Ultima rilettura dei testi con la band: frase sotto la copertina, Aziendale, bonus track, storia del panificio, bio del kit.
+1. **La prima gara dei giochi si chiude l'11 dicembre a Salgareda**, all'inizio del live: il vincitore si vede in /admin → Giochi → Premi. Decidere quale gadget dare.
+2. **Contenuti dal pannello**, da inserire da parte della band: le date nuove, le foto, le testimonianze, gli ospiti, i collaboratori. Dopo aver inserito date passate già salvate prima della mappa: Date → "Trova le posizioni".
+3. **Merch**: la vetrina c'è, con **foto di esempio da Unsplash** (etichetta "Foto di esempio", nomi dei fotografi in fondo alla pagina). Dal pannello vanno inseriti le foto vere, i prezzi, le descrizioni e gli artisti delle grafiche (in Collab → Grafica e disegni). Quando un articolo ha le sue foto, gli esempi spariscono da soli. Gli esempi sono scelti in base al nome dell'articolo (berretto, ricamato, t-shirt, felpa) in `src/pages/merch.astro`.
+4. **Decisione sul dominio** (per esempio `marisuglialberi.it`, circa 10-15 € l'anno): sblocca "Avvisami", le email da un indirizzo vostro e un indirizzo più bello per QR e volantini.
+5. **Statistiche**: attivare Web Analytics dal pannello di Vercel (il codice c'è già).
+6. Da completare nel kit: prese di corrente e lista dei canali; foto più grandi per la stampa.
+7. Ultima rilettura dei testi con la band: frase sotto la copertina, Aziendale, bonus track, storia del panificio, bio del kit.
 
 ## Scelte sui testi (12/11/2026)
 
@@ -136,6 +135,8 @@ Nella scaletta ho sistemato alcuni titoli. Da confermare con la band:
 
 - **13/11/2026, giochi:** livelli ogni 25 secondi con avviso a schermo; Giova frontman (tequila 10, la visiera nasconde l'ultimo tratto); buttafuori evitabile (freccia rossa, arriva a metà palco e torna indietro); bicchieri rotti; Giova e Coraz alla stessa velocità, Celi il più veloce. "In ritardo": abbassarsi, piccioni, lucine, bottiglie, striscione "Ultima e poi andiamo", bis. Tutto schermo e tasti sul telefono. Gara da un live all'altro (0012). Regole riviste confrontandole con il codice.
 - **13/11/2026, controllo Impeccable:** 20/20 dopo le correzioni (verde chiaro `#D6E8E4` per il contrasto, paragrafi a 58ch, colori dei giochi dai token).
+- **13/11/2026, giochi sul telefono:** provati su un telefono vero, funzionano (tutto schermo, tasti, X per uscire, salvataggio).
+- **13/11/2026, link e merch:** in `/link` icone dedicate (joypad, maglietta, macchina fotografica, disco) al posto del logo. In `/merch` foto di esempio da Unsplash: copie ridotte in `src/assets/foto/merch-esempio/`, originali in `assets/images/merch_mockups/` (fuori da git).
 - **13/11/2026, testi e dati:** "Gioca" nel menu, "Meno male che domani è domenica", Pachamama pubblico, Setten "luogo segreto" (dev e prod).
 
 ## Da fare
