@@ -10,6 +10,14 @@ import { cittaPulita, type Concerto } from './date';
 export const LARGHEZZA = 600;
 export const ALTEZZA = 520;
 const MARGINE = 36;
+const RAGGIO_KM = 150;
+
+/** Great-circle distance in km. */
+function km(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
+  const r = Math.PI / 180;
+  const h = Math.sin(((b.lat - a.lat) * r) / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(((b.lng - a.lng) * r) / 2) ** 2;
+  return 2 * 6371 * Math.asin(Math.sqrt(h));
+}
 const CARATTERE = 17; // label font size, in map units
 
 export type Tappa = {
@@ -21,8 +29,8 @@ export type Mappa = {
   altezza: number;
   paesi: { tipo: 'italia' | 'vicino'; d: string }[];
   tappe: Tappa[];
-  /** The small Italy, in its own 600×700 coordinates, and the box of the zoomed area. */
-  riquadro: { d: string; larghezza: number; altezza: number; x: number; y: number; w: number; h: number };
+  /** The small Italy, in its own 600×700 coordinates, the box of the zoomed area, and the far-away gigs. */
+  riquadro: { d: string; larghezza: number; altezza: number; x: number; y: number; w: number; h: number; lontane: { x: number; y: number }[] };
 };
 
 type ConCoordinate = Concerto & { lat: number | null; lng: number | null };
@@ -38,8 +46,17 @@ export function mappaGiro(concerti: ConCoordinate[]): Mappa | null {
     if (t) t.volte++;
     else perCitta.set(k, { citta: nome, volte: 1, lat: c.lat, lng: c.lng });
   }
-  const citta = [...perCitta.values()];
-  if (!citta.length) return null;
+  const tutte = [...perCitta.values()];
+  if (!tutte.length) return null;
+
+  // The main map frames the home area: cities within RAGGIO_KM of the median gig. Trips
+  // further away are drawn as dots on the small Italy instead of stretching the big map.
+  const pesate = tutte.flatMap((c) => Array.from({ length: c.volte }, () => c));
+  const mediana = (v: number[]) => [...v].sort((a, b) => a - b)[Math.floor(v.length / 2)];
+  const centro = { lat: mediana(pesate.map((c) => c.lat)), lng: mediana(pesate.map((c) => c.lng)) };
+  const vicine = tutte.filter((c) => km(c, centro) <= RAGGIO_KM);
+  const citta = vicine.length ? vicine : tutte;
+  const lontane = tutte.filter((c) => !citta.includes(c));
 
   // Bounding box of the places, padded, never smaller than ~120 × 90 km.
   const lngs = citta.map((c) => c.lng), lats = citta.map((c) => c.lat);
@@ -73,6 +90,7 @@ export function mappaGiro(concerti: ConCoordinate[]): Mappa | null {
   const riquadro = {
     d: italia.d, larghezza: italia.larghezza, altezza: italia.altezza,
     x: Math.min(a[0], b[0]), y: Math.min(a[1], b[1]), w: Math.max(Math.abs(b[0] - a[0]), 6), h: Math.max(Math.abs(b[1] - a[1]), 6),
+    lontane: lontane.map((c) => pi([c.lng, c.lat])).filter((xy): xy is [number, number] => xy !== null).map(([x, y]) => ({ x, y })),
   };
 
   return { larghezza: LARGHEZZA, altezza: ALTEZZA, paesi, tappe, riquadro };

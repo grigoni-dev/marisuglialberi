@@ -77,7 +77,7 @@ for (const c of passate) {
         <h2 id="giro-titolo" class="sezione"><span class="codice">Bonus track</span> Il giro delle osterie</h2>
         <div class="giro-griglia">
           <svg class="mappa" viewBox={`0 0 ${mappa.larghezza} ${mappa.altezza}`} role="img" aria-labelledby="mappa-desc">
-            <desc id="mappa-desc">Mappa della zona dove abbiamo suonato: {citta.map((t) => t.citta).join(', ')}.</desc>
+            <desc id="mappa-desc">Mappa della zona dove abbiamo suonato: {citta.map((t) => t.citta).join(', ')}. Le trasferte lontane sono segnate sulla piccola Italia nell'angolo.</desc>
             {mappa.paesi.map((p) => <path class={p.tipo === 'italia' ? 'terra' : 'terra-vicina'} d={p.d} />)}
             {mappa.tappe.map((t) => <circle class="tappa-punto" cx={t.x} cy={t.y} r={t.r} />)}
             {mappa.tappe.filter((t) => t.posto?.linea).map((t) => {
@@ -92,6 +92,7 @@ for (const c of passate) {
               <rect class="inserto-fondo" x="0" y="0" width={mappa.riquadro.larghezza} height={mappa.riquadro.altezza} />
               <path class="inserto-italia" d={mappa.riquadro.d} />
               <rect class="inserto-zona" x={mappa.riquadro.x} y={mappa.riquadro.y} width={mappa.riquadro.w} height={mappa.riquadro.h} />
+              {mappa.riquadro.lontane.map((l) => <circle class="inserto-lontana" cx={l.x} cy={l.y} r="22" />)}
             </svg>
           </svg>
           <ol class="giro-lista">
@@ -182,6 +183,7 @@ for (const c of passate) {
   .inserto-fondo { fill: var(--carta); stroke: var(--ink); stroke-width: 12; }
   .inserto-italia { fill: var(--carta-2); stroke: var(--ink); stroke-width: 4; }
   .inserto-zona { fill: var(--rosso); fill-opacity: 0.25; stroke: var(--rosso); stroke-width: 10; }
+  .inserto-lontana { fill: var(--rosso); stroke: var(--carta); stroke-width: 6; }
   .giro-lista { list-style: none; padding: 0; border-bottom: var(--filetto); }
   .giro-lista li { display: flex; justify-content: space-between; gap: var(--s-4); padding: var(--s-3) var(--s-2); border-top: 1px solid var(--ink); }
   .giro-citta { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; }

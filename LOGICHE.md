@@ -50,6 +50,8 @@ Ogni regola va confermata dalla band. Accanto c'è la data della conferma; "da c
 ## Il giro delle osterie e la mancia (13/11/2026)
 
 - **Mappa:** in `/date`, sotto l'archivio, compare la **zona dove abbiamo suonato** (la mappa si adatta da sola alle città, con una piccola Italia nell'angolo che mostra dov'è la zona), con un punto rosso per ogni città dei concerti **passati** (anche le feste private: della festa privata la città è già pubblica). Il punto è più grande se ci abbiamo suonato più volte. Il nome sta accanto al punto o, se non c'è spazio, un po' più in là con una lineetta; l'elenco accanto le contiene tutte.
+- **Trasferte lontane:** la mappa grande inquadra le città entro 150 km dal centro dei concerti; quelle più lontane compaiono come pallini rossi sulla piccola Italia nell'angolo (e nell'elenco).
+- **Nome della città:** la provincia, tra parentesi o dopo la virgola, non conta: "Motta di Livenza (TV)" e "Capannoli, Pisa" diventano "Motta di Livenza" e "Capannoli" sulla mappa.
 - **Coordinate:** quando si salva una data, il pannello cerca la città su OpenStreetMap e salva latitudine e longitudine **della città**, mai l'indirizzo del locale. Se una città non si trova, la data si salva lo stesso e non compare sulla mappa; il tasto "Trova le posizioni" riprova per tutte.
 - **Mancia:** in `/link` c'è "Offrici da bere", con il link PayPal.me scelto dalla band.
 
