@@ -92,6 +92,10 @@ import Logo from '../../components/Logo.astro';
             <h2>Prossime</h2>
             <ol class="lista" data-lista-prossime></ol>
             <h2 class="spazio">Passate</h2>
+            <p class="posizioni" data-posizioni hidden>
+              <span data-posizioni-testo></span>
+              <button type="button" class="secondario" data-posizioni-trova>Trova le posizioni</button>
+            </p>
             <ol class="lista" data-lista-passate></ol>
           </div>
         </div>
@@ -195,7 +199,20 @@ import Logo from '../../components/Logo.astro';
   type Concerto = {
     id: string; data: string; ora: string | null; citta: string; locale: string | null;
     link: string | null; privato: boolean; pubblicato: boolean; note: string | null;
+    lat: number | null; lng: number | null;
   };
+
+  /** City → coordinates, from OpenStreetMap (only the city name leaves the browser). */
+  async function trovaCitta(citta: string): Promise<{ lat: number; lng: number } | null> {
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=it&city=${encodeURIComponent(citta)}`;
+      const r = await fetch(url, { headers: { 'Accept-Language': 'it' } });
+      const [primo] = await r.json();
+      return primo ? { lat: Number(primo.lat), lng: Number(primo.lon) } : null;
+    } catch {
+      return null;
+    }
+  }
   type Richiesta = {
     id: string; tipo: keyof typeof TIPI; data_evento: string | null; luogo: string; persone: number | null;
     nome: string; contatto: string; messaggio: string | null; dj: boolean; stato: string; created_at: string;
@@ -295,6 +312,9 @@ import Logo from '../../components/Logo.astro';
       const passate = concerti.filter((c) => c.data < o).reverse();
       $('[data-lista-prossime]').innerHTML = prossime.map(riga).join('') || '<li class="vuota">Nessuna data in programma.</li>';
       $('[data-lista-passate]').innerHTML = passate.map(riga).join('') || '<li class="vuota">Ancora nessuna.</li>';
+      const senza = concerti.filter((c) => c.lat == null).length;
+      $('[data-posizioni]').hidden = senza === 0;
+      $('[data-posizioni-testo]').textContent = `${senza === 1 ? '1 data non è' : `${senza} date non sono`} ancora sulla mappa del giro.`;
     }
 
     document.addEventListener('click', async (e) => {
@@ -347,10 +367,37 @@ import Logo from '../../components/Logo.astro';
         note: t('note') || null,
       };
       const id = t('id');
+      // Place the city on the map when it's new or has changed.
+      const prima = concerti.find((c) => c.id === id);
+      if (!prima || prima.lat == null || prima.citta.trim().toLowerCase() !== riga.citta.toLowerCase()) {
+        const pos = await trovaCitta(riga.citta);
+        Object.assign(riga, pos ? { lat: pos.lat, lng: pos.lng } : { lat: null, lng: null });
+        if (!pos) msg(`Non trovo "${riga.citta}" sulla mappa: la data si salva lo stesso.`, true);
+      }
       const { error } = id ? await sb.from('concerti').update(riga).eq('id', id) : await sb.from('concerti').insert(riga);
       if (error) return msg(`Non riesco a salvare: ${error.message}`, true);
       msg(id ? 'Modifiche salvate. Sul sito compaiono entro un minuto.' : 'Data aggiunta. Sul sito compare entro un minuto.');
       svuota();
+      caricaDate();
+    });
+
+    $('[data-posizioni-trova]').addEventListener('click', async (e) => {
+      const b = e.currentTarget as HTMLButtonElement;
+      b.disabled = true;
+      const mancanti = concerti.filter((c) => c.lat == null);
+      const cache = new Map<string, { lat: number; lng: number } | null>();
+      let trovate = 0;
+      for (const c of mancanti) {
+        const k = c.citta.trim().toLowerCase();
+        if (!cache.has(k)) {
+          cache.set(k, await trovaCitta(c.citta));
+          await new Promise((r) => setTimeout(r, 1100)); // OpenStreetMap asks for at most one request per second
+        }
+        const pos = cache.get(k);
+        if (pos && !(await sb.from('concerti').update({ lat: pos.lat, lng: pos.lng }).eq('id', c.id)).error) trovate++;
+      }
+      b.disabled = false;
+      msg(`Posizioni trovate: ${trovate} su ${mancanti.length}.`, trovate < mancanti.length);
       caricaDate();
     });
 
@@ -602,6 +649,7 @@ import Logo from '../../components/Logo.astro';
   .adm h1 { font-size: var(--t-xl); margin-bottom: var(--s-4); }
   .adm h2 { font-size: var(--t-l); margin-bottom: var(--s-3); }
   .adm h2.spazio { margin-top: var(--s-6); }
+  .posizioni { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); margin-top: var(--s-3); color: var(--ink-2); }
   .adm-msg { min-height: 1.5em; margin-bottom: var(--s-3); font-weight: 700; color: var(--teal); }
   .adm-msg.errore { color: var(--rosso-scuro); }
 

@@ -10,9 +10,11 @@ export type Concerto = {
   locale: string | null;
   link: string | null;
   privato: boolean;
+  lat: number | null;
+  lng: number | null;
 };
 
-const COLONNE = 'id,data,ora,citta,locale,link,privato';
+const COLONNE = 'id,data,ora,citta,locale,link,privato,lat,lng';
 
 /** Today in Italy, as YYYY-MM-DD: a gig becomes "past" the day after. */
 export const oggiRoma = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Rome' });

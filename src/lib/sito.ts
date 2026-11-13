@@ -2,3 +2,5 @@
 export const INSTAGRAM = 'https://www.instagram.com/marisuglialberi/';
 /** The band's Spotify artist profile (tracking parameters removed). */
 export const SPOTIFY: string | null = 'https://open.spotify.com/artist/03b8QmCN0Z7MMAYlQXRnoC';
+/** Tip jar (PayPal.me), confirmed by the band on 13/11/2026. Null hides the "Offrici da bere" row. */
+export const MANCIA: string | null = 'https://www.paypal.com/paypalme/grigoni';

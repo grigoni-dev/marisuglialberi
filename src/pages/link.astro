@@ -1,13 +1,13 @@
 ---
 // Link in bio and QR page: opened on the phone, often in a dark room during a gig.
 // Same world as the home (DESIGN.md), on the night ground: ink, paper, red and teal.
-import { siInstagram, siSpotify } from 'simple-icons';
+import { siInstagram, siSpotify, siPaypal } from 'simple-icons';
 import Base from '../layouts/Base.astro';
 import Logo from '../components/Logo.astro';
 import Freccia from '../components/Freccia.astro';
 import CercaScaletta from '../components/CercaScaletta.astro';
 import { dateConcerti, formatoDataLunga, formatoOra, dove } from '../lib/date';
-import { INSTAGRAM, SPOTIFY } from '../lib/sito';
+import { INSTAGRAM, SPOTIFY, MANCIA } from '../lib/sito';
 
 // Rendered per request so "next gig" is always current; the CDN keeps it for a minute.
 export const prerender = false;
@@ -18,6 +18,7 @@ const prossimo = prossime[0] ?? null;
 const collegamenti = [
   { href: INSTAGRAM, nome: 'Instagram', nota: '@marisuglialberi', icona: siInstagram.path },
   ...(SPOTIFY ? [{ href: SPOTIFY, nome: 'Spotify', nota: 'ascoltaci', icona: siSpotify.path }] : []),
+  ...(MANCIA ? [{ href: MANCIA, nome: 'Offrici da bere', nota: 'mancia con PayPal', icona: siPaypal.path }] : []),
   { href: '/foto', nome: 'Foto', nota: 'ti riconosci? scaricala', icona: null },
   { href: '/', nome: 'Il sito', nota: 'chi siamo, formati, date', icona: null },
 ];

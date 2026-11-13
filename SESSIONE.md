@@ -86,10 +86,10 @@ Peso: 🟢 statica · 🟡 con pannello · 🔵 servizio esterno
 
 | # | Feature | Peso | Stato | Cosa serve |
 |---|---|---|---|---|
-| 15 | "Stasera": richieste dal pubblico con classifica dal vivo (13) | 🟡 | ⚪ | Dipende da 10 |
-| 16 | Mancia digitale via PayPal (18) | 🔵 | 🟠 | Link PayPal.me |
+| 15 | "Stasera": richieste dal pubblico con classifica dal vivo (13) | 🟡 | ⏸ in sospeso | L'utente non è convinto (13/11/2026): vedi "Idee per dopo" |
+| 16 | Mancia digitale via PayPal (18) | 🔵 | ✅ | Riga "Offrici da bere" in `/link` (`MANCIA` in `src/lib/sito.ts`). Il conto è personale, scelta confermata dall'utente il 13/11/2026 |
 | 17 | Gli ospiti sul palco: albo d'oro (15) | 🟡 | 🟠 | Elenco degli ospiti, con il loro permesso |
-| 18 | Il giro delle osterie: mappa (14) | 🟢 | 🟠 | Elenco dei posti dove avete suonato |
+| 18 | Il giro delle osterie: mappa (14) | 🟡 | ✅ | In `/date`: Italia disegnata (Natural Earth, `scripts/mappa-italia.mjs`) con un punto per ogni città dei concerti passati. Le coordinate le cerca il pannello su OpenStreetMap al salvataggio (migrazione 0006) |
 | 19 | "Avvisami quando suonate vicino a me" (17) | 🟡🔵 | ⚪ | Servizio email (lo stesso della 1) e regole privacy |
 
 ## Il tono della scaletta
@@ -137,7 +137,7 @@ Nella scaletta ho sistemato alcuni titoli. Da confermare con la band:
 
 ## Idee per dopo
 
-Nessuna: tutte le feature sono in programma (vedi "Feature: priorità e stato").
+- **"Stasera"** (13/11/2026, in sospeso): pagina del QR sul palco per votare le canzoni con la classifica dal vivo. L'utente non è convinto. Se si riprende, l'idea discussa era: la apre la band dal pannello e i voti ripartono da zero a ogni serata.
 
 ## Archivio foto (originali in `assets/images/`)
 
