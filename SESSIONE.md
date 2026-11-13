@@ -1,24 +1,27 @@
 # Diario di lavoro – sito Mari sugli alberi
 
-## Dove siamo rimasti (13 novembre 2026)
+## Dove siamo rimasti (13 novembre 2026, sera)
 
 Il sito è online su https://marisuglialberi.vercel.app. Ci sono queste pagine:
 - home ("Il retro del vinile"), con il modulo "Portaci alla tua festa", la scelta del DJ e "Siamo liberi quella sera?";
 - `/link`, `/date` (con l'archivio e la mappa "Il giro delle osterie"), `/foto`, `/kit`, `/collab`, `/merch`, `/privacy`;
-- il pannello `/admin`, con le schede Date, Richieste, Foto, Frasi, Testimonianze, Ospiti, Collab e Merch.
+- `/gioco` ("Gioca" nel menu), con "3 tequila sul palco, grazie" e "Arrivo comunque in ritardo" e le classifiche;
+- il pannello `/admin`, con le schede Date, Richieste, Foto, Frasi, Testimonianze, Ospiti, Collab, Merch e Giochi.
 
-Le migrazioni sono eseguite su dev e su prod fino alla 0010, e la pulizia automatica dei dati è attiva.
+Le migrazioni sono eseguite su dev e su prod fino alla 0012, e la pulizia automatica dei dati è attiva. Lo storico dei concerti è su prod: il Pachamama è pubblico e Setten compare come "Festa privata, luogo segreto". La frase è "Meno male che domani è domenica".
 
-Le Fasi 1 e 2 sono complete; il merch è una vetrina in attesa di foto e prezzi. Della Fase 3 sono fatti la mappa, la mancia e l'albo degli ospiti; "Stasera" è in sospeso e "Avvisami" è rimandata finché non c'è un dominio.
+Le Fasi 1 e 2 sono complete; il merch è una vetrina in attesa di foto e prezzi. Della Fase 3 sono fatti la mappa, la mancia, l'albo degli ospiti e i giochi; "Stasera" è in sospeso e "Avvisami" è rimandata finché non c'è un dominio. Il controllo Impeccable di tutto il sito ha dato 20/20 (`.impeccable/audit-2026-11-13.md`).
 
 ## Da qui si riparte
 
-1. **Contenuti dal pannello**, da inserire da parte della band: le date vere (anche quelle passate, per l'archivio e la mappa), le foto, le testimonianze, gli ospiti, i collaboratori. Dopo aver inserito date passate già salvate prima della mappa: Date → "Trova le posizioni".
-2. **Decisione sul dominio** (per esempio `marisuglialberi.it`, circa 10-15 € l'anno): sblocca "Avvisami", le email da un indirizzo vostro e un indirizzo più bello per QR e volantini.
-3. **Merch**: la vetrina c'è. Dal pannello vanno inseriti le foto, i prezzi, le descrizioni e gli artisti delle grafiche (in Collab → Grafica e disegni).
-4. Da completare nel kit: prese di corrente e lista dei canali; foto più grandi per la stampa.
-5. Da decidere: "Meno male" o "Per fortuna" che domani è domenica (oggi ci sono entrambe).
-6. Ultima rilettura dei testi con la band: frase sotto la copertina, Aziendale, bonus track, storia del panificio, bio del kit.
+1. **Provare i giochi su un telefono vero**: tutto schermo, tasti in basso, X per uscire, salvataggio del punteggio. Su Android sparisce anche la barra del browser, su iPhone no (limite di Safari). Finora sono stati provati solo su un telefono simulato.
+2. **La prima gara dei giochi si chiude l'11 dicembre a Salgareda**, all'inizio del live: il vincitore si vede in /admin → Giochi → Premi. Decidere quale gadget dare.
+3. **Contenuti dal pannello**, da inserire da parte della band: le date nuove, le foto, le testimonianze, gli ospiti, i collaboratori. Dopo aver inserito date passate già salvate prima della mappa: Date → "Trova le posizioni".
+4. **Merch**: la vetrina c'è. Dal pannello vanno inseriti le foto, i prezzi, le descrizioni e gli artisti delle grafiche (in Collab → Grafica e disegni).
+5. **Decisione sul dominio** (per esempio `marisuglialberi.it`, circa 10-15 € l'anno): sblocca "Avvisami", le email da un indirizzo vostro e un indirizzo più bello per QR e volantini.
+6. **Statistiche**: attivare Web Analytics dal pannello di Vercel (il codice c'è già).
+7. Da completare nel kit: prese di corrente e lista dei canali; foto più grandi per la stampa.
+8. Ultima rilettura dei testi con la band: frase sotto la copertina, Aziendale, bonus track, storia del panificio, bio del kit.
 
 ## Scelte sui testi (12/11/2026)
 
@@ -33,7 +36,7 @@ Le Fasi 1 e 2 sono complete; il merch è una vetrina in attesa di foto e prezzi.
 ## Direzione grafica scelta (12/11/2026)
 
 **"Manifesto, ma cool".** La direzione è stata scelta con Taste tra tre proposte; l'utente ha chiesto esplicitamente un sito *cool*.
-- Fondo color carta `#F3EEE4`, inchiostro `#111111`. Rosso `#C8202A` (luci di scena, energia, azioni) e teal `#1F6F6A` (pause, frasi celebri), con un teal chiaro `#CFE3DF` per i fondi. Il rosso e il teal a piena forza non stanno mai nella stessa schermata.
+- Fondo color carta `#F3EEE4`, inchiostro `#111111`. Rosso `#C8202A` (luci di scena, energia, azioni) e teal `#1F6F6A` (pause, frasi celebri), con un teal chiaro `#D6E8E4` per i fondi (era `#CFE3DF`, schiarito per il contrasto). Il rosso e il teal a piena forza non stanno mai nella stessa schermata.
 - I titoli parlano come il logo: bastone nero pesantissimo, maiuscole, righe impilate e strette. Candidati: Schibsted Grotesk 900 per i titoli e Atkinson Hyperlegible Next per il testo.
 - L'attitudine cool: foto in bianco e nero ad alto contrasto (quelle serali con le luci rosse e verdi restano a colori), poche parole, molto spazio. L'occhiolino è affidato alle frasi celebri, ai bollini e al "fate anche…?".
 - La pagina "Stasera" (il QR durante il concerto) può avere il fondo scuro.
@@ -92,7 +95,7 @@ Peso: 🟢 statica · 🟡 con pannello · 🔵 servizio esterno
 | 21 | DJ nel modulo: Chambers, oppure un DJ dei collaboratori per matrimoni e aziende (aggiunta dall'utente) | 🟡 | ✅ | L'opzione dei collaboratori compare solo per matrimonio/aziendale e solo se c'è almeno un DJ in Collab |
 | 22 | Pagina privacy e pulizia automatica dei dati | 🟢 | ✅ | `/privacy` (titolare Giovanni Rigoni) e migrazione 0008 |
 | 23 | Menu a tutto schermo su telefono, con il tasto a occhiali da sole | 🟢 | ✅ | |
-| 24 | Giochi arcade e classifiche (aggiunta dall'utente) | 🟡 | ✅ | `/gioco`, "3 tequila sul palco, grazie" e "Arrivo comunque in ritardo", in pixel art; classifiche settimanali; scheda Giochi nel pannello. Migrazione 0011 |
+| 24 | Giochi arcade e classifiche (aggiunta dall'utente) | 🟡 | ✅ | `/gioco`, "3 tequila sul palco, grazie" e "Arrivo comunque in ritardo", in pixel art, con livelli annunciati a schermo. Sul telefono si gioca a tutto schermo con i tasti. La gara va da un live pubblico al successivo; scheda Giochi nel pannello con i vincitori. Migrazioni 0011 e 0012 |
 
 ### Fase 3: idee in più
 
@@ -130,6 +133,10 @@ Nella scaletta ho sistemato alcuni titoli. Da confermare con la band:
 - Installati Impeccable (plugin), Playwright MCP, la CLI di Vercel, awesome-design-md (in `~/Development/riferimenti/`) e Taste.
 - `gh` ha il login come `grigoni-dev`.
 - Repository pubblico: https://github.com/grigoni-dev/marisuglialberi (branch `main`). È collegato a Vercel: **ogni push su `main` pubblica il sito**.
+
+- **13/11/2026, giochi:** livelli ogni 25 secondi con avviso a schermo; Giova frontman (tequila 10, la visiera nasconde l'ultimo tratto); buttafuori evitabile (freccia rossa, arriva a metà palco e torna indietro); bicchieri rotti; Giova e Coraz alla stessa velocità, Celi il più veloce. "In ritardo": abbassarsi, piccioni, lucine, bottiglie, striscione "Ultima e poi andiamo", bis. Tutto schermo e tasti sul telefono. Gara da un live all'altro (0012). Regole riviste confrontandole con il codice.
+- **13/11/2026, controllo Impeccable:** 20/20 dopo le correzioni (verde chiaro `#D6E8E4` per il contrasto, paragrafi a 58ch, colori dei giochi dai token).
+- **13/11/2026, testi e dati:** "Gioca" nel menu, "Meno male che domani è domenica", Pachamama pubblico, Setten "luogo segreto" (dev e prod).
 
 ## Da fare
 
