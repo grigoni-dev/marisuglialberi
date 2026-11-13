@@ -24,7 +24,7 @@ create policy "admin gestisce le frasi" on frasi for all to authenticated
 -- Le prime frasi, date dalla band il 13/11/2026 (solo se la tabella è vuota).
 insert into frasi (testo)
 select t from (values
-  ('Per fortuna che domani è domenica.'),
+  ('Meno male che domani è domenica.'),
   ('L''intelligenza artificiale non ha ancora battuto la deficienza umana.'),
   ('Più la gente beve e più siamo bravi.'),
   ('Suoniamo meglio sobri: FALSO!'),

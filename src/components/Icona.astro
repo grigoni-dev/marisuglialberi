@@ -1,10 +1,12 @@
 ---
 // Small drawn icons for controls, same heavy square stroke as the arrow.
-interface Props { nome: 'sinistra' | 'destra' | 'scarica' | 'chiudi'; class?: string }
+interface Props { nome: 'sinistra' | 'destra' | 'su' | 'giu' | 'scarica' | 'chiudi'; class?: string }
 const { nome, class: cls } = Astro.props;
 const d = {
   sinistra: 'M21 12H5M11 5l-7 7 7 7',
   destra: 'M3 12h16M13 5l7 7-7 7',
+  su: 'M12 21V5M5 11l7-7 7 7',
+  giu: 'M12 3v16M5 13l7 7 7-7',
   scarica: 'M12 3v13M6 10l6 6 6-6M4 21h16',
   chiudi: 'M5 5l14 14M19 5L5 19',
 }[nome];

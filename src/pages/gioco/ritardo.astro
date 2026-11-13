@@ -4,6 +4,7 @@ import Base from '../../layouts/Base.astro';
 import Barra from '../../components/Barra.astro';
 import Piede from '../../components/Piede.astro';
 import Classifica from '../../components/gioco/Classifica.astro';
+import Comandi from '../../components/gioco/Comandi.astro';
 ---
 
 <Base
@@ -26,6 +27,7 @@ import Classifica from '../../components/gioco/Classifica.astro';
         <span class="annuncio-testo" data-annuncio-testo></span>
       </div>
       <canvas class="tela" data-tela width="128" height="92" aria-label="La strada verso il concerto: tocca o premi spazio per saltare, scorri giù o freccia giù per abbassarti"></canvas>
+      <Comandi sinistra={{ tasto: 'ArrowDown', etichetta: 'Giù', icona: 'giu' }} destra={{ tasto: ' ', etichetta: 'Salta', icona: 'su' }} />
 
       <div class="schermo" data-schermo="inizio">
         <h2>Giova è in ritardo. Come sempre.</h2>
@@ -54,7 +56,7 @@ import Classifica from '../../components/gioco/Classifica.astro';
     <section class="regole" aria-labelledby="regole-titolo">
       <h2 id="regole-titolo">Come si gioca</h2>
       <ul>
-        <li>Giova corre da solo: <strong>tocca lo schermo</strong> (o premi spazio) per saltare. <strong>Tieni premuto</strong> per saltare più in alto.</li>
+        <li>Sul telefono si gioca a tutto schermo, con i tasti <strong>Salta</strong> e <strong>Giù</strong>. Giova corre da solo: <strong>tocca lo schermo</strong> (o premi spazio) per saltare. <strong>Tieni premuto</strong> per saltare più in alto.</li>
         <li><strong>Scorri verso il basso</strong> (o freccia giù) per abbassarti: serve per le bottiglie lanciate, i piccioni alti e lo striscione.</li>
         <li>Salta <strong>casse di bottiglie, cavi del service, transenne e custodie</strong>, ma <strong>non saltare sotto le lucine della sagra</strong>. Al primo ostacolo Giova inciampa.</li>
         <li>Ogni metro è un punto, ogni <strong>plettro rosso</strong> ne vale 10. Più corri, più va veloce: dalla piazza alla sagra, all'osteria, fino al palco.</li>
@@ -69,6 +71,8 @@ import Classifica from '../../components/gioco/Classifica.astro';
 <script>
   import { creaRitardo, type Stato } from '../../lib/giochi/ritardo';
   import { iniziaPartita, inviaPunteggio, nomeSalvato, salvaNome, MESSAGGI_ERRORE } from '../../lib/giochi/client';
+  import { entra, esci } from '../../lib/giochi/schermo-intero';
+  const palco = document.querySelector<HTMLElement>('[data-palco]')!;
 
   const tela = document.querySelector<HTMLCanvasElement>('[data-tela]')!;
   const hud = document.querySelector<HTMLElement>('[data-hud]')!;
@@ -99,6 +103,13 @@ import Classifica from '../../components/gioco/Classifica.astro';
 
   async function parti() {
     partita?.ferma();
+    // On phones the stage goes full screen with on-screen buttons; closing it stops the game.
+    entra(palco, () => {
+      partita?.ferma();
+      $('[data-annuncio]').hidden = true;
+      hud.hidden = true;
+      schermo('inizio');
+    });
     schermo(null);
     hud.hidden = false;
     salvato = false;
@@ -117,6 +128,7 @@ import Classifica from '../../components/gioco/Classifica.astro';
 
   function fine(s: Stato) {
     finale = s.punti;
+    esci();
     $('[data-annuncio]').hidden = true;
     const minuti = Math.floor(s.metri / 100);
     $('[data-fine-titolo]').textContent = s.tappa === 'Il palco' ? 'Quasi sul palco!' : 'Inciampato!';
@@ -152,7 +164,7 @@ import Classifica from '../../components/gioco/Classifica.astro';
   .indietro { font-weight: 700; }
   h1 { font-size: var(--t-xl); }
 
-  .palco { position: relative; border: var(--filetto); background: var(--ink); }
+  .palco { --rapporto: calc(128 / 92); position: relative; border: var(--filetto); background: var(--ink); }
   .tela { display: block; width: 100%; aspect-ratio: 128 / 92; image-rendering: pixelated; touch-action: none; user-select: none; -webkit-user-select: none; cursor: pointer; }
   .hud {
     position: absolute;
