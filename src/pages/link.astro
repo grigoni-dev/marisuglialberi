@@ -15,14 +15,26 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-re
 const { prossime } = await dateConcerti();
 const prossimo = prossime[0] ?? null;
 
+// Our own solid icons (24×24, even-odd holes), same weight as the brand icons above.
+const ICONE = {
+  // a chunky gamepad: d-pad and two buttons cut out
+  gioco: 'M2 8h20v11h-6l-2-2h-4l-2 2H2z M5 12h2v-2h2v2h2v2H9v2H7v-2H5z M15 11h2.5v2.5H15z M18 13.5h2.5V16H18z',
+  // a t-shirt
+  merch: 'M8 3h2.6a1.6 1.6 0 0 0 2.8 0H16l6 4.2-2.6 4.1L17 9.8V21H7V9.8l-2.4 1.5L2 7.2z',
+  // a camera with its lens
+  foto: 'M2 7h5l2-3h6l2 3h5v13H2z M12 8.6a4.4 4.4 0 1 0 .01 0z M12 10.8a2.2 2.2 0 1 1-.01 0z',
+  // a 33 rpm record, like the back of the sleeve the site is built on
+  sito: 'M12 2a10 10 0 1 0 .01 0z M12 8.5a3.5 3.5 0 1 1-.01 0z M12 11a1 1 0 1 0 .01 0z',
+};
+
 const collegamenti = [
-  { href: INSTAGRAM, nome: 'Instagram', nota: '@marisuglialberi', icona: siInstagram.path },
-  ...(SPOTIFY ? [{ href: SPOTIFY, nome: 'Spotify', nota: 'ascoltaci', icona: siSpotify.path }] : []),
-  ...(MANCIA ? [{ href: MANCIA, nome: 'Offrici da bere', nota: 'mancia con PayPal', icona: siPaypal.path }] : []),
-  { href: '/gioco', nome: 'Sfida la band', nota: 'gioca e vinci merch', icona: null },
-  { href: '/merch', nome: 'Merch', nota: 'lo ritiri al banchetto', icona: null },
-  { href: '/foto', nome: 'Foto', nota: 'ti riconosci? scaricala', icona: null },
-  { href: '/', nome: 'Il sito', nota: 'chi siamo, formati, date', icona: null },
+  { href: INSTAGRAM, nome: 'Instagram', nota: '@marisuglialberi', icona: siInstagram.path, pari: false },
+  ...(SPOTIFY ? [{ href: SPOTIFY, nome: 'Spotify', nota: 'ascoltaci', icona: siSpotify.path, pari: false }] : []),
+  ...(MANCIA ? [{ href: MANCIA, nome: 'Offrici da bere', nota: 'mancia con PayPal', icona: siPaypal.path, pari: false }] : []),
+  { href: '/gioco', nome: 'Sfida la band', nota: 'gioca e vinci merch', icona: ICONE.gioco, pari: true },
+  { href: '/merch', nome: 'Merch', nota: 'lo ritiri al banchetto', icona: ICONE.merch, pari: true },
+  { href: '/foto', nome: 'Foto', nota: 'ti riconosci? scaricala', icona: ICONE.foto, pari: true },
+  { href: '/', nome: 'Il sito', nota: 'chi siamo, formati, date', icona: ICONE.sito, pari: true },
 ];
 ---
 
@@ -56,11 +68,7 @@ const collegamenti = [
       {collegamenti.map((c) => (
         <li>
           <a class="riga" href={c.href}>
-            {c.icona ? (
-              <svg class="riga-icona" viewBox="0 0 24 24" aria-hidden="true"><path d={c.icona} fill="currentColor" /></svg>
-            ) : (
-              <Logo class="riga-icona riga-logo" />
-            )}
+            <svg class="riga-icona" viewBox="0 0 24 24" aria-hidden="true"><path d={c.icona} fill="currentColor" fill-rule={c.pari ? 'evenodd' : undefined} /></svg>
             <span class="riga-nome">{c.nome}</span>
             <span class="riga-nota">{c.nota}</span>
             <Freccia class="riga-freccia" />
@@ -145,7 +153,6 @@ const collegamenti = [
   .riga:hover { background: var(--teal); }
   .riga:active { background: var(--teal-scuro); }
   .riga-icona { width: 24px; height: 24px; }
-  .riga-logo { width: 28px; height: auto; }
   .riga-nome {
     font-family: var(--f-display);
     font-weight: 900;
