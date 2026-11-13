@@ -160,7 +160,7 @@ const striscia = [
 
         <article class="bonus-dj">
           <h3><span class="formato-codice">Bonus track 2</span> Concerto + DJ set</h3>
-          <p>Finito il concerto, lo zio Chambers passa dal mixer alla consolle e si balla fino a tardi. Ci proponiamo spesso in coppia: lo aggiungi con un tocco nel modulo.</p>
+          <p>Finito il concerto, lo zio Chambers passa dal mixer alla consolle e si balla fino a tardi. Ci proponiamo spesso in coppia: lo aggiungi con un tocco nel modulo. Per matrimoni e aziende c'è anche un DJ dei nostri <a href="/collab">collaboratori</a>.</p>
         </article>
 
         <section class="dicono" aria-labelledby="dicono-titolo" data-testimonianze hidden>
@@ -349,10 +349,19 @@ const striscia = [
             <p class="errore" id="errore-messaggio" data-errore="messaggio"></p>
           </div>
 
-          <label class="spunta">
-            <input type="checkbox" name="dj" value="si" />
-            <span>Aggiungi il DJ set dello zio dopo il concerto</span>
-          </label>
+          <fieldset class="campo campo-dj">
+            <legend>E dopo il concerto, un DJ?</legend>
+            <div class="scelte">
+              <label><input type="radio" name="dj_tipo" value="" checked /> <span>No, grazie</span></label>
+              <label><input type="radio" name="dj_tipo" value="chambers" /> <span>Il DJ set di Chambers</span></label>
+              <label data-dj-collab-scelta hidden><input type="radio" name="dj_tipo" value="collab" /> <span>Un DJ dei collaboratori</span></label>
+            </div>
+            <div class="campo dj-quale" data-dj-quale hidden>
+              <label for="f-dj-collab">Quale DJ <span class="facoltativo">(li trovi in <a href="/collab#dj">Collab</a>)</span></label>
+              <select id="f-dj-collab" name="dj_collab"><option>Consigliatemelo voi</option></select>
+            </div>
+            <p class="errore" id="errore-dj_tipo" data-errore="dj_tipo"></p>
+          </fieldset>
 
           <div class="miele" aria-hidden="true">
             <label for="f-sito">Non compilare questo campo</label>
@@ -486,6 +495,26 @@ const brani = [...document.querySelectorAll<HTMLButtonElement>('.brano')];
       lista.append(li);
     }
     document.querySelector<HTMLElement>('[data-albo]')!.hidden = false;
+  })();
+
+  // DJ after the gig: the collaborators' option appears only for weddings and corporate
+  // events, and only if there is at least one DJ among the collaborators.
+  (async () => {
+    const dj = await leggi<{ nome: string }>('collab', 'select=nome&categoria=eq.dj&pubblicato=eq.true&order=ordine,nome');
+    const scelta = document.querySelector<HTMLElement>('[data-dj-collab-scelta]')!;
+    const quale = document.querySelector<HTMLElement>('[data-dj-quale]')!;
+    const menu = document.querySelector<HTMLSelectElement>('#f-dj-collab')!;
+    for (const d of dj) menu.append(new Option(d.nome, d.nome));
+    const aggiorna = () => {
+      const tipo = (modulo.querySelector<HTMLInputElement>('input[name="tipo"]:checked')?.value ?? '');
+      const ammesso = dj.length > 0 && ['matrimonio', 'aziendale'].includes(tipo);
+      scelta.hidden = !ammesso;
+      const collab = modulo.querySelector<HTMLInputElement>('input[name="dj_tipo"][value="collab"]')!;
+      if (!ammesso && collab.checked) modulo.querySelector<HTMLInputElement>('input[name="dj_tipo"][value=""]')!.checked = true;
+      quale.hidden = !(ammesso && collab.checked);
+    };
+    modulo.addEventListener('change', aggiorna);
+    aggiorna();
   })();
 
   // Testimonials: shown only when there is at least one real, published one.
@@ -1068,6 +1097,16 @@ const brani = [...document.querySelectorAll<HTMLButtonElement>('.brano')];
   .scelte input:checked + span { background: var(--ink); color: var(--carta); }
   .scelte input:focus-visible + span { outline: 3px solid var(--rosso); outline-offset: 3px; }
 
+  .dj-quale select {
+    min-height: 52px;
+    padding: var(--s-2) var(--s-3);
+    border: 0;
+    border-bottom: var(--filetto);
+    border-radius: 0;
+    background: var(--carta-2);
+    font-size: var(--t-m);
+  }
+  .dj-quale a { font-weight: 700; }
   .spunta {
     display: flex;
     align-items: center;

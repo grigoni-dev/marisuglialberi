@@ -1,0 +1,117 @@
+---
+// Collab: the people and places the band works with, by category. Rendered per request, CDN-cached.
+import { PUBLIC_SUPABASE_URL } from 'astro:env/client';
+import Base from '../layouts/Base.astro';
+import Barra from '../components/Barra.astro';
+import Piede from '../components/Piede.astro';
+import Freccia from '../components/Freccia.astro';
+import { supabasePubblico } from '../lib/supabase';
+
+export const prerender = false;
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=600');
+
+type Collab = {
+  id: string; categoria: 'dj' | 'foto_video' | 'musicisti' | 'locali'; nome: string; descrizione: string | null;
+  citta: string | null; instagram: string | null; sito: string | null; foto_path: string | null;
+};
+
+const CATEGORIE = [
+  { id: 'dj', titolo: 'DJ', attacco: 'Per far ballare la sala dopo il concerto. Per matrimoni ed eventi aziendali li puoi chiedere direttamente nel modulo.' },
+  { id: 'foto_video', titolo: 'Foto e video', attacco: 'Chi ci fotografa e ci riprende. Se vuoi un ricordo della tua festa, chiedi a loro.' },
+  { id: 'musicisti', titolo: 'Altri musicisti', attacco: 'Band e artisti con cui suoniamo o ci passiamo le serate.' },
+  { id: 'locali', titolo: 'Locali amici', attacco: 'Le osterie e i locali che ci ospitano e dove si sta bene.' },
+] as const;
+
+let tutti: Collab[] = [];
+const sb = supabasePubblico();
+if (sb) {
+  const { data, error } = await sb.from('collab').select('id,categoria,nome,descrizione,citta,instagram,sito,foto_path').eq('pubblicato', true).order('ordine').order('nome');
+  if (error) console.error('collab', error);
+  tutti = (data ?? []) as Collab[];
+}
+const gruppi = CATEGORIE.map((c, i) => ({ ...c, codice: `C${i + 1}`, voci: tutti.filter((x) => x.categoria === c.id) })).filter((g) => g.voci.length > 0);
+const fotoUrl = (p: string) => `${PUBLIC_SUPABASE_URL}/storage/v1/object/public/foto/${p}`;
+---
+
+<Base
+  title="Collab · Mari sugli alberi"
+  description="DJ, fotografi, musicisti e locali amici con cui collabora Mari sugli alberi."
+>
+  <Barra />
+  <main id="contenuto" class="wrap collab">
+    <header class="collab-testa">
+      <h1>Collab</h1>
+      <p class="attacco">Da soli non andremmo da nessuna parte. Questi sono gli amici con cui lavoriamo: per la tua festa puoi chiamare anche loro.</p>
+    </header>
+
+    {gruppi.length === 0 && <p class="vuoto">I nostri collaboratori arrivano presto.</p>}
+
+    {gruppi.map((g) => (
+      <section id={g.id} aria-labelledby={`t-${g.id}`}>
+        <h2 id={`t-${g.id}`} class="sezione"><span class="codice">{g.codice}</span> {g.titolo}</h2>
+        <p class="sezione-attacco">{g.attacco}</p>
+        <ul class="elenco">
+          {g.voci.map((c) => (
+            <li class="voce">
+              {c.foto_path
+                ? <img class="voce-foto" src={fotoUrl(c.foto_path)} alt="" width="96" height="96" loading="lazy" decoding="async" />
+                : <span class="voce-foto voce-iniziale" aria-hidden="true">{c.nome.trim()[0]?.toUpperCase()}</span>}
+              <div class="voce-testo">
+                <h3>{c.nome}</h3>
+                {(c.descrizione || c.citta) && <p>{[c.descrizione, c.citta].filter(Boolean).join(' · ')}</p>}
+                <p class="voce-link">
+                  {c.instagram && <a href={`https://www.instagram.com/${c.instagram}/`}>@{c.instagram}</a>}
+                  {c.sito && <a href={c.sito}>{c.sito.replace(/^https:\/\/(www\.)?/, '').replace(/\/$/, '')}</a>}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+
+    <section class="chiusura" aria-labelledby="chiusura-titolo">
+      <h2 id="chiusura-titolo">Mettiamo insieme la tua festa</h2>
+      <a class="bottone" href="/#portaci">
+        <span>Portaci alla tua festa</span>
+        <Freccia />
+      </a>
+    </section>
+  </main>
+  <Piede />
+</Base>
+
+<style>
+  .collab { padding-block: var(--s-6) var(--s-8); display: grid; gap: var(--s-8); }
+  .collab-testa { display: grid; gap: var(--s-4); padding-bottom: var(--s-5); border-bottom: var(--filetto); }
+  h1 { font-size: var(--t-xxl); }
+  .attacco { font-size: var(--t-l); line-height: 1.35; font-weight: 700; max-width: 52ch; }
+  .vuoto { font-size: var(--t-l); }
+
+  .sezione { font-size: var(--t-xl); display: flex; align-items: baseline; gap: var(--s-3); }
+  .codice {
+    flex: none;
+    font-family: var(--f-text);
+    font-weight: 700;
+    font-size: var(--t-s);
+    letter-spacing: 0.02em;
+    text-transform: none;
+    color: var(--teal);
+  }
+  .sezione-attacco { margin: var(--s-2) 0 var(--s-4); color: var(--ink-2); }
+
+  .elenco { list-style: none; padding: 0; border-top: var(--filetto); display: grid; }
+  @media (min-width: 900px) { .elenco { grid-template-columns: 1fr 1fr; column-gap: var(--s-7); } }
+  .voce { display: grid; grid-template-columns: 72px 1fr; gap: var(--s-4); align-items: start; padding-block: var(--s-4); border-bottom: 1px solid var(--ink); }
+  @media (min-width: 768px) { .voce { grid-template-columns: 96px 1fr; } }
+  .voce-foto { width: 100%; aspect-ratio: 1; object-fit: cover; filter: grayscale(1) contrast(1.15); }
+  .voce-iniziale { display: grid; place-items: center; background: var(--ink); color: var(--carta); font-family: var(--f-display); font-weight: 900; font-size: var(--t-xl); }
+  .voce-testo { display: grid; gap: var(--s-1); }
+  .voce-testo h3 { font-size: var(--t-l); }
+  .voce-testo p { color: var(--ink-2); }
+  .voce-link { display: flex; flex-wrap: wrap; gap: 0 var(--s-4); }
+  .voce-link a { display: inline-flex; align-items: center; min-height: 36px; font-weight: 700; color: var(--teal); }
+
+  .chiusura { display: grid; gap: var(--s-5); justify-items: start; padding-top: var(--s-6); border-top: var(--filetto); }
+  .chiusura h2 { font-size: var(--t-xl); }
+</style>

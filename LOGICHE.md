@@ -65,3 +65,8 @@ Ogni regola va confermata dalla band. Accanto c'è la data della conferma; "da c
 - Contatto per la privacy: la Gmail del progetto. Sulla pagina arriva dalla variabile `EMAIL_NOTIFICHE`, quindi non è scritta nel codice.
 - La pulizia automatica (migrazione 0008, `pg_cron`) cancella le impronte del limite di richieste dopo un'ora e le richieste di ingaggio dopo due anni, come dice la pagina `/privacy`.
 - Ogni nuova raccolta di dati (per esempio "Avvisami") va aggiunta alla pagina `/privacy` prima di andare online.
+
+## Collab e scelta del DJ (13/11/2026)
+
+- **Collab** (`/collab`): DJ, foto e video, altri musicisti, locali amici. Si gestiscono dal pannello (scheda Collab), solo con il loro permesso. Le categorie vuote non compaiono; se sono tutte vuote, la pagina dice "arrivano presto".
+- **DJ nel modulo:** tre scelte. "No, grazie", "Il DJ set di Chambers" (per qualsiasi festa) e "Un DJ dei collaboratori", che compare **solo per matrimoni ed eventi aziendali** e solo se in Collab c'è almeno un DJ. Si può indicare quale, oppure "Consigliatemelo voi". La scelta arriva nell'email e nel pannello.

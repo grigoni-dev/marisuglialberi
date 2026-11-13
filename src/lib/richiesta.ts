@@ -18,9 +18,15 @@ export type Richiesta = {
   contatto: string;
   messaggio: string | null;
   dj: boolean;
+  djTipo: 'chambers' | 'collab' | null;
+  djCollab: string | null;
 };
 
-export type Errori = Partial<Record<'tipo' | 'data' | 'luogo' | 'persone' | 'nome' | 'contatto' | 'messaggio', string>>;
+export type Errori = Partial<Record<'tipo' | 'data' | 'luogo' | 'persone' | 'nome' | 'contatto' | 'messaggio' | 'dj_tipo', string>>;
+
+/** Formats where a DJ from the collaborators can be booked. */
+export const TIPI_CON_DJ_COLLAB: Tipo[] = ['matrimonio', 'aziendale'];
+export const DJ_CONSIGLIATO = 'Consigliatemelo voi';
 
 const oggiISO = () => new Date().toISOString().slice(0, 10);
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -62,6 +68,13 @@ export function validaRichiesta(c: Record<string, string | undefined>):
   const messaggio = t('messaggio') || null;
   if (messaggio && messaggio.length > 2000) errori.messaggio = 'Il messaggio è troppo lungo (massimo 2000 caratteri).';
 
+  // DJ after the gig: Chambers for any party; a collaborator DJ only for weddings and corporate events.
+  const djTipoTesto = t('dj_tipo');
+  const djTipo = djTipoTesto === 'chambers' || djTipoTesto === 'collab' ? djTipoTesto : null;
+  if (djTipoTesto && !djTipo) errori.dj_tipo = 'Scelta del DJ non valida.';
+  if (djTipo === 'collab' && !TIPI_CON_DJ_COLLAB.includes(tipo)) errori.dj_tipo = 'Il DJ dei collaboratori è per matrimoni ed eventi aziendali.';
+  const djCollab = djTipo === 'collab' ? (t('dj_collab') || DJ_CONSIGLIATO).slice(0, 80) : null;
+
   if (Object.keys(errori).length) return { ok: false, errori };
-  return { ok: true, richiesta: { tipo, data, luogo, persone, nome, contatto, messaggio, dj: t('dj') === 'si' } };
+  return { ok: true, richiesta: { tipo, data, luogo, persone, nome, contatto, messaggio, dj: djTipo !== null, djTipo, djCollab } };
 }

@@ -47,6 +47,7 @@ import Logo from '../../components/Logo.astro';
         <button type="button" role="tab" id="t-frasi" aria-controls="p-frasi" aria-selected="false" data-scheda="frasi">Frasi</button>
         <button type="button" role="tab" id="t-testimonianze" aria-controls="p-testimonianze" aria-selected="false" data-scheda="testimonianze">Testimonianze</button>
         <button type="button" role="tab" id="t-ospiti" aria-controls="p-ospiti" aria-selected="false" data-scheda="ospiti">Ospiti</button>
+        <button type="button" role="tab" id="t-collab" aria-controls="p-collab" aria-selected="false" data-scheda="collab">Collab</button>
       </div>
 
       <!-- Dates -->
@@ -223,6 +224,65 @@ import Logo from '../../components/Logo.astro';
         </div>
       </div>
 
+      <!-- Collaborators -->
+      <div role="tabpanel" id="p-collab" aria-labelledby="t-collab" data-pannello="collab" hidden>
+        <div class="adm-griglia">
+          <form class="adm-form" data-form-collab novalidate>
+            <h2 data-collab-titolo>Nuovo collaboratore</h2>
+            <p class="facoltativo">Solo con il loro permesso. I DJ compaiono anche nel modulo, per matrimoni ed eventi aziendali.</p>
+            <input type="hidden" name="id" />
+            <div class="campo">
+              <label for="co-cat">Categoria</label>
+              <select id="co-cat" name="categoria" required>
+                <option value="dj">DJ</option>
+                <option value="foto_video">Foto e video</option>
+                <option value="musicisti">Altri musicisti</option>
+                <option value="locali">Locali amici</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label for="co-nome">Nome</label>
+              <input id="co-nome" name="nome" type="text" maxlength="80" required />
+            </div>
+            <div class="campo">
+              <label for="co-desc">Due righe <span class="facoltativo">(facoltative, es. "house e anni '80, per far ballare tutti")</span></label>
+              <textarea id="co-desc" name="descrizione" rows="2" maxlength="280"></textarea>
+            </div>
+            <div class="due">
+              <div class="campo">
+                <label for="co-citta">Città <span class="facoltativo">(facoltativa)</span></label>
+                <input id="co-citta" name="citta" type="text" maxlength="80" />
+              </div>
+              <div class="campo">
+                <label for="co-ordine">Ordine <span class="facoltativo">(i più bassi prima)</span></label>
+                <input id="co-ordine" name="ordine" type="number" value="0" />
+              </div>
+            </div>
+            <div class="campo">
+              <label for="co-ig">Instagram <span class="facoltativo">(facoltativo, senza la @)</span></label>
+              <input id="co-ig" name="instagram" type="text" maxlength="30" />
+            </div>
+            <div class="campo">
+              <label for="co-sito">Sito <span class="facoltativo">(facoltativo, inizia con https://)</span></label>
+              <input id="co-sito" name="sito" type="url" />
+            </div>
+            <div class="campo">
+              <label for="co-foto">Foto o logo <span class="facoltativo">(facoltativa: sul sito è un quadrato in bianco e nero)</span></label>
+              <input id="co-foto" name="foto" type="file" accept="image/*" />
+            </div>
+            <label class="spunta"><input type="checkbox" name="pubblicato" checked /> <span>Mostra sul sito</span></label>
+            <div class="azioni">
+              <button class="bottone" type="submit">Salva</button>
+              <button class="secondario" type="button" data-collab-annulla hidden>Annulla</button>
+            </div>
+          </form>
+          <div>
+            <h2>Collaboratori</h2>
+            <ol class="lista" data-lista-collab></ol>
+          </div>
+        </div>
+      </div>
+
       <!-- Booking requests -->
       <div role="tabpanel" id="p-richieste" aria-labelledby="t-richieste" data-pannello="richieste" hidden>
         <h2>Richieste di ingaggio</h2>
@@ -256,7 +316,7 @@ import Logo from '../../components/Logo.astro';
   }
   type Richiesta = {
     id: string; tipo: keyof typeof TIPI; data_evento: string | null; luogo: string; persone: number | null;
-    nome: string; contatto: string; messaggio: string | null; dj: boolean; stato: string; created_at: string;
+    nome: string; contatto: string; messaggio: string | null; dj: boolean; dj_tipo: 'chambers' | 'collab' | null; dj_collab: string | null; stato: string; created_at: string;
   };
 
   const $ = <T extends Element = HTMLElement>(s: string) => document.querySelector<T>(s)!;
@@ -294,7 +354,7 @@ import Logo from '../../components/Logo.astro';
         return vista('login');
       }
       vista('pannello');
-      await Promise.all([caricaDate(), caricaRichieste(), caricaFoto(), caricaFrasi(), caricaTestimonianze(), caricaOspiti()]);
+      await Promise.all([caricaDate(), caricaRichieste(), caricaFoto(), caricaFrasi(), caricaTestimonianze(), caricaOspiti(), caricaCollab()]);
     };
 
     $('[data-login]').addEventListener('submit', async (e) => {
@@ -469,7 +529,7 @@ import Logo from '../../components/Logo.astro';
           <dl>
             <div><dt>Quando</dt><dd>${x.data_evento ? esc(giorno(x.data_evento)) : 'da decidere'}</dd></div>
             <div><dt>Persone</dt><dd>${x.persone ?? '—'}</dd></div>
-            <div><dt>DJ set</dt><dd>${x.dj ? 'sì' : 'no'}</dd></div>
+            <div><dt>DJ</dt><dd>${x.dj_tipo === 'chambers' ? 'il DJ set di Chambers' : x.dj_tipo === 'collab' ? `un DJ dei collaboratori: ${esc(x.dj_collab ?? '')}` : x.dj ? 'sì' : 'no'}</dd></div>
             <div><dt>Chi</dt><dd>${esc(x.nome)} · ${contatto}</dd></div>
             <div><dt>Arrivata</dt><dd>${esc(new Date(x.created_at).toLocaleString('it-IT', { dateStyle: 'medium', timeStyle: 'short' }))}</dd></div>
           </dl>
@@ -757,6 +817,109 @@ import Logo from '../../components/Logo.astro';
       msg('Salvato. Sul sito si vede alla prossima apertura della home.');
       resetOspite();
       caricaOspiti();
+    });
+
+    // ---------- Collaborators ----------
+    type Collab = { id: string; categoria: string; nome: string; descrizione: string | null; citta: string | null; instagram: string | null; sito: string | null; foto_path: string | null; ordine: number; pubblicato: boolean };
+    const CATEGORIE: Record<string, string> = { dj: 'DJ', foto_video: 'Foto e video', musicisti: 'Altri musicisti', locali: 'Locali amici' };
+    const formCollab = $<HTMLFormElement>('[data-form-collab]');
+    let collab: Collab[] = [];
+    const campoC = (n: string) => formCollab.elements.namedItem(n) as HTMLInputElement;
+    const resetCollab = () => {
+      formCollab.reset();
+      campoC('id').value = '';
+      $('[data-collab-titolo]').textContent = 'Nuovo collaboratore';
+      $('[data-collab-annulla]').hidden = true;
+    };
+    $('[data-collab-annulla]').addEventListener('click', resetCollab);
+
+    async function caricaCollab() {
+      const { data, error } = await sb.from('collab').select('*').order('categoria').order('ordine').order('nome');
+      if (error) return msg(`Non riesco a leggere i collaboratori: ${error.message}`, true);
+      collab = data as Collab[];
+      $('[data-lista-collab]').innerHTML = collab.map((c) => `
+        <li class="voce${c.pubblicato ? '' : ' nascosta'}">
+          <div>
+            <strong>${esc(c.nome)}</strong>
+            <span>${esc([CATEGORIE[c.categoria], c.citta].filter(Boolean).join(' · '))}</span>
+            <span class="etichette">${c.foto_path ? '<em>Foto</em>' : ''}${c.pubblicato ? '' : '<em>Non sul sito</em>'}</span>
+          </div>
+          <div class="voce-azioni">
+            <button type="button" class="secondario" data-collab-modifica="${c.id}">Modifica</button>
+            <button type="button" class="secondario pericolo" data-collab-elimina="${c.id}">Elimina</button>
+          </div>
+        </li>`).join('') || '<li class="vuota">Ancora nessuno: la pagina Collab dice "arrivano presto".</li>';
+    }
+
+    document.addEventListener('click', async (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-collab-modifica],[data-collab-elimina]');
+      if (!b) return;
+      const c = collab.find((x) => x.id === (b.dataset.collabModifica ?? b.dataset.collabElimina));
+      if (!c) return;
+      if (b.dataset.collabModifica) {
+        campoC('id').value = c.id;
+        (formCollab.elements.namedItem('categoria') as HTMLSelectElement).value = c.categoria;
+        campoC('nome').value = c.nome;
+        (formCollab.elements.namedItem('descrizione') as HTMLTextAreaElement).value = c.descrizione ?? '';
+        campoC('citta').value = c.citta ?? '';
+        campoC('ordine').value = String(c.ordine);
+        campoC('instagram').value = c.instagram ?? '';
+        campoC('sito').value = c.sito ?? '';
+        campoC('pubblicato').checked = c.pubblicato;
+        $('[data-collab-titolo]').textContent = 'Modifica collaboratore';
+        $('[data-collab-annulla]').hidden = false;
+        formCollab.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        if (!confirm(`Togliere ${c.nome} dai collaboratori? Non si può annullare.`)) return;
+        const { error } = await sb.from('collab').delete().eq('id', c.id);
+        if (error) return msg(`Non riesco a eliminarlo: ${error.message}`, true);
+        if (c.foto_path) await sb.storage.from('foto').remove([c.foto_path]);
+        msg('Tolto dai collaboratori.');
+        caricaCollab();
+      }
+    });
+
+    formCollab.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nome = campoC('nome').value.trim();
+      const ig = campoC('instagram').value.trim().replace(/^@/, '');
+      const sito = campoC('sito').value.trim();
+      if (nome.length < 2) return msg('Manca il nome.', true);
+      if (ig && !/^[A-Za-z0-9._]{1,30}$/.test(ig)) return msg('Instagram: solo lettere, numeri, punti e trattini bassi.', true);
+      if (sito && !sito.startsWith('https://')) return msg('Il sito deve iniziare con https://', true);
+      const riga: Record<string, unknown> = {
+        categoria: (formCollab.elements.namedItem('categoria') as HTMLSelectElement).value,
+        nome,
+        descrizione: (formCollab.elements.namedItem('descrizione') as HTMLTextAreaElement).value.trim() || null,
+        citta: campoC('citta').value.trim() || null,
+        ordine: Number(campoC('ordine').value) || 0,
+        instagram: ig || null,
+        sito: sito || null,
+        pubblicato: campoC('pubblicato').checked,
+      };
+      const id = campoC('id').value;
+      const prima = collab.find((x) => x.id === id);
+      const file = campoC('foto').files?.[0];
+      if (file) {
+        try {
+          const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+          const r = await ridimensiona(bmp, 400, 0.8);
+          bmp.close();
+          const path = `collab/${crypto.randomUUID()}.${r.ext}`;
+          const up = await sb.storage.from('foto').upload(path, r.blob, { contentType: r.blob.type, cacheControl: '31536000' });
+          if (up.error) throw up.error;
+          riga.foto_path = path;
+        } catch (err) {
+          console.error('foto collab', err);
+          return msg('Non riesco a caricare la foto.', true);
+        }
+      }
+      const { error } = id ? await sb.from('collab').update(riga).eq('id', id) : await sb.from('collab').insert(riga);
+      if (error) return msg(`Non riesco a salvare: ${error.message}`, true);
+      if (file && prima?.foto_path) await sb.storage.from('foto').remove([prima.foto_path]);
+      msg('Salvato. Sul sito compare entro un minuto.');
+      resetCollab();
+      caricaCollab();
     });
 
     entra();

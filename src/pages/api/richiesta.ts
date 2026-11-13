@@ -55,6 +55,8 @@ export const POST: APIRoute = async ({ request, clientAddress, redirect }) => {
         contatto: r.contatto,
         messaggio: r.messaggio,
         dj: r.dj,
+        dj_tipo: r.djTipo,
+        dj_collab: r.djCollab,
       })
       .select('id')
       .single();
@@ -96,7 +98,7 @@ function testoEmail(r: Richiesta): string {
     `Quando: ${r.data ? formattaData(r.data) : 'da decidere'}`,
     `Dove: ${r.luogo}`,
     `Persone: ${r.persone ?? 'non indicato'}`,
-    `DJ set dello zio: ${r.dj ? 'sì' : 'no'}`,
+    `DJ: ${r.djTipo === 'chambers' ? 'il DJ set di Chambers' : r.djTipo === 'collab' ? `un DJ dei collaboratori (${r.djCollab})` : 'no'}`,
     `Chi: ${r.nome}`,
     `Contatto: ${r.contatto}`,
     ``,
