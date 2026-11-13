@@ -6,14 +6,15 @@ import Piede from '../components/Piede.astro';
 import Freccia from '../components/Freccia.astro';
 import { dateConcerti, formatoDataLunga, formatoOra, dove, type Concerto } from '../lib/date';
 import { INSTAGRAM } from '../lib/sito';
-import { tappe, sagoma } from '../lib/mappa';
+import { mappaGiro, elencoCitta } from '../lib/mappa';
 
 export const prerender = false;
 Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=600');
 
 const { prossime, passate } = await dateConcerti();
 
-const giro = tappe(passate);
+const mappa = mappaGiro(passate);
+const citta = elencoCitta(passate.filter((c) => c.lat != null));
 const perAnno = new Map<string, Concerto[]>();
 for (const c of passate) {
   const anno = c.data.slice(0, 4);
@@ -71,22 +72,30 @@ for (const c of passate) {
       </section>
     )}
 
-    {giro.length > 0 && (
+    {mappa && (
       <section class="giro" aria-labelledby="giro-titolo">
         <h2 id="giro-titolo" class="sezione"><span class="codice">Bonus track</span> Il giro delle osterie</h2>
         <div class="giro-griglia">
-          <svg class="mappa" viewBox={`0 0 ${sagoma.larghezza} ${sagoma.altezza}`} role="img" aria-labelledby="mappa-desc">
-            <desc id="mappa-desc">Mappa dell'Italia con le città dove abbiamo suonato: {giro.map((t) => t.citta).join(', ')}.</desc>
-            <path class="mappa-italia" d={sagoma.d} />
-            {giro.map((t) => (
-              <g class="tappa">
-                <circle cx={t.x} cy={t.y} r={t.r} />
-                {t.etichetta && <text x={t.x + t.r + 4} y={t.y + 5}>{t.citta}</text>}
-              </g>
+          <svg class="mappa" viewBox={`0 0 ${mappa.larghezza} ${mappa.altezza}`} role="img" aria-labelledby="mappa-desc">
+            <desc id="mappa-desc">Mappa della zona dove abbiamo suonato: {citta.map((t) => t.citta).join(', ')}.</desc>
+            {mappa.paesi.map((p) => <path class={p.tipo === 'italia' ? 'terra' : 'terra-vicina'} d={p.d} />)}
+            {mappa.tappe.map((t) => <circle class="tappa-punto" cx={t.x} cy={t.y} r={t.r} />)}
+            {mappa.tappe.filter((t) => t.posto?.linea).map((t) => {
+              const l = t.posto!.linea!;
+              return <line class="tappa-linea" x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} />;
+            })}
+            {mappa.tappe.filter((t) => t.posto).map((t) => (
+              <text class="tappa-nome" x={t.posto!.x} y={t.posto!.y} text-anchor={t.posto!.ancora}>{t.citta}</text>
             ))}
+            <rect class="cornice" x="1" y="1" width={mappa.larghezza - 2} height={mappa.altezza - 2} />
+            <svg class="inserto" x="12" y={mappa.altezza - 132} width="104" height="120" viewBox={`0 0 ${mappa.riquadro.larghezza} ${mappa.riquadro.altezza}`} aria-hidden="true">
+              <rect class="inserto-fondo" x="0" y="0" width={mappa.riquadro.larghezza} height={mappa.riquadro.altezza} />
+              <path class="inserto-italia" d={mappa.riquadro.d} />
+              <rect class="inserto-zona" x={mappa.riquadro.x} y={mappa.riquadro.y} width={mappa.riquadro.w} height={mappa.riquadro.h} />
+            </svg>
           </svg>
           <ol class="giro-lista">
-            {giro.map((t) => (
+            {citta.map((t) => (
               <li><span class="giro-citta">{t.citta}</span> <span class="giro-volte">{t.volte === 1 ? '1 serata' : `${t.volte} serate`}</span></li>
             ))}
           </ol>
@@ -152,21 +161,27 @@ for (const c of passate) {
 
   .giro-griglia { display: grid; gap: var(--s-6); align-items: start; }
   @media (min-width: 900px) { .giro-griglia { grid-template-columns: minmax(0, 560px) 1fr; } }
-  .mappa { width: 100%; height: auto; overflow: visible; }
-  .mappa-italia { fill: var(--carta-2); stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; }
-  .tappa circle { fill: var(--rosso); stroke: var(--carta); stroke-width: 2; }
-  .tappa text {
+  .mappa { width: 100%; height: auto; background: var(--carta); }
+  .terra { fill: var(--carta-2); stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; }
+  .terra-vicina { fill: none; stroke: var(--ink-2); stroke-width: 1; stroke-dasharray: 3 4; }
+  .cornice { fill: none; stroke: var(--ink); stroke-width: 2; }
+  .tappa-punto { fill: var(--rosso); stroke: var(--carta); stroke-width: 2.5; }
+  .tappa-linea { stroke: var(--ink); stroke-width: 1.5; }
+  .tappa-nome {
     font-family: var(--f-display);
     font-weight: 900;
-    font-size: 15px;
+    font-size: 17px;
     text-transform: uppercase;
     letter-spacing: -0.02em;
     fill: var(--ink);
     paint-order: stroke;
-    stroke: var(--carta);
-    stroke-width: 4px;
+    stroke: var(--carta-2);
+    stroke-width: 5px;
     stroke-linejoin: round;
   }
+  .inserto-fondo { fill: var(--carta); stroke: var(--ink); stroke-width: 12; }
+  .inserto-italia { fill: var(--carta-2); stroke: var(--ink); stroke-width: 4; }
+  .inserto-zona { fill: var(--rosso); fill-opacity: 0.25; stroke: var(--rosso); stroke-width: 10; }
   .giro-lista { list-style: none; padding: 0; border-bottom: var(--filetto); }
   .giro-lista li { display: flex; justify-content: space-between; gap: var(--s-4); padding: var(--s-3) var(--s-2); border-top: 1px solid var(--ink); }
   .giro-citta { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; }
