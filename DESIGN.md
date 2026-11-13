@@ -225,7 +225,7 @@ Un quadrato di 28 px con il filetto nero. Quando è spuntato diventa nero con il
 - **Nel Lato B:** il campo di ricerca ha fondo `teal-scuro`, bordo color carta e focus color carta.
 
 ### Navigation
-Barra ferma in alto, fondo carta, filetto sotto. Logo MSA a sinistra (64px), voci in grassetto a destra. Passandoci sopra, sotto la voce cresce una riga da 2px. "Portaci alla tua festa" è l'unica voce rossa. Sul telefono le voci si riducono per stare in una riga.
+Barra ferma in alto, fondo carta, filetto sotto. Logo MSA a sinistra (64px), voci in grassetto a destra. Passandoci sopra, sotto la voce cresce una riga da 2px. "Portaci alla tua festa" è l'unica voce rossa. Sotto i 1024px le voci lasciano il posto al tasto **"Menu"** (bordo nero, tre linee disegnate): apre un pannello a tutto schermo color carta, con una voce per riga tra filetti neri (nome in display maiuscolo, nota breve a destra), che diventa rossa al passaggio, e il bottone rosso "Portaci alla tua festa" in fondo. Si chiude con "Chiudi", con Esc o scegliendo una voce.
 
 ### Copertina
 Foto quadrata con il logo "MARI / SUGLI / ALBERI" in carta in basso a sinistra. All'apertura sale di 14px in 900ms, una volta. Su computer, dietro, esce un disco nero con l'etichetta rossa e il logo, che ruota e scivola in 1400ms. Con il movimento ridotto tutto è già fermo.

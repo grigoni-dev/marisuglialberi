@@ -1,23 +1,95 @@
 ---
 // Sticky top bar shared by the paper-ground pages.
+// Desktop: the sections inline. Phone and tablet: a "Menu" button that opens a full-screen panel.
 import Logo from './Logo.astro';
+import Freccia from './Freccia.astro';
+import Icona from './Icona.astro';
+
+const voci = [
+  { href: '/#lato-a', nome: 'Lato A', nota: 'per la tua festa' },
+  { href: '/#note', nome: 'Chi siamo', nota: 'note di copertina' },
+  { href: '/#lato-b', nome: 'Lato B', nota: 'per chi viene a sentirci' },
+  { href: '/date', nome: 'Date', nota: 'prossime e passate' },
+  { href: '/foto', nome: 'Foto', nota: 'dai concerti' },
+  { href: '/merch', nome: 'Merch', nota: 'lo ritiri al live' },
+  { href: '/collab', nome: 'Collab', nota: 'i nostri amici' },
+  { href: '/kit', nome: 'Kit', nota: 'per chi organizza' },
+];
 ---
 <header class="barra">
   <div class="wrap barra-dentro">
     <a class="barra-logo" href="/" aria-label="Mari sugli alberi, home"><Logo /></a>
-    <nav aria-label="Sezioni">
+
+    <nav class="nav-desktop" aria-label="Sezioni">
       <ul class="nav-lista">
-        <li><a href="/#lato-a">Lato A</a></li>
-        <li class="solo-largo"><a href="/#note">Chi siamo</a></li>
-        <li><a href="/#lato-b">Lato B</a></li>
-        <li><a href="/date">Date</a></li>
-        <li><a href="/foto">Foto</a></li>
-        <li class="solo-largo"><a href="/merch">Merch</a></li>
-        <li class="solo-desktop"><a class="nav-portaci" href="/#portaci">Portaci alla tua festa</a></li>
+        {voci.slice(0, 6).map((v) => <li><a href={v.href}>{v.nome}</a></li>)}
+        <li><a class="nav-portaci" href="/#portaci">Portaci alla tua festa</a></li>
       </ul>
+    </nav>
+
+    <button type="button" class="menu-tasto" aria-expanded="false" aria-controls="menu-pannello" data-menu-apri>
+      <span>Menu</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
+    </button>
+  </div>
+
+  <div class="menu-pannello" id="menu-pannello" data-menu hidden>
+    <div class="wrap menu-testa">
+      <a class="barra-logo" href="/" aria-label="Mari sugli alberi, home"><Logo /></a>
+      <button type="button" class="menu-tasto" data-menu-chiudi>
+        <span>Chiudi</span>
+        <Icona nome="chiudi" />
+      </button>
+    </div>
+    <nav class="wrap" aria-label="Sezioni">
+      <ol class="menu-lista">
+        {voci.map((v) => (
+          <li>
+            <a href={v.href} data-menu-voce>
+              <span class="menu-nome">{v.nome}</span>
+              <span class="menu-nota">{v.nota}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+      <a class="bottone menu-cta" href="/#portaci" data-menu-voce>
+        <span>Portaci alla tua festa</span>
+        <Freccia />
+      </a>
     </nav>
   </div>
 </header>
+
+<script>
+  // Phone menu: opens over the page, closes with the X, Esc or by choosing a section.
+  const pannello = document.querySelector<HTMLElement>('[data-menu]');
+  const apri = document.querySelector<HTMLButtonElement>('[data-menu-apri]');
+  if (pannello && apri) {
+    const chiudi = pannello.querySelector<HTMLButtonElement>('[data-menu-chiudi]')!;
+    const imposta = (aperto: boolean) => {
+      pannello.hidden = !aperto;
+      apri.setAttribute('aria-expanded', String(aperto));
+      document.documentElement.classList.toggle('menu-aperto', aperto);
+      (aperto ? chiudi : apri).focus();
+    };
+    apri.addEventListener('click', () => imposta(true));
+    chiudi.addEventListener('click', () => imposta(false));
+    pannello.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('[data-menu-voce]')) imposta(false);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !pannello.hidden) imposta(false);
+    });
+    // Keep keyboard focus inside the open panel.
+    pannello.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      const f = [...pannello.querySelectorAll<HTMLElement>('a, button')];
+      const [primo, ultimo] = [f[0], f[f.length - 1]];
+      if (e.shiftKey && document.activeElement === primo) { e.preventDefault(); ultimo.focus(); }
+      else if (!e.shiftKey && document.activeElement === ultimo) { e.preventDefault(); primo.focus(); }
+    });
+  }
+</script>
 
 <style>
   /* ---------- Top bar ---------- */
@@ -36,6 +108,9 @@ import Logo from './Logo.astro';
     min-height: 56px;
   }
   .barra-logo { width: 64px; flex: none; color: var(--ink); }
+
+  /* Desktop: sections inline */
+  .nav-desktop { display: none; }
   .nav-lista {
     display: flex;
     gap: var(--s-1);
@@ -57,8 +132,76 @@ import Logo from './Logo.astro';
     transition: background-size 220ms var(--esce);
   }
   .nav-lista a:hover { background-size: calc(100% - 2 * var(--s-2)) 2px; }
-  .solo-largo, .solo-desktop { display: none; }
   .nav-portaci { color: var(--rosso); }
-  @media (min-width: 480px) { .solo-largo { display: block; } }
-  @media (min-width: 900px) { .solo-desktop { display: block; } }
+
+  /* Phone and tablet: the Menu button */
+  .menu-tasto {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    min-height: 44px;
+    padding: 0 var(--s-3);
+    border: var(--filetto);
+    background: var(--carta);
+    font-family: var(--f-display);
+    font-weight: 900;
+    font-size: var(--t-s);
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    transition: background-color 160ms ease, color 160ms ease;
+  }
+  .menu-tasto:hover, .menu-tasto[aria-expanded='true'] { background: var(--ink); color: var(--carta); }
+  .menu-tasto svg, .menu-tasto :global(.icona) { width: 20px; height: 20px; }
+
+  @media (min-width: 1024px) {
+    .nav-desktop { display: block; }
+    .menu-tasto[data-menu-apri] { display: none; }
+  }
+
+  /* The full-screen panel */
+  .menu-pannello {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    overflow-y: auto;
+    background: var(--carta);
+    padding-bottom: var(--s-7);
+  }
+  .menu-pannello[hidden] { display: none; }
+  .menu-testa {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 56px;
+    border-bottom: var(--filetto);
+  }
+  .menu-lista { list-style: none; padding: 0; margin-top: var(--s-4); border-bottom: var(--filetto); }
+  .menu-lista a {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--s-4);
+    min-height: 60px;
+    padding: var(--s-3) var(--s-2);
+    border-top: var(--filetto);
+    text-decoration: none;
+    transition: background-color 160ms ease, color 160ms ease;
+  }
+  .menu-lista a:hover { background: var(--rosso); color: var(--carta); }
+  .menu-nome {
+    font-family: var(--f-display);
+    font-weight: 900;
+    font-size: var(--t-xl);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+  .menu-nota { font-size: var(--t-s); color: var(--ink-2); text-align: right; }
+  .menu-lista a:hover .menu-nota { color: var(--carta); }
+  .menu-cta { margin-top: var(--s-5); }
+  :global(html.menu-aperto) { overflow: hidden; }
+  @media (prefers-reduced-motion: no-preference) {
+    .menu-pannello:not([hidden]) { animation: menu-entra 260ms var(--esce); }
+  }
+  @keyframes menu-entra { from { transform: translateY(-12px); opacity: 0.6; } }
 </style>
