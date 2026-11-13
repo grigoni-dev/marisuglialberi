@@ -344,8 +344,11 @@ import Logo from '../../components/Logo.astro';
 
       <!-- Games: moderate the leaderboards -->
       <div role="tabpanel" id="p-giochi" aria-labelledby="t-giochi" data-pannello="giochi" hidden>
-        <h2>Ultime partite</h2>
-        <p class="facoltativo">Qui si tolgono i soprannomi offensivi o i punteggi sospetti. Per il premio guarda la classifica della settimana su <a href="/gioco">/gioco</a>.</p>
+        <h2>Premi</h2>
+        <p class="facoltativo">La gara va da un live pubblico al successivo. Chi è primo quando inizia il live vince un gadget e lo ritira lì.</p>
+        <dl class="vincitori" data-vincitori></dl>
+        <h2 class="spazio">Ultime partite</h2>
+        <p class="facoltativo">Qui si tolgono i soprannomi offensivi o i punteggi sospetti.</p>
         <div class="azioni"><button type="button" class="secondario" data-giochi-filtro="tequila">3 tequila</button><button type="button" class="secondario" data-giochi-filtro="ritardo">In ritardo</button></div>
         <ol class="lista" data-lista-punteggi></ol>
       </div>
@@ -1165,7 +1168,22 @@ import Logo from '../../components/Logo.astro';
     // ---------- Games ----------
     let giocoScelto = 'tequila';
     type Punteggio = { id: string; nome: string; punti: number; personaggio: string | null; durata_s: number; created_at: string };
+    async function caricaVincitori() {
+      const giochi = [['tequila', '3 tequila sul palco'], ['ritardo', 'Arrivo comunque in ritardo']] as const;
+      const righe = await Promise.all(giochi.map(async ([g, nome]) => {
+        const [gara, prec] = await Promise.all([
+          sb.rpc('classifica', { p_gioco: g, p_periodo: 'gara' }).order('punti', { ascending: false }).limit(1),
+          sb.rpc('classifica', { p_gioco: g, p_periodo: 'precedente' }).order('punti', { ascending: false }).limit(1),
+        ]);
+        const ora = (gara.data as { nome: string; punti: number }[] | null)?.[0];
+        const ultimo = (prec.data as { nome: string; punti: number }[] | null)?.[0];
+        return `<div><dt>${esc(nome)}</dt><dd>Gara in corso: ${ora ? `<strong>${esc(ora.nome)}</strong> (${ora.punti})` : 'nessuno'} · Ultima gara vinta da: ${ultimo ? `<strong>${esc(ultimo.nome)}</strong> (${ultimo.punti})` : '—'}</dd></div>`;
+      }));
+      $('[data-vincitori]').innerHTML = righe.join('');
+    }
+
     async function caricaPunteggi() {
+      caricaVincitori();
       const { data, error } = await sb.from('punteggi').select('id,nome,punti,personaggio,durata_s,created_at').eq('gioco', giocoScelto).order('created_at', { ascending: false }).limit(60);
       if (error) return msg(`Non riesco a leggere i punteggi: ${error.message}`, true);
       $('[data-lista-punteggi]').innerHTML = (data as Punteggio[]).map((p) => `
@@ -1302,6 +1320,9 @@ import Logo from '../../components/Logo.astro';
   .richieste :global(dl div) { display: grid; grid-template-columns: 6rem 1fr; gap: var(--s-3); }
   .richieste :global(dt) { font-weight: 700; }
   .carica { max-width: 560px; }
+  .vincitori { display: grid; gap: var(--s-2); margin-bottom: var(--s-4); }
+  .vincitori :global(div) { padding: var(--s-3); background: var(--carta-2); }
+  .vincitori :global(dt) { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; }
   .merch-foto { display: grid; gap: var(--s-3); margin-top: var(--s-4); padding-top: var(--s-4); border-top: var(--filetto); }
   .merch-foto h3 { font-size: var(--t-m); }
   .carica input[type='file'] { padding: var(--s-3); }

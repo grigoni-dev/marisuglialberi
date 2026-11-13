@@ -23,15 +23,40 @@ export async function inviaPunteggio(d: { gettone: string; nome: string; punti: 
   }
 }
 
-export async function classifica(gioco: Gioco, settimana: boolean, quanti = 10): Promise<Riga[]> {
+export type Periodo = 'gara' | 'precedente' | 'sempre';
+
+export async function classifica(gioco: Gioco, periodo: Periodo, quanti = 10): Promise<Riga[]> {
   if (!PUBLIC_SUPABASE_URL || !PUBLIC_SUPABASE_ANON_KEY) return [];
   try {
-    const url = `${PUBLIC_SUPABASE_URL}/rest/v1/rpc/classifica?p_gioco=${gioco}&p_settimana=${settimana}&order=punti.desc,quando.asc&limit=${quanti}`;
+    const url = `${PUBLIC_SUPABASE_URL}/rest/v1/rpc/classifica?p_gioco=${gioco}&p_periodo=${periodo}&order=punti.desc,quando.asc&limit=${quanti}`;
     const r = await fetch(url, { headers: { apikey: PUBLIC_SUPABASE_ANON_KEY } });
     return r.ok ? await r.json() : [];
   } catch {
     return [];
   }
+}
+
+export type Gara = { gara: 'corrente' | 'precedente'; inizio: string | null; fine: string | null; live_data: string | null; live_citta: string | null; live_locale: string | null };
+
+/** The current round (and the previous one): from one public gig to the next. */
+export async function gare(): Promise<{ corrente: Gara | null; precedente: Gara | null }> {
+  if (!PUBLIC_SUPABASE_URL || !PUBLIC_SUPABASE_ANON_KEY) return { corrente: null, precedente: null };
+  try {
+    const r = await fetch(`${PUBLIC_SUPABASE_URL}/rest/v1/rpc/gare`, { headers: { apikey: PUBLIC_SUPABASE_ANON_KEY } });
+    const righe: Gara[] = r.ok ? await r.json() : [];
+    return { corrente: righe.find((g) => g.gara === 'corrente') ?? null, precedente: righe.find((g) => g.gara === 'precedente') ?? null };
+  } catch {
+    return { corrente: null, precedente: null };
+  }
+}
+
+const giorno = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
+
+/** "La gara si chiude all'inizio del live di giovedì 11 dicembre a Salgareda." */
+export function testoChiusura(g: Gara | null) {
+  if (!g?.live_data) return 'La gara si chiude al prossimo live (data da annunciare).';
+  const dove = g.live_citta ? ` a ${g.live_citta.replace(/\s*\([^)]*\)/, '').split(',')[0]}` : '';
+  return `La gara si chiude all'inizio del live di ${giorno(g.live_data)}${dove}.`;
 }
 
 const CHIAVE = 'msa-soprannome';

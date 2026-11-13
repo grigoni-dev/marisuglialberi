@@ -7,24 +7,39 @@ const { gioco, unita } = Astro.props;
   <div class="cl-testa">
     <h2 id={`cl-${gioco}`}>Classifica</h2>
     <div class="cl-schede" role="group" aria-label="Periodo">
-      <button type="button" aria-pressed="true" data-periodo="settimana">Settimana</button>
+      <button type="button" aria-pressed="true" data-periodo="gara">Gara in corso</button>
       <button type="button" aria-pressed="false" data-periodo="sempre">Di sempre</button>
     </div>
   </div>
   <ol class="cl-lista" data-cl-lista><li class="vuota">Carico…</li></ol>
-  <p class="cl-premio">Chi è primo in classifica vince un gadget del merch. Lo ritiri al prossimo live.</p>
+  <p class="cl-gara" data-cl-gara></p>
+  <p class="cl-premio">Chi è primo quando si chiude la gara vince un gadget del merch e lo ritira a quel live. Poi si riparte da zero.</p>
+  <p class="cl-vinta" data-cl-vinta hidden></p>
 </section>
 
 <script>
-  import { classifica, disegnaClassifica, nomeSalvato, type Gioco } from '../../lib/giochi/client';
+  import { classifica, disegnaClassifica, gare, nomeSalvato, testoChiusura, type Gioco, type Periodo } from '../../lib/giochi/client';
+  const giro = gare();
   for (const box of document.querySelectorAll<HTMLElement>('[data-classifica]')) {
     const gioco = box.dataset.classifica as Gioco;
     const lista = box.querySelector<HTMLElement>('[data-cl-lista]')!;
-    let settimana = true;
-    const carica = async () => disegnaClassifica(lista, await classifica(gioco, settimana), box.dataset.unita!, nomeSalvato());
+    let periodo: Periodo = 'gara';
+    const carica = async () => disegnaClassifica(lista, await classifica(gioco, periodo), box.dataset.unita!, nomeSalvato());
+    // When the round closes, and who won the last one.
+    giro.then(async ({ corrente, precedente }) => {
+      box.querySelector('[data-cl-gara]')!.textContent = testoChiusura(corrente);
+      if (precedente) {
+        const [primo] = await classifica(gioco, 'precedente', 1);
+        if (primo) {
+          const v = box.querySelector<HTMLElement>('[data-cl-vinta]')!;
+          v.textContent = `L'ultima gara l'ha vinta ${primo.nome} con ${primo.punti.toLocaleString('it-IT')} ${box.dataset.unita}.`;
+          v.hidden = false;
+        }
+      }
+    });
     for (const b of box.querySelectorAll<HTMLButtonElement>('[data-periodo]')) {
       b.addEventListener('click', () => {
-        settimana = b.dataset.periodo === 'settimana';
+        periodo = b.dataset.periodo as Periodo;
         box.querySelectorAll('[data-periodo]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
         carica();
       });
@@ -63,5 +78,7 @@ const { gioco, unita } = Astro.props;
   .cl-lista :global(.quanti) { font-variant-numeric: tabular-nums; color: var(--ink-2); }
   .cl-lista :global(.tu) { background: var(--teal-chiaro); }
   .cl-lista :global(.vuota) { display: block; color: var(--ink-2); }
+  .cl-gara { font-weight: 700; }
   .cl-premio { font-size: var(--t-s); color: var(--ink-2); }
+  .cl-vinta { font-size: var(--t-s); font-weight: 700; color: var(--teal); }
 </style>

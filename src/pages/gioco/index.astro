@@ -13,13 +13,14 @@ const giochi = [
 
 <Base
   title="Giochi · Mari sugli alberi"
-  description="Due giochi arcade di Mari sugli alberi, con la classifica della settimana. Chi è primo vince un gadget del merch."
+  description="Due giochi arcade di Mari sugli alberi. La gara va da un live all'altro: chi è primo vince un gadget del merch."
 >
   <Barra />
   <main id="contenuto" class="wrap giochi">
     <header class="giochi-testa">
       <h1>Sfida la band</h1>
-      <p class="attacco">Due giochi, una classifica a settimana. Chi è primo vince un gadget del merch, da ritirare al prossimo live.</p>
+      <p class="attacco">Due giochi, una gara da un live all'altro. Chi è primo quando si chiude vince un gadget del merch e lo ritira al live.</p>
+      <p class="chiusura-gara" data-chiusura-gara></p>
     </header>
 
     <ul class="elenco">
@@ -34,7 +35,7 @@ const giochi = [
             </span>
           </a>
           <div class="podio">
-            <h2 class="podio-titolo">I primi tre della settimana</h2>
+            <h2 class="podio-titolo">I primi tre della gara</h2>
             <ol class="podio-lista" data-podio={g.id}><li class="vuota">Carico…</li></ol>
           </div>
         </li>
@@ -46,7 +47,8 @@ const giochi = [
 
 <script>
   import * as P from '../../lib/giochi/pixel';
-  import { classifica, disegnaClassifica, nomeSalvato, type Gioco } from '../../lib/giochi/client';
+  import { classifica, disegnaClassifica, gare, nomeSalvato, testoChiusura, type Gioco } from '../../lib/giochi/client';
+  gare().then(({ corrente }) => (document.querySelector('[data-chiusura-gara]')!.textContent = testoChiusura(corrente)));
 
   const SPRITE: Record<string, string[]> = { coraz: P.CORAZ, 'giova-corsa': P.GIOVA_CORSA[0] };
   document.querySelectorAll<HTMLCanvasElement>('[data-sprite]').forEach((c) => {
@@ -55,7 +57,7 @@ const giochi = [
     c.getContext('2d')!.drawImage(s.tela, 0, 0);
   });
   document.querySelectorAll<HTMLElement>('[data-podio]').forEach(async (ol) => {
-    disegnaClassifica(ol, await classifica(ol.dataset.podio as Gioco, true, 3), 'punti', nomeSalvato());
+    disegnaClassifica(ol, await classifica(ol.dataset.podio as Gioco, 'gara', 3), 'punti', nomeSalvato());
   });
 </script>
 
@@ -64,6 +66,7 @@ const giochi = [
   .giochi-testa { display: grid; gap: var(--s-4); padding-bottom: var(--s-5); border-bottom: var(--filetto); }
   h1 { font-size: var(--t-xxl); }
   .attacco { font-size: var(--t-l); line-height: 1.35; font-weight: 700; max-width: 52ch; }
+  .chiusura-gara { color: var(--teal); font-weight: 700; }
 
   .elenco { list-style: none; padding: 0; display: grid; gap: var(--s-7); }
   @media (min-width: 900px) { .elenco { grid-template-columns: 1fr 1fr; } }

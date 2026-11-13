@@ -44,6 +44,7 @@ Le migrazioni si eseguono a mano nel SQL Editor, in ordine, **prima su dev e poi
 | `0009_collab.sql` | Collaboratori (`collab`) e scelta del DJ nelle richieste (`dj_tipo`, `dj_collab`) | ✅ 13/11/2026 | ✅ 13/11/2026 |
 | `0010_merch.sql` | Merch (articoli e foto) e categoria "Grafica e disegni" in Collab | ✅ 13/11/2026 | ✅ 13/11/2026 |
 | `0011_giochi.sql` | Punteggi dei giochi e funzione `classifica` | ✅ 13/11/2026 | ✅ 13/11/2026 |
+| `0012_gara.sql` | La gara dei giochi va da un live pubblico al successivo (`gare()`, `classifica` per periodo) | ✅ 13/11/2026 | ✅ 13/11/2026 |
 
 ## 2. Resend (email delle richieste)
 
