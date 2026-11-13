@@ -9,7 +9,8 @@ import Logo from '../components/Logo.astro';
 import Freccia from '../components/Freccia.astro';
 import { supabasePubblico } from '../lib/supabase';
 import { INSTAGRAM_DM } from '../lib/sito';
-
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 export const prerender = false;
 Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=600');
 
@@ -34,6 +35,40 @@ if (sb) {
     foto: [...(a.foto ?? [])].sort((x, y) => x.ordine - y.ordine || x.created_at.localeCompare(y.created_at)),
   }));
 }
+// Example photos from Unsplash (free licence), shown until the real photos are uploaded from the panel.
+import berrettoVerde from '../assets/foto/merch-esempio/hamed-darzi-ITly4rDbPcM.jpg';
+import berrettoArancio from '../assets/foto/merch-esempio/iamninoslav-03V5lIoIH0Q.jpg';
+import berrettoRosa from '../assets/foto/merch-esempio/hamed-darzi-6dILIIipKHk.jpg';
+import tshirtNera from '../assets/foto/merch-esempio/mohammad-reza-Od3S600kw2o.jpg';
+import tshirtBianca from '../assets/foto/merch-esempio/kobu-agency-3sszEuAA_Ks.jpg';
+import tshirtNera2 from '../assets/foto/merch-esempio/feey-3fM186uPnZQ.jpg';
+import tshirtNera3 from '../assets/foto/merch-esempio/sammy-swae-qfKSYTZLvxk.jpg';
+import felpaNera from '../assets/foto/merch-esempio/axel-antas-bergkvist-ndJQbMENknI.jpg';
+import felpaGialla from '../assets/foto/merch-esempio/gab-mWSXyWe2H9Q.jpg';
+
+type Esempio = { src: ImageMetadata; alt: string; autore: string };
+/** Example photos for an item without photos, matched on its name. */
+function esempi(nome: string): Esempio[] {
+  const n = nome.toLowerCase();
+  if (n.includes('ricamat')) return [{ src: berrettoRosa, alt: 'Berretto rosa con un ricamo', autore: 'Hamed Darzi' }];
+  if (n.includes('berrett') || n.includes('cappell')) return [
+    { src: berrettoVerde, alt: 'Berretto verde con una grafica', autore: 'Hamed Darzi' },
+    { src: berrettoArancio, alt: 'Berretto arancione con etichetta', autore: 'iamninoslav' },
+  ];
+  if (n.includes('t-shirt') || n.includes('maglietta')) return [
+    { src: tshirtNera, alt: 'T-shirt nera con una grafica, indossata', autore: 'Mohammad Reza' },
+    { src: tshirtBianca, alt: 'T-shirt bianca stampata, appesa', autore: 'Kobu Agency' },
+    { src: tshirtNera2, alt: 'T-shirt nera con un piccolo disegno', autore: 'Feey' },
+    { src: tshirtNera3, alt: 'T-shirt nera con una grafica sul petto', autore: 'Sammy Swae' },
+  ];
+  if (n.includes('felpa')) return [
+    { src: felpaNera, alt: 'Felpa nera col cappuccio, vista da dietro', autore: 'Axel Antas-Bergkvist' },
+    { src: felpaGialla, alt: 'Felpa gialla col cappuccio, vista da dietro', autore: 'Gab' },
+  ];
+  return [];
+}
+const autori = [...new Set(articoli.filter((a) => a.foto.length === 0).flatMap((a) => esempi(a.nome).map((e) => e.autore)))];
+
 const url = (p: string) => `${PUBLIC_SUPABASE_URL}/storage/v1/object/public/foto/${p}`;
 const euro = (n: number) => n.toLocaleString('it-IT', { style: 'currency', currency: 'EUR', minimumFractionDigits: Number.isInteger(n) ? 0 : 2 });
 ---
@@ -65,6 +100,15 @@ const euro = (n: number) => n.toLocaleString('it-IT', { style: 'currency', curre
                   </li>
                 ))}
               </ul>
+            ) : esempi(a.nome).length > 0 ? (
+              <ul class="foto-articolo" aria-label={`Foto di esempio: ${a.nome}`}>
+                {esempi(a.nome).map((f, n) => (
+                  <li>
+                    <Image src={f.src} alt={`${f.alt} (foto di esempio)`} widths={[480, 800, 1200]} sizes="(min-width: 900px) 600px, 100vw" format="webp" quality={78} loading={i < 2 && n === 0 ? 'eager' : 'lazy'} />
+                    <span class="anteprima" aria-hidden="true">Foto di esempio</span>
+                  </li>
+                ))}
+              </ul>
             ) : (
               <div class="foto-in-arrivo" role="img" aria-label={`Le foto di ${a.nome} arrivano presto`}>
                 <Logo class="foto-in-arrivo-logo" />
@@ -72,6 +116,9 @@ const euro = (n: number) => n.toLocaleString('it-IT', { style: 'currency', curre
               </div>
             )}
             {a.foto.length > 1 && <p class="scorri">{a.foto.length} foto, scorri di lato</p>}
+            {a.foto.length === 0 && esempi(a.nome).length > 0 && (
+              <p class="scorri">Foto di esempio{esempi(a.nome).length > 1 && `, ${esempi(a.nome).length} immagini: scorri di lato`}. La grafica sarà la nostra, le foto vere arrivano presto.</p>
+            )}
 
             <div class="articolo-testo">
               <div class="articolo-riga">
@@ -109,6 +156,7 @@ const euro = (n: number) => n.toLocaleString('it-IT', { style: 'currency', curre
         <Freccia />
       </a>
     </section>
+    {autori.length > 0 && <p class="crediti-esempio">Foto di esempio da <a href="https://unsplash.com">Unsplash</a>: {autori.join(', ')}.</p>}
   </main>
   <Piede />
 </Base>
@@ -136,7 +184,19 @@ const euro = (n: number) => n.toLocaleString('it-IT', { style: 'currency', curre
     scroll-snap-type: x mandatory;
     scrollbar-color: var(--ink) var(--carta-2);
   }
-  .foto-articolo li { scroll-snap-align: start; aspect-ratio: 1; overflow: hidden; background: var(--carta-2); }
+  .foto-articolo li { position: relative; scroll-snap-align: start; aspect-ratio: 1; overflow: hidden; background: var(--carta-2); }
+  .anteprima {
+    position: absolute;
+    top: var(--s-2);
+    left: var(--s-2);
+    padding: 0 var(--s-2);
+    background: var(--ink);
+    color: var(--carta);
+    font-weight: 700;
+    font-size: var(--t-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
   .foto-articolo a { display: block; width: 100%; height: 100%; cursor: zoom-in; }
   .foto-articolo img { width: 100%; height: 100%; object-fit: cover; transition: transform 500ms var(--esce); }
   .foto-articolo a:hover img { transform: scale(1.03); }
@@ -164,6 +224,7 @@ const euro = (n: number) => n.toLocaleString('it-IT', { style: 'currency', curre
   .taglie { display: flex; flex-wrap: wrap; gap: var(--s-2); }
   .taglie span:not(.solo-lettori) { min-width: 40px; padding: var(--s-1) var(--s-2); border: var(--filetto); text-align: center; font-weight: 700; font-size: var(--t-s); }
   .credit { font-size: var(--t-s); color: var(--ink-2); }
+  .crediti-esempio { font-size: var(--t-xs); color: var(--ink-2); }
   .credit a { font-weight: 700; color: var(--teal); }
   .lo-voglio {
     justify-self: start;
