@@ -5,22 +5,23 @@
 Il sito è online su https://marisuglialberi.vercel.app. Ci sono queste pagine:
 - home ("Il retro del vinile"), con il modulo "Portaci alla tua festa", la scelta del DJ e "Siamo liberi quella sera?";
 - `/link`, `/date` (con l'archivio e la mappa "Il giro delle osterie"), `/foto`, `/kit`, `/collab`, `/merch`, `/privacy`;
-- `/gioco` ("Gioca" nel menu), con "3 tequila sul palco, grazie" e "Arrivo comunque in ritardo" e le classifiche;
+- `/gioco` ("Gioca" nel menu), con "3 tequila sul palco, grazie", "Arrivo comunque in ritardo", "In Caddy fino in Toscana" e le classifiche;
 - il pannello `/admin`, con le schede Date, Richieste, Foto, Frasi, Testimonianze, Ospiti, Collab, Merch e Giochi.
 
-Le migrazioni sono eseguite su dev e su prod fino alla 0012, e la pulizia automatica dei dati è attiva. Lo storico dei concerti è su prod: il Pachamama è pubblico e Setten compare come "Festa privata, luogo segreto". La frase è "Meno male che domani è domenica".
+Le migrazioni sono eseguite su dev e su prod fino alla 0013, e la pulizia automatica dei dati è attiva. Lo storico dei concerti è su prod: il Pachamama è pubblico e Setten compare come "Festa privata, luogo segreto". La frase è "Meno male che domani è domenica".
 
 Le Fasi 1 e 2 sono complete; il merch è una vetrina in attesa di foto e prezzi. Della Fase 3 sono fatti la mappa, la mancia, l'albo degli ospiti e i giochi; "Stasera" è in sospeso e "Avvisami" è rimandata finché non c'è un dominio. Il controllo Impeccable di tutto il sito ha dato 20/20 (`.impeccable/audit-2026-11-13.md`).
 
 ## Da qui si riparte
 
-1. **La prima gara dei giochi si chiude l'11 dicembre a Salgareda**, all'inizio del live: il vincitore si vede in /admin → Giochi → Premi. Decidere quale gadget dare.
-2. **Contenuti dal pannello**, da inserire da parte della band: le date nuove, le foto, le testimonianze, gli ospiti, i collaboratori. Dopo aver inserito date passate già salvate prima della mappa: Date → "Trova le posizioni".
-3. **Merch**: la vetrina c'è, con **foto di esempio da Unsplash** (etichetta "Foto di esempio", nomi dei fotografi in fondo alla pagina). Dal pannello vanno inseriti le foto vere, i prezzi, le descrizioni e gli artisti delle grafiche (in Collab → Grafica e disegni). Quando un articolo ha le sue foto, gli esempi spariscono da soli. Gli esempi sono scelti in base al nome dell'articolo (berretto, ricamato, t-shirt, felpa) in `src/pages/merch.astro`.
-4. **Decisione sul dominio** (per esempio `marisuglialberi.it`, circa 10-15 € l'anno): sblocca "Avvisami", le email da un indirizzo vostro e un indirizzo più bello per QR e volantini.
-5. **Statistiche**: attivare Web Analytics dal pannello di Vercel (il codice c'è già).
-6. Da completare nel kit: prese di corrente e lista dei canali; foto più grandi per la stampa.
-7. Ultima rilettura dei testi con la band: frase sotto la copertina, Aziendale, bonus track, storia del panificio, bio del kit.
+1. **Provare "In Caddy fino in Toscana" sul telefono** e regolare la difficoltà se serve (velocità, frequenza di Braulio, caffè e polizia, discesa del tasso, marachelle). Per provare tutto il viaggio in locale: `/gioco/caddy?immortale` (funziona solo in sviluppo).
+2. **La prima gara dei giochi si chiude l'11 dicembre a Salgareda**, all'inizio del live: il vincitore si vede in /admin → Giochi → Premi. Decidere quale gadget dare.
+3. **Contenuti dal pannello**, da inserire da parte della band: le date nuove, le foto, le testimonianze, gli ospiti, i collaboratori. Dopo aver inserito date passate già salvate prima della mappa: Date → "Trova le posizioni".
+4. **Merch**: la vetrina c'è, con **foto di esempio da Unsplash** (etichetta "Foto di esempio", nomi dei fotografi in fondo alla pagina). Dal pannello vanno inseriti le foto vere, i prezzi, le descrizioni e gli artisti delle grafiche (in Collab → Grafica e disegni). Quando un articolo ha le sue foto, gli esempi spariscono da soli. Gli esempi sono scelti in base al nome dell'articolo (berretto, ricamato, t-shirt, felpa) in `src/pages/merch.astro`.
+5. **Decisione sul dominio** (per esempio `marisuglialberi.it`, circa 10-15 € l'anno): sblocca "Avvisami", le email da un indirizzo vostro e un indirizzo più bello per QR e volantini.
+6. **Statistiche**: attivare Web Analytics dal pannello di Vercel (il codice c'è già).
+7. Da completare nel kit: prese di corrente e lista dei canali; foto più grandi per la stampa.
+8. Ultima rilettura dei testi con la band: frase sotto la copertina, Aziendale, bonus track, storia del panificio, bio del kit.
 
 ## Scelte sui testi (12/11/2026)
 
@@ -94,7 +95,7 @@ Peso: 🟢 statica · 🟡 con pannello · 🔵 servizio esterno
 | 21 | DJ nel modulo: Chambers, oppure un DJ dei collaboratori per matrimoni e aziende (aggiunta dall'utente) | 🟡 | ✅ | L'opzione dei collaboratori compare solo per matrimonio/aziendale e solo se c'è almeno un DJ in Collab |
 | 22 | Pagina privacy e pulizia automatica dei dati | 🟢 | ✅ | `/privacy` (titolare Giovanni Rigoni) e migrazione 0008 |
 | 23 | Menu a tutto schermo su telefono, con il tasto a occhiali da sole | 🟢 | ✅ | |
-| 24 | Giochi arcade e classifiche (aggiunta dall'utente) | 🟡 | ✅ | `/gioco`, "3 tequila sul palco, grazie" e "Arrivo comunque in ritardo", in pixel art, con livelli annunciati a schermo. Sul telefono si gioca a tutto schermo con i tasti. La gara va da un live pubblico al successivo; scheda Giochi nel pannello con i vincitori. Migrazioni 0011 e 0012 |
+| 24 | Giochi arcade e classifiche (aggiunta dall'utente) | 🟡 | ✅ | `/gioco`, "3 tequila sul palco, grazie", "Arrivo comunque in ritardo" e "In Caddy fino in Toscana", in pixel art, con livelli annunciati a schermo. Sul telefono si gioca a tutto schermo con i tasti. La gara va da un live pubblico al successivo; scheda Giochi nel pannello con i vincitori. Migrazioni 0011, 0012 e 0013 |
 
 ### Fase 3: idee in più
 
@@ -137,6 +138,7 @@ Nella scaletta ho sistemato alcuni titoli. Da confermare con la band:
 - **13/11/2026, controllo Impeccable:** 20/20 dopo le correzioni (verde chiaro `#D6E8E4` per il contrasto, paragrafi a 58ch, colori dei giochi dai token).
 - **13/11/2026, giochi sul telefono:** provati su un telefono vero, funzionano (tutto schermo, tasti, X per uscire, salvataggio).
 - **13/11/2026, link e merch:** in `/link` icone dedicate (joypad, maglietta, macchina fotografica, disco) al posto del logo. In `/merch` foto di esempio da Unsplash: copie ridotte in `src/assets/foto/merch-esempio/`, originali in `assets/images/merch_mockups/` (fuori da git).
+- **13/11/2026, terzo gioco "In Caddy fino in Toscana":** il viaggio al Pachamama Festival nel Caddy verde (Chambers guida, Coraz accanto, Celi e Giova dietro). Gomme, Braulio contro polizia, caffè, tappe fino alla Toscana, marachelle, arrivo con Iaia e Matti e lo yoga, ritorno di notte. Migrazione 0013 su dev e prod; salvataggio e anti-imbroglio provati su dev. Regole in `LOGICHE.md`.
 - **13/11/2026, testi e dati:** "Gioca" nel menu, "Meno male che domani è domenica", Pachamama pubblico, Setten "luogo segreto" (dev e prod).
 
 ## Da fare
@@ -156,6 +158,8 @@ Nella scaletta ho sistemato alcuni titoli. Da confermare con la band:
 - Il permesso di pubblicare le foto del pubblico.
 
 ## Idee per dopo
+
+- **Gioco musicale** (13/11/2026, rimandato): gioco a ritmo con l'audio. Servirebbe musica originale (non le cover, per i diritti) e attenzione al ritardo dell'audio sul telefono.
 
 - **"Stasera"** (13/11/2026, in sospeso): pagina del QR sul palco per votare le canzoni con la classifica dal vivo. L'utente non è convinto. Se si riprende, l'idea discussa era: la apre la band dal pannello e i voti ripartono da zero a ogni serata.
 
